@@ -31,7 +31,7 @@ class Room {
     }
 }
 
-const rooms: Room = [];
+const rooms: Room[] = [];
 
 Bun.serve({
     fetch(req: Request): Response | Promise<Response> {
