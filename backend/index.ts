@@ -36,9 +36,10 @@ const rooms: Room = [];
 Bun.serve({
     fetch(req: Request): Response | Promise<Response> {
         if (this.upgrade(req, {data: new WsData(req.url)})) {
-            console.log("websocket online")
+            console.log("WebSocket established.");
+            return new Response("WebSocket established.");
         }
-      return new Response("Connect via Websocket please.");
+      return new Response("Connect via WebSocket please.");
     },
     websocket: {
         open(ws) {
