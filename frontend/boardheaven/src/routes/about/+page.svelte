@@ -4,23 +4,13 @@
 </svelte:head>
 
 <div class="text-column">
-	<h1>About this Gamewebsite</h1>
+	<h1>Über unsere Website </h1>
 
 	<p>
-		Das ist ein Projekt von 4 engagierten Chülern der HTL Spengergasse, die neue Herausforderungen lieben. 
+		Das ist ein Projekt von 4 engagierten Schülern der HTL Spengergasse, die neue Herausforderungen lieben. 
 		Wir haben es zu unserer Aufgabe gemacht die Brettspielwelt zu digitalisieren.
 	</p>
-
-	<pre>npm create svelte@latest</pre>
-
 	<p>
-		The page you're looking at is purely static HTML, with no client-side interactivity needed.
-		Because of that, we don't need to load any JavaScript. Try viewing the page's source, or opening
-		the devtools network panel and reloading.
-	</p>
-
-	<p>
-		The <a href="/sverdle">Sverdle</a> page illustrates SvelteKit's data loading and form handling. Try
-		using it with JavaScript disabled!
+		Danke das Sie unsere Website benutzen ❤️
 	</p>
 </div>

@@ -1,34 +1,39 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import preview from '$lib/images/preview.png';
+
 </script>
 
 <svelte:head>
 	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<meta name="description" content="Choose Game" />
 </svelte:head>
 
 <section>
+	<div class="wrapper">
+		<h3>Mensch ärgere Dich nicht</h3>
 	<h1>
-		<span class="welcome">
+		<span class="gameChooser">
 			<picture>
-				<source srcset={welcome} type="image/webp" />
+				<source srcset={preview} type="image/webp" />
 				<img src={welcome_fallback} alt="Welcome" />
 			</picture>
 		</span>
-
-		to your new<br />SvelteKit app
 	</h1>
 
 	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
+		<button class="button-2">Raum öffnen</button>
 	</h2>
+</div>
 
-	<Counter />
 </section>
 
 <style>
+	.wrapper{
+		background-color: rgb(223, 223, 223);
+		border-radius: 10%;
+		padding: 10px;
+	}
 	section {
 		display: flex;
 		flex-direction: column;
@@ -41,19 +46,49 @@
 		width: 100%;
 	}
 
-	.welcome {
+	.gameChooser {
 		display: block;
 		position: relative;
 		width: 100%;
 		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
+		padding-bottom: 130px;
 	}
 
-	.welcome img {
+	.gameChooser img {
+		border-radius: 10px;
 		position: absolute;
 		width: 100%;
-		height: 100%;
 		top: 0;
 		display: block;
 	}
+
+
+
+
+.button-2 {
+  background-color: #37D947;
+  border-radius: 8px;
+  border-width: 0;
+  color:white ;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.button-2:hover {
+    background-color: #245129;
+}
+
 </style>
