@@ -1,40 +1,26 @@
-import { ServerWebSocket } from "bun";
-
-class WsData {
-    public roomId: string = "";
-
-    constructor(roomId: string) {
-        this.roomId = roomId;
-    }
-}
-
-class Player {
-    public ws: ServerWebSocket<unknown>;
-
-    constructor(ws: ServerWebSocket<WsData>) {
-        this.ws = ws;
-    }
-
-    get roomId() {
-        return (this.ws.data as WsData).roomId;
-    }
-}
-
-class Room {
-    public websockets: ServerWebSocket<unknown>[] = [];
-    public gameMaster: Player;
-    constructor(gameMaster: Player, websockets?: ServerWebSocket<unknown>[]) {
-        this.gameMaster = gameMaster;
-        if (websockets) {
-            this.websockets = websockets;
-        }
-    }
-}
+import { Room } from "./lib/room";
+import { WsData } from "./lib/ws-data";
 
 const rooms: Room[] = [];
 
 Bun.serve({
     fetch(req: Request): Response | Promise<Response> {
+
+        /*
+        TODO:
+            spit request between
+                1. Simple first website visit
+                2. making a room
+                3. joining a room
+                4. rejoining a room
+            
+            Add Logic for all cases and then:
+                - Error Detection
+                - Error Handling
+                    Client Side (Send messages)
+                    Server Side (Log Errors)
+        */
+
         if (this.upgrade(req, {data: new WsData(req.url)})) {
             console.log("WebSocket established.");
             return new Response("WebSocket established.");
