@@ -3,16 +3,18 @@ import { WsData } from "./lib/ws-data";
 
 const rooms: Room[] = [];
 
+//URL = ws:[IP]/<ID>
+//[FIX], <Optional>
+
 Bun.serve({
     fetch(req: Request): Response | Promise<Response> {
 
         /*
         TODO:
             spit request between
-                1. Simple first website visit
-                2. making a room
-                3. joining a room
-                4. rejoining a room
+                - making a room
+                - joining a room
+                - rejoining a room
             
             Add Logic for all cases and then:
                 - Error Detection
@@ -21,11 +23,19 @@ Bun.serve({
                     Server Side (Log Errors)
         */
 
-        if (this.upgrade(req, {data: new WsData(req.url)})) {
-            console.log("WebSocket established.");
-            return new Response("WebSocket established.");
+        const reqUrl = new URL(req.url);
+        if (reqUrl.pathname.length < 2) {
+            //Make new Room and assign the websocket the new room somehow
         }
-      return new Response("Connect via WebSocket please.");
+
+        if (!this.upgrade(req, {data: new WsData(req.url)})) {
+            return new Response(null, {
+                status: 426,
+                statusText: "Could not upgrade connection."
+            });
+        }
+        
+        
     },
     websocket: {
         open(ws) {
