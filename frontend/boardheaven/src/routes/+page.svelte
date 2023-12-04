@@ -1,5 +1,4 @@
 <script>
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
 	import preview from '$lib/images/preview.png';
 
 </script>
@@ -15,8 +14,8 @@
 	<h1>
 		<span class="gameChooser">
 			<picture>
-				<source srcset={preview} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
+				<!-- <source srcset={preview} type="image/webp"/> -->
+				<img src={preview} alt="Welcome" />
 			</picture>
 		</span>
 	</h1>
