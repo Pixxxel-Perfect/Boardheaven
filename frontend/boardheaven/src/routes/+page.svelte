@@ -1,5 +1,6 @@
 <script>
 	import preview from '$lib/images/preview.png';
+	import { _handleButtonClick } from './+page.js';
 
 </script>
 
@@ -21,15 +22,19 @@
 	</h1>
 
 	<h2>
-		<button class="button-2">Raum öffnen</button>
+		<button class="button-2" id="createRoom" on:click={_handleButtonClick}>Raum öffnen</button>
 	</h2>
+	<!--<script src="+page.js"></script>-->
 </div>
 
 </section>
 
 <style>
+	h3{
+		color: white;
+	}
 	.wrapper{
-		background-color: rgb(223, 223, 223);
+		background-color: rgb(142, 138, 138);
 		border-radius: 10%;
 		padding: 10px;
 	}
@@ -65,7 +70,7 @@
 
 
 .button-2 {
-  background-color: #37D947;
+  background-color: #0e7f19;
   border-radius: 8px;
   border-width: 0;
   color:white ;
@@ -87,7 +92,7 @@
   touch-action: manipulation;
 }
 .button-2:hover {
-    background-color: #245129;
+    background-color: #32c142;
 }
 
 </style>
