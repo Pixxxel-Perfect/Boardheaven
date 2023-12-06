@@ -26,6 +26,7 @@ Bun.serve({
         const reqUrl = new URL(req.url);
         if (reqUrl.pathname.length < 2) {
             //Make new Room and assign the websocket the new room somehow
+            const room = new Room();
         }
 
         if (!this.upgrade(req, {data: new WsData(req.url)})) {
