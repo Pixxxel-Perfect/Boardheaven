@@ -4,7 +4,7 @@ import { WsData } from "./ws-data";
 class Player {
     public ws: ServerWebSocket<unknown>;
 
-    constructor(ws: ServerWebSocket<WsData>) {
+    constructor(ws: ServerWebSocket<unknown>) {
         this.ws = ws;
     }
 

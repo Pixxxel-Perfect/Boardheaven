@@ -1,16 +1,28 @@
 import { ServerWebSocket } from "bun";
 import { Player } from "./player";
+import { getTokenSourceMapRange } from "typescript";
+
+enum RoomStatus {
+    INIT,
+    LOBBY,
+    PLAYING,
+    END,
+    CLOSING
+}
 
 class Room {
-    public players: Player[] = [];
-    public gameMaster: Player | null;
-    public roomId: string;
+    public static readonly PLAYER_LIMIT = 4;
 
-    constructor(players?: Player[]) {
-        this.gameMaster = (players && players.length > 0) ? players[0] : null;
-        this.players = (players) ? players : this.players;
-        
-        this.roomId = this.generateId();
+    public players: Player[];
+    public gameMaster: Player;
+    public roomId: string;
+    public roomStatus: RoomStatus = RoomStatus.INIT;
+
+    constructor(gameMaster: Player, roomId?: string) {
+        //this.gameMaster = (players && players.length > 0) ? players[0] : null;
+        this.gameMaster = gameMaster;
+        this.players = [gameMaster];
+        this.roomId = (roomId) ? roomId : this.generateId();
     }
 
     //Length: 8
@@ -24,6 +36,21 @@ class Room {
         
         return id;
     }
+
+    public addPlayer(player: Player): Boolean {
+        if (this.players.length >= Room.PLAYER_LIMIT) {
+            return false;
+        }
+        
+        if (this.players.includes(player)) {
+            return false;
+        }
+
+        this.players.push(player);
+
+        return true;
+        
+    }
 }
 
-export { Room };
+export { Room, RoomStatus };

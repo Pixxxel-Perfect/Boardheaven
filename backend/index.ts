@@ -1,5 +1,7 @@
-import { Room } from "./lib/room";
+import { isReadonlyKeywordOrPlusOrMinusToken } from "typescript";
+import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/ws-data";
+import { Player } from "./lib/player";
 
 const rooms: Room[] = [];
 
@@ -11,25 +13,21 @@ Bun.serve({
 
         /*
         TODO:
-            spit request between
-                - making a room
-                - joining a room
+            Spit request between
+                - making a room [x]
+                - joining a room [x]
                 - rejoining a room
             
             Add Logic for all cases and then:
                 - Error Detection
                 - Error Handling
-                    Client Side (Send messages)
-                    Server Side (Log Errors)
+
+            Add Documentation for lib Classes
         */
 
         const reqUrl = new URL(req.url);
-        if (reqUrl.pathname.length < 2) {
-            //Make new Room and assign the websocket the new room somehow
-            const room = new Room();
-        }
 
-        if (!this.upgrade(req, {data: new WsData(req.url)})) {
+        if (!this.upgrade(req, {data: new WsData(reqUrl.pathname.slice(1))})) {
             return new Response(null, {
                 status: 426,
                 statusText: "Could not upgrade connection."
@@ -40,7 +38,21 @@ Bun.serve({
     },
     websocket: {
         open(ws) {
-            //TODO
+            const roomId = (ws.data as WsData).roomId;
+
+            if (roomId.length > 0) {
+                const room = new Room(new Player(ws));
+                room.roomStatus = RoomStatus.LOBBY;
+                rooms.push(room);
+                return;
+            }
+
+            const room = rooms.find(r => r.roomId == roomId);
+
+            if (room?.addPlayer(new Player(ws))) {
+                room.roomStatus = RoomStatus.LOBBY;
+            }
+            
         },
         message(ws, message) {
             console.log(message);
