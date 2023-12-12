@@ -6,6 +6,7 @@ enum RoomStatus {
     INIT,
     LOBBY,
     PLAYING,
+    REJOIN,
     END,
     CLOSING
 }
@@ -49,7 +50,21 @@ class Room {
         this.players.push(player);
 
         return true;
+    }
+
+    public removePlayer(player: Player): Boolean {
+        let index = this.players.indexOf(player);
+        if (index == -1) {
+            return false;
+        }
+
+        this.players.splice(index, 1);
         
+        return true;
+    }
+
+    public broadcast(message: string | Buffer) {
+        this.players.forEach(p => p.ws.send(message));
     }
 }
 

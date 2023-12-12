@@ -1,4 +1,3 @@
-import { isReadonlyKeywordOrPlusOrMinusToken } from "typescript";
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/ws-data";
 import { Player } from "./lib/player";
@@ -33,30 +32,37 @@ Bun.serve({
                 statusText: "Could not upgrade connection."
             });
         }
-        
+
+        return new Response("Connection established.");
         
     },
     websocket: {
         open(ws) {
             const roomId = (ws.data as WsData).roomId;
+            
+            const room = getRoom(roomId) ?? new Room(new Player(ws));
 
-            if (roomId.length > 0) {
-                const room = new Room(new Player(ws));
-                room.roomStatus = RoomStatus.LOBBY;
-                rooms.push(room);
-                return;
-            }
-
-            const room = rooms.find(r => r.roomId == roomId);
-
-            if (room?.addPlayer(new Player(ws))) {
-                room.roomStatus = RoomStatus.LOBBY;
-            }
+            room.addPlayer(new Player(ws));
+            room.roomStatus = RoomStatus.LOBBY;
             
         },
         message(ws, message) {
-            console.log(message);
-            ws.send(message);
+            console.log(message + " from " + ws.remoteAddress);
+            getRoom((ws.data as WsData).roomId)?.broadcast(message);
         },
+        close(ws) {
+            rooms.forEach(r => {
+                for (let i = 0; i < r.players.length; i++) {
+                    const p = r.players[i];
+                    if (p.ws.remoteAddress === ws.remoteAddress) {
+                        r.removePlayer(p)
+                    };
+                }
+            });
+        }
     }
 });
+
+function getRoom(roomId: string): Room | null {
+    return rooms.find(r => r.roomId === roomId) ?? null;
+}
