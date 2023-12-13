@@ -16,6 +16,12 @@ Bun.serve({
                 - making a room [x]
                 - joining a room [x]
                 - rejoining a room
+
+            Test Websocket Code
+
+            add Player choosing color
+
+            Test Player Code
             
             Add Logic for all cases and then:
                 - Error Detection
