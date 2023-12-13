@@ -1,6 +1,19 @@
 <script>
 	import preview from '$lib/images/preview.png';
-	import { _handleButtonClick } from './+page.js';
+	let isOpen = false;
+  let code = '';
+
+  function openRoom() {
+    isOpen = true;
+  }
+
+  function submit() {
+    if (code.length === 5) {
+		isOpen = false;
+    } else {
+      alert('Bitte geben Sie einen 5-stelligen Code ein.');
+    }
+  }
 
 </script>
 
@@ -22,14 +35,57 @@
 	</h1>
 
 	<h2>
-		<button class="button-2" id="createRoom" on:click={_handleButtonClick}>Raum öffnen</button>
+		<button on:click={openRoom} class="button-2">Raum öffnen</button>
 	</h2>
-	<!--<script src="+page.js"></script>-->
 </div>
+{#if isOpen}
+  <div class="modal">
+    <input type="text" bind:value={code} placeholder="5-stelligen Code eingeben">
+    <button on:click={submit}>Abschicken</button>
+  </div>
+{/if}
 
 </section>
 
 <style>
+	.modal {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 300px;
+	padding: 20px;
+	background-color: #ffffff;
+	border-radius: 10px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+	}
+
+	.modal input {
+	width: 100%;
+	padding: 10px;
+	margin-bottom: 20px;
+	border: 1px solid #dddddd;
+	border-radius: 5px;
+	font-size: 16px;
+	}
+
+	.modal button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	background-color: #007BFF;
+	color: #ffffff;
+	font-size: 16px;
+	cursor: pointer;
+	}
+
+	.modal button:hover {
+	background-color: #0056b3;
+	}
 	h3{
 		color: white;
 	}
