@@ -1,20 +1,25 @@
 <script>
 	import preview from '$lib/images/preview.png';
 	let isOpen = false;
-  let code = '';
+  	let code = '';
+	let submitted = false;
+
 
   function openRoom() {
+	submitted = false;
     isOpen = true;
-  }
+	code = '';
 
+  }
   function submit() {
+    submitted = true;
     if (code.length === 5) {
-		isOpen = false;
-    } else {
-      alert('Bitte geben Sie einen 5-stelligen Code ein.');
+      isOpen = false; 
     }
   }
-
+  function closeModal() {
+    isOpen = false;
+  }
 </script>
 
 <svelte:head>
@@ -28,7 +33,6 @@
 	<h1>
 		<span class="gameChooser">
 			<picture>
-				<!-- <source srcset={preview} type="image/webp"/> -->
 				<img src={preview} alt="Welcome" />
 			</picture>
 		</span>
@@ -41,14 +45,58 @@
 {#if isOpen}
   <div class="modal">
     <input type="text" bind:value={code} placeholder="5-stelligen Code eingeben">
-    <button on:click={submit}>Abschicken</button>
+    <div class="button-group">
+      <button on:click={submit}>Abschicken</button>
+      <button class="cancel-button" on:click={closeModal}>Abbrechen</button>
+    </div>
+    {#if submitted && code.length < 5}
+      <a href="https://www.thalia.at/shop/home/artikeldetails/A1062123624?ProvID=11010474&gad_source=1&gclid=Cj0KCQiA7OqrBhD9ARIsAK3UXh11Gl4PrK3k1Kdrq50fBWIhs9AUUxKQaGKFiazzDiYmEJubL16dbuoaAoYREALw_wcB" target="_blank">Buy The Game</a>
+    {/if}
   </div>
 {/if}
 
 </section>
 
 <style>
+	.modal button {
+		padding: 10px 20px;
+		border: none;
+		border-radius: 5px;
+		background-color: #007BFF;
+		color: #ffffff;
+		font-size: 16px;
+		cursor: pointer;
+	}
+
+	.modal button:hover {
+		background-color: #0056b3;
+	}
+
+	.modal .cancel-button {
+		padding: 10px 20px;
+		border: none;
+		border-radius: 5px;
+		background-color: red;
+		color: #ffffff;
+		font-size: 16px;
+		cursor: pointer;
+	}
+
+	.modal .cancel-button:hover {
+		background-color: darkred;
+	}
+    .modal a {
+    margin-top: 10px;
+    color: #007BFF;
+    text-decoration: none;
+  	}
+
+  	.modal a:hover {
+    color: #0056b3;
+  	}
 	.modal {
+	position: relative;
+  	padding: 20px;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -58,7 +106,6 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 	width: 300px;
-	padding: 20px;
 	background-color: #ffffff;
 	border-radius: 10px;
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
@@ -73,19 +120,6 @@
 	font-size: 16px;
 	}
 
-	.modal button {
-	padding: 10px 20px;
-	border: none;
-	border-radius: 5px;
-	background-color: #007BFF;
-	color: #ffffff;
-	font-size: 16px;
-	cursor: pointer;
-	}
-
-	.modal button:hover {
-	background-color: #0056b3;
-	}
 	h3{
 		color: white;
 	}
@@ -126,7 +160,7 @@
 
 
 .button-2 {
-  background-color: #0e7f19;
+background-color: #007BFF;
   border-radius: 8px;
   border-width: 0;
   color:white ;
@@ -148,7 +182,7 @@
   touch-action: manipulation;
 }
 .button-2:hover {
-    background-color: #32c142;
+	background-color: #0056b3;
 }
 
 </style>
