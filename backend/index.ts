@@ -1,39 +1,68 @@
-import { Room } from "./lib/room";
+import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/ws-data";
+import { Player } from "./lib/player";
 
 const rooms: Room[] = [];
+
+//URL = ws:[IP]/<ID>
+//[FIX], <Optional>
 
 Bun.serve({
     fetch(req: Request): Response | Promise<Response> {
 
         /*
         TODO:
-            spit request between
-                1. Simple first website visit
-                2. making a room
-                3. joining a room
-                4. rejoining a room
+            Spit request between
+                - making a room [x]
+                - joining a room [x]
+                - rejoining a room
             
             Add Logic for all cases and then:
                 - Error Detection
                 - Error Handling
-                    Client Side (Send messages)
-                    Server Side (Log Errors)
+
+            Add Documentation for lib Classes
         */
 
-        if (this.upgrade(req, {data: new WsData(req.url)})) {
-            console.log("WebSocket established.");
-            return new Response("WebSocket established.");
+        const reqUrl = new URL(req.url);
+
+        if (!this.upgrade(req, {data: new WsData(reqUrl.pathname.slice(1))})) {
+            return new Response(null, {
+                status: 426,
+                statusText: "Could not upgrade connection."
+            });
         }
-      return new Response("Connect via WebSocket please.");
+
+        return new Response("Connection established.");
+        
     },
     websocket: {
         open(ws) {
-            //TODO
+            const roomId = (ws.data as WsData).roomId;
+            
+            const room = getRoom(roomId) ?? new Room(new Player(ws));
+
+            room.addPlayer(new Player(ws));
+            room.roomStatus = RoomStatus.LOBBY;
+            
         },
         message(ws, message) {
-            console.log(message);
-            ws.send(message);
+            console.log(message + " from " + ws.remoteAddress);
+            getRoom((ws.data as WsData).roomId)?.broadcast(message);
         },
+        close(ws) {
+            rooms.forEach(r => {
+                for (let i = 0; i < r.players.length; i++) {
+                    const p = r.players[i];
+                    if (p.ws.remoteAddress === ws.remoteAddress) {
+                        r.removePlayer(p)
+                    };
+                }
+            });
+        }
     }
 });
+
+function getRoom(roomId: string): Room | null {
+    return rooms.find(r => r.roomId === roomId) ?? null;
+}
