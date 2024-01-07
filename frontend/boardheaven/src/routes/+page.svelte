@@ -50,7 +50,8 @@
       <button class="cancel-button" on:click={closeModal}>Abbrechen</button>
     </div>
     {#if submitted && code.length < 5}
-      <a href="https://www.thalia.at/shop/home/artikeldetails/A1062123624?ProvID=11010474&gad_source=1&gclid=Cj0KCQiA7OqrBhD9ARIsAK3UXh11Gl4PrK3k1Kdrq50fBWIhs9AUUxKQaGKFiazzDiYmEJubL16dbuoaAoYREALw_wcB" target="_blank">Buy The Game</a>
+	  <h4 id="code">Falscher Code</h4>
+      <a href="https://www.thalia.at/shop/home/artikeldetails/A1062123624?ProvID=11010474&gad_source=1&gclid=Cj0KCQiA7OqrBhD9ARIsAK3UXh11Gl4PrK3k1Kdrq50fBWIhs9AUUxKQaGKFiazzDiYmEJubL16dbuoaAoYREALw_wcB" target="_blank">Kaufe das Spiel</a>
     {/if}
   </div>
 {/if}
@@ -58,6 +59,11 @@
 </section>
 
 <style>
+	#code {
+		color: red;
+		margin: 0;
+		padding-top: 10px;
+	}
 	.modal button {
 		padding: 10px 20px;
 		border: none;
