@@ -8,6 +8,10 @@ class GamePiece {
         this.owner = owner;
         this.pos = pos;
     }
+
+    get color() {
+        return this.owner.color;
+    }
 }
 
 export { GamePiece };
