@@ -53,7 +53,10 @@ Bun.serve({
             
         },
         message(ws, message) {
-            console.log(message + " from " + ws.remoteAddress);
+
+            //
+
+            console.log("'" + message + "' was sent from " + ws.remoteAddress);
             getRoom((ws.data as WsData).roomId)?.broadcast(message);
         },
         close(ws) {
@@ -65,6 +68,11 @@ Bun.serve({
                     };
                 }
             });
+
+            const room = rooms.find(r => r.roomId == (ws.data as WsData).roomId);
+            const player = room?.players.find(p => p.ws.remoteAddress == ws.remoteAddress);
+
+            room?.removePlayer(player);
         }
     }
 });

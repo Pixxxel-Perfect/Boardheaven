@@ -52,7 +52,8 @@ class Room {
         return true;
     }
 
-    public removePlayer(player: Player): Boolean {
+    public removePlayer(player: Player | undefined | null): Boolean {
+        if (!player) return false;
         let index = this.players.indexOf(player);
         if (index == -1) {
             return false;
