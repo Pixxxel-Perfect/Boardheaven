@@ -14,64 +14,43 @@
     }
     .board {
         display: grid;
+        aspect-ratio: 1;
+        width: 100%;
         grid-template-columns: repeat(11, 1fr);
         grid-template-rows: repeat(11, 1fr);
         gap: 10px;
     }
 
     .circle {
-        width: 70px;
-        height: 70px;
-        border: 2px solid black;
+        aspect-ratio: 1;
         border-radius: 50%;
+    }
+    .circleDefault {
+        border: 3px solid black;
     }
     .circleGreen {
-        width: 70px;
-        height: 70px;
         border: 6px solid green;
-        border-radius: 50%;
     }
     .circleRed {
-        width: 70px;
-        height: 70px;
         border: 6px solid red;
-        border-radius: 50%;
     }   
     .circleBlack {
-        width: 70px;
-        height: 70px;
         border: 6px solid black;
-        border-radius: 50%;
     }
     .circleYellow {
-        width: 70px;
-        height: 70px;
         border: 6px solid yellow;
-        border-radius: 50%;
     }
     .circleFullGreen {
-        width: 70px;
-        height: 70px;
         background-color: green;
-        border-radius: 50%;
     }
     .circleFullRed {
-        width: 70px;
-        height: 70px;
         background-color: red;
-        border-radius: 50%;
     }
     .circleFullBlack {
-        width: 70px;
-        height: 70px;
         background-color: black;
-        border-radius: 50%;
     }
     .circleFullYellow {
-        width: 70px;
-        height: 70px;
         background-color: yellow;
-        border-radius: 50%;
     }
 
 .circle:nth-child(1) { grid-column: 5; grid-row: 1; }
@@ -165,86 +144,86 @@ Home Circles
 </style>
 <div>
     <div class="board">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circleGreen"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circleRed"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circleBlack"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circleYellow"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleGreen"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleRed"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleBlack"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleYellow"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
+        <div class="circle circleDefault"></div>
     
-        <div class="circleFullGreen"></div>
-        <div class="circleFullGreen"></div>
-        <div class="circleFullGreen"></div>
-        <div class="circleFullGreen"></div>
+        <div class="circle circleFullGreen"></div>
+        <div class="circle circleFullGreen"></div>
+        <div class="circle circleFullGreen"></div>
+        <div class="circle circleFullGreen"></div>
     
-        <div class="circleFullRed"></div>
-        <div class="circleFullRed"></div>
-        <div class="circleFullRed"></div>
-        <div class="circleFullRed"></div>
+        <div class="circle circleFullRed"></div>
+        <div class="circle circleFullRed"></div>
+        <div class="circle circleFullRed"></div>
+        <div class="circle circleFullRed"></div>
     
-        <div class="circleFullBlack"></div>
-        <div class="circleFullBlack"></div>
-        <div class="circleFullBlack"></div>
-        <div class="circleFullBlack"></div>
+        <div class="circle circleFullBlack"></div>
+        <div class="circle circleFullBlack"></div>
+        <div class="circle circleFullBlack"></div>
+        <div class="circle circleFullBlack"></div>
     
-        <div class="circleFullYellow"></div>
-        <div class="circleFullYellow"></div>
-        <div class="circleFullYellow"></div>
-        <div class="circleFullYellow"></div>
+        <div class="circle circleFullYellow"></div>
+        <div class="circle circleFullYellow"></div>
+        <div class="circle circleFullYellow"></div>
+        <div class="circle circleFullYellow"></div>
 
-        <div class="circleGreen"></div>
-        <div class="circleGreen"></div>
-        <div class="circleGreen"></div>
-        <div class="circleGreen"></div>
+        <div class="circle circleGreen"></div>
+        <div class="circle circleGreen"></div>
+        <div class="circle circleGreen"></div>
+        <div class="circle circleGreen"></div>
 
-        <div class="circleRed"></div>
-        <div class="circleRed"></div>
-        <div class="circleRed"></div>
-        <div class="circleRed"></div>
+        <div class="circle circleRed"></div>
+        <div class="circle circleRed"></div>
+        <div class="circle circleRed"></div>
+        <div class="circle circleRed"></div>
 
-        <div class="circleBlack"></div>
-        <div class="circleBlack"></div>
-        <div class="circleBlack"></div>
-        <div class="circleBlack"></div>
+        <div class="circle circleBlack"></div>
+        <div class="circle circleBlack"></div>
+        <div class="circle circleBlack"></div>
+        <div class="circle circleBlack"></div>
 
-        <div class="circleYellow"></div>
-        <div class="circleYellow"></div>
-        <div class="circleYellow"></div>
-        <div class="circleYellow"></div>
+        <div class="circle circleYellow"></div>
+        <div class="circle circleYellow"></div>
+        <div class="circle circleYellow"></div>
+        <div class="circle circleYellow"></div>
     </div>
 
     <button class="button-container">
