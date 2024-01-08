@@ -33,54 +33,54 @@ class GameState {
 
         piece.pos = newPos;
     }
-}
 
-//Fluent API maybe here VVV
-function calcNextState(gameState: GameState, pieceIndex: number): GameState | null {
+    public calcNextState(pieceIndex: number): this | null {
 
-    const piece = gameState.pieces[pieceIndex];
-
-    let newPiecePosition;
-
-    if (piece.pos < 0) {
-        if (gameState.diceRoll == 6) {
-            newPiecePosition = 1;
-        }else {
-            return null;
-        }
-    }else {
-        newPiecePosition = piece.pos + gameState.diceRoll;
-        if (newPiecePosition > 44) {
-            return null;
-        }
-    }
-
-    // newPiecePosition is now on the board. 
-
-    // Collision Check
-
-    let colPiece = gameState.getPieceFromPosition(newPiecePosition, piece.color);
-
-    if (colPiece) {
-        return null;
-    }
+        const piece = this.pieces[pieceIndex];
     
-    if (newPiecePosition > 0 && newPiecePosition <= 40) {
-        //Only test other colors if part of shared board
-        
-        for (let i = 1; i <= 3; i++) {
-            const translatedPos = translatePos(newPiecePosition, piece.color, i);
-            colPiece = gameState.getPieceFromPosition(translatedPos, piece.color);
-            
-            if (colPiece) {
-                gameState.capturePiece(gameState.pieces.indexOf(colPiece));
+        let newPiecePosition;
+    
+        if (piece.pos < 0) {
+            if (this.diceRoll == 6) {
+                newPiecePosition = 1;
+            }else {
+                return null;
+            }
+        }else {
+            newPiecePosition = piece.pos + this.diceRoll;
+            if (newPiecePosition > 44) {
+                return null;
             }
         }
-    }
     
-    //Set new Position and return the GameState
-    piece.pos = newPiecePosition;
-    return gameState;
+        // newPiecePosition is now on the board. 
+    
+        // Collision Check
+    
+        let colPiece = this.getPieceFromPosition(newPiecePosition, piece.color);
+    
+        if (colPiece) {
+            return null;
+        }
+        
+        if (newPiecePosition > 0 && newPiecePosition <= 40) {
+            //Only test other colors if part of shared board
+            
+            for (let i = 1; i <= 3; i++) {
+                const translatedPos = translatePos(newPiecePosition, piece.color, i);
+                colPiece = this.getPieceFromPosition(translatedPos, piece.color);
+                
+                if (colPiece) {
+                    this.capturePiece(this.pieces.indexOf(colPiece));
+                }
+            }
+        }
+        
+        //Set new Position, switch playingPlayer and return the this
+        piece.pos = newPiecePosition;
+        this.playingPlayer = this.players[(this.players.indexOf(this.playingPlayer) + 1) % this.players.length];
+        return this;
+    }
 }
 
 function translatePos(pos: number, colorFrom: PlayerColor, colorTo: PlayerColor | number): number {

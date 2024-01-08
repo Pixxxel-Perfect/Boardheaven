@@ -1,13 +1,16 @@
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/ws-data";
 import { Player } from "./lib/player";
+import { debug } from "util";
 
 const rooms: Room[] = [];
 
 //URL = ws:[IP]/<ID>
 //[FIX], <Optional>
 
-Bun.serve({
+let debugstuff: WsData;
+
+Bun.serve<WsData>({
     fetch(req: Request): Response | Promise<Response> {
 
         /*
@@ -32,6 +35,8 @@ Bun.serve({
 
         const reqUrl = new URL(req.url);
 
+        console.log(reqUrl);
+
         if (!this.upgrade(req, {data: new WsData(reqUrl.pathname.slice(1))})) {
             return new Response(null, {
                 status: 426,
@@ -44,32 +49,44 @@ Bun.serve({
     },
     websocket: {
         open(ws) {
-            const roomId = (ws.data as WsData).roomId;
+            const roomId = ws.data.roomId;
+            console.log(debugstuff, roomId);
             
-            const room = getRoom(roomId) ?? new Room(new Player(ws));
+            let room;
+            if (room = getRoom(roomId)) {
+                //TODO: message client that they joined
+                room.addPlayer(new Player(ws));
+                return;
+            }
 
-            room.addPlayer(new Player(ws));
+            //TODO: message client that they created a new room
+            room = new Room(new Player(ws), roomId);
+            rooms.push(room);
             room.roomStatus = RoomStatus.LOBBY;
+            
+            //console.log(rooms);
             
         },
         message(ws, message) {
 
-            //
+            //TODO: handle incoming messages
 
             console.log("'" + message + "' was sent from " + ws.remoteAddress);
-            getRoom((ws.data as WsData).roomId)?.broadcast(message);
+            console.log(rooms);
+            console.log(`${rooms[0].roomId} == ${ws.data.roomId}: ` + (rooms[0].roomId == ws.data.roomId));
+            getRoom(ws.data.roomId)?.broadcast(message);
         },
         close(ws) {
-            rooms.forEach(r => {
+            /*rooms.forEach(r => {
                 for (let i = 0; i < r.players.length; i++) {
                     const p = r.players[i];
                     if (p.ws.remoteAddress === ws.remoteAddress) {
                         r.removePlayer(p)
                     };
                 }
-            });
+            });*/
 
-            const room = rooms.find(r => r.roomId == (ws.data as WsData).roomId);
+            const room = rooms.find(r => r.roomId == ws.data.roomId);
             const player = room?.players.find(p => p.ws.remoteAddress == ws.remoteAddress);
 
             room?.removePlayer(player);
@@ -78,5 +95,5 @@ Bun.serve({
 });
 
 function getRoom(roomId: string): Room | null {
-    return rooms.find(r => r.roomId === roomId) ?? null;
+    return rooms.find(r => r.roomId == roomId) ?? null;
 }
