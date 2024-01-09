@@ -10,10 +10,10 @@ enum PlayerColor {
 }
 
 class Player {
-    public ws: ServerWebSocket<unknown>;
+    public ws: ServerWebSocket<WsData>;
     public color: PlayerColor = PlayerColor.NOT_SET;
 
-    constructor(ws: ServerWebSocket<unknown>) {
+    constructor(ws: ServerWebSocket<WsData>) {
         this.ws = ws;
     }
 

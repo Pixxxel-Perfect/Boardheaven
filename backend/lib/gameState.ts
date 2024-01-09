@@ -1,6 +1,8 @@
 import { Player, PlayerColor } from "./player"
 import { GamePiece } from "./gamePiece";
 
+//TODO add win condition
+
 class GameState {
     public pieces: GamePiece[];
     public players: Player[];

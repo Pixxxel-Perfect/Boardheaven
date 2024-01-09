@@ -1,18 +1,14 @@
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/ws-data";
 import { Player } from "./lib/player";
-import { debug } from "util";
 
 const rooms: Room[] = [];
 
 //URL = ws:[IP]/<ID>
 //[FIX], <Optional>
 
-let debugstuff: WsData;
-
 Bun.serve<WsData>({
     fetch(req: Request): Response | Promise<Response> {
-
         /*
         TODO:
             Spit request between
@@ -50,7 +46,6 @@ Bun.serve<WsData>({
     websocket: {
         open(ws) {
             const roomId = ws.data.roomId;
-            console.log(debugstuff, roomId);
             
             let room;
             if (room = getRoom(roomId)) {
