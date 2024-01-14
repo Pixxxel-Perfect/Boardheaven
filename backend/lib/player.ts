@@ -1,5 +1,5 @@
 import { ServerWebSocket } from "bun";
-import { WsData } from "./ws-data";
+import { WsData } from "./wsData";
 
 enum PlayerColor {
     NOT_SET = -1,
