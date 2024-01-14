@@ -1,6 +1,8 @@
 import { ServerWebSocket } from "bun";
 import { Player } from "./player";
 import { getTokenSourceMapRange } from "typescript";
+import { GameState } from "./gameState";
+import { WsData } from "./wsData";
 
 enum RoomStatus {
     INIT,
@@ -18,12 +20,13 @@ class Room {
     public gameMaster: Player;
     public roomId: string;
     public roomStatus: RoomStatus = RoomStatus.INIT;
+    public gameState: GameState | null = null;
 
     constructor(gameMaster: Player, roomId?: string) {
         //this.gameMaster = (players && players.length > 0) ? players[0] : null;
         this.gameMaster = gameMaster;
         this.players = [gameMaster];
-        this.roomId = (roomId) ? roomId : this.generateId();
+        this.roomId = (roomId && roomId?.length > 0) ? roomId : this.generateId();
     }
 
     //Length: 8
@@ -66,6 +69,10 @@ class Room {
 
     public broadcast(message: string | Buffer) {
         this.players.forEach(p => p.ws.send(message));
+    }
+
+    public getPlayer(ws: ServerWebSocket<WsData>): Player | null {
+        return this.players.find(p => p.ws == ws) ?? null;
     }
 }
 
