@@ -61,7 +61,13 @@ class GameState {
 
         //Set new Position, switch playingPlayer and return 'this'
         piece.pos = newPiecePosition;
+
+        //IF BUG, CLONE playingPlayer somehow
+        const currentPlayer = this.playingPlayer;
+
         this.nextPlayer();
+        if (currentPlayer == this.playingPlayer) this.finish();
+        this.rollDice();
         return this;
     }
     
@@ -70,7 +76,14 @@ class GameState {
     }
 
     public nextPlayer() {
-        this.playingPlayer = this.players[(this.players.indexOf(this.playingPlayer) + 1) % this.players.length];
+        if (this.diceRoll == 6) return;
+
+        const playerIndex = this.players.indexOf(this.playingPlayer);
+        this.playingPlayer = this.players[(playerIndex + 1) % this.players.length];
+    }
+
+    public finish() {
+        
     }
 }
 
