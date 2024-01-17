@@ -3,9 +3,10 @@ import { WsData } from "./lib/wsData";
 import { Player, PlayerColor } from "./lib/player";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { GameState } from "./lib/gameState";
-import { isReturnStatement } from "typescript";
+import { GameCodeValidator } from "./lib/codesApi";
 
 const rooms: Room[] = [];
+const codeAPI = new GameCodeValidator();
 
 //URL = ws:[IP]/<ID>
 //[FIX], <Optional>
@@ -34,8 +35,6 @@ Bun.serve<WsData>({
 
         const reqUrl = new URL(req.url);
 
-        console.log(reqUrl);
-
         if (!this.upgrade(req, {data: new WsData(reqUrl.pathname.slice(1))})) {
             return new Response(null, {
                 status: 426,
@@ -55,8 +54,7 @@ Bun.serve<WsData>({
             if (room = getRoom(roomId)) {
                 room.addPlayer(new Player(ws));
 
-                //DEBUG comment-outing
-                //ws.sendText(JSON.stringify(new WsMessage(WsMessageType.INFO, roomId)));
+                ws.sendText(JSON.stringify(new WsMessage(WsMessageType.INFO, roomId)));
                 
                 
                 return;
@@ -68,19 +66,15 @@ Bun.serve<WsData>({
             room.roomStatus = RoomStatus.LOBBY;
 
             //DEBUG comment-outing
-            //ws.sendText(JSON.stringify(new WsMessage(WsMessageType.INFO, room.roomId)));
+            ws.sendText(JSON.stringify(new WsMessage(WsMessageType.INFO, room.roomId)));
             
             //console.log(rooms);
             
         },
         message(ws, message) {
-            console.log("'" + message + "' was sent from " + ws.remoteAddress);
-            getRoom(ws.data.roomId)?.broadcast(JSON.stringify({sender: ws.remoteAddress, message: message}));
+            /*console.log("'" + message + "' was sent from " + ws.remoteAddress);
+            getRoom(ws.data.roomId)?.broadcast(JSON.stringify({sender: ws.remoteAddress, message: message}));*/
 
-            //DEBUG comment-outing: to make it an echo server for the presentation
-
-            //DEBUG comment-outing
-            /*
             //TODO: handle incoming messages
 
             if (Buffer.isBuffer(message)) return;
@@ -123,18 +117,17 @@ Bun.serve<WsData>({
                     if (room.gameState?.playingPlayer != player) return;
 
                     //  TODO look over the fact, that you may not have to assign it
-                    //  because the state modifies only itself.
+                    //  because the state already modifies itself.
                     let newGameState = room.gameState.calcNextState(toNumber(parsedMessage.value));
 
                     room.gameState = newGameState ?? room.gameState;
                 case WsMessageType.TURN_SKIP:
+                    // TODO Validate the possible skip
                     room.gameState?.nextPlayer();
                     break;
                 //TODO other types
                 
             }
-            */
-            //DEBUG comment-outing end
 
 
         },
