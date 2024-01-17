@@ -1,0 +1,1 @@
+export type ParentSendMessage = (msg: string) => void;
