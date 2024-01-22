@@ -4,6 +4,7 @@ import { Player, PlayerColor } from "./lib/player";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { GameState } from "./lib/gameState";
 import { GameCodeValidator } from "./lib/codesApi";
+import { RequestBody, RequestType } from "./lib/reqBody";
 
 const rooms: Room[] = [];
 const codeAPI = new GameCodeValidator();
@@ -12,7 +13,7 @@ const codeAPI = new GameCodeValidator();
 //[FIX], <Optional>
 
 Bun.serve<WsData>({
-    fetch(req: Request): Response | Promise<Response> {
+    async fetch(req: Request): Promise<Response> {
         /*
         TODO:
             Spit request between
@@ -32,6 +33,19 @@ Bun.serve<WsData>({
 
             Add Documentation for lib Classes
         */
+        const reqBody = await Bun.readableStreamToJSON(req.body ?? new ReadableStream()) as RequestBody;
+
+        switch(reqBody.reqType) {
+            case RequestType.CREATE_ROOM:
+                //TODO
+                break;
+            case RequestType.JOIN_ROOM:
+                //TODO
+                break;
+            case RequestType.REJOIN_ROOM:
+                //TODO
+                break;
+        }
 
         const reqUrl = new URL(req.url);
 
