@@ -1,5 +1,7 @@
 import { ServerWebSocket } from "bun";
 import { WsData } from "./wsData";
+import { Client } from "./client";
+import { GamePiece } from "./gamePiece";
 
 enum PlayerColor {
     NOT_SET = -1,
@@ -9,17 +11,19 @@ enum PlayerColor {
     RED = 3
 }
 
-class Player {
-    public ws: ServerWebSocket<WsData>;
+class Player extends Client {
+    public static from(client: Client): Player {
+        return new this(client.ws);
+    }
+
     public color: PlayerColor = PlayerColor.NOT_SET;
+    public pieces: GamePiece[] = [];
 
     constructor(ws: ServerWebSocket<WsData>) {
-        this.ws = ws;
+        super(ws);
     }
 
-    get roomId() {
-        return (this.ws.data as WsData).roomId;
-    }
+    
 }
 
 export { Player, PlayerColor };

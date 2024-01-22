@@ -5,10 +5,10 @@ class GamePiece {
     public pos: number;
     public homePos: number;
 
-    constructor(owner: Player, pos: number) {
+    constructor(owner: Player, homePos: number) {
         this.owner = owner;
-        this.homePos = pos;
-        this.pos = pos;
+        this.homePos = homePos;
+        this.pos = homePos;
     }
 
     get color() {
