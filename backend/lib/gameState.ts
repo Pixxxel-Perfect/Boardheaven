@@ -3,22 +3,25 @@ import { GamePiece } from "./gamePiece";
 
 class GameState {
     public pieces: GamePiece[] = [];
-    public players: Player[];
+    public activePlayers: Player[] = [];
+    public finishedPlayers: Player[] = [];
     public playingPlayer: Player;
     public diceRoll: number;
 
     constructor(players: Player[], playingPlayer: Player) {
-        this.players = players;
-        this.playingPlayer = playingPlayer;
-
-        this.diceRoll = this.rollDice();
-
+        
         players.forEach(p => {
+            if (p.color <= 0) return;
+            
+            this.activePlayers.push(p);
+            
             for (let i = 0; i < 4; i++) {
                 this.pieces.push(new GamePiece(p, -(p.color * 10 + i)));
             }
         });
 
+        this.playingPlayer = (playingPlayer.color > 0) ? playingPlayer : this.activePlayers[0];
+        this.diceRoll = this.rollDice();
     }
 
     public rollDice(): number {
@@ -57,7 +60,7 @@ class GameState {
             }
         }
         
-        //TODO add win condition
+        this.checkWin();
 
         //Set new Position, switch playingPlayer and return 'this'
         piece.pos = newPiecePosition;
@@ -66,6 +69,7 @@ class GameState {
         const currentPlayer = this.playingPlayer;
 
         this.nextPlayer();
+
         if (currentPlayer == this.playingPlayer) this.finish();
         this.rollDice();
         return this;
@@ -78,12 +82,35 @@ class GameState {
     public nextPlayer() {
         if (this.diceRoll == 6) return;
 
-        const playerIndex = this.players.indexOf(this.playingPlayer);
-        this.playingPlayer = this.players[(playerIndex + 1) % this.players.length];
+        const playerIndex = this.activePlayers.indexOf(this.playingPlayer);
+
+        if (this.finishedPlayers.includes(this.playingPlayer)) this.removeFromArray(this.activePlayers, this.playingPlayer);
+        
+        this.playingPlayer = this.activePlayers[(playerIndex + 1) % this.activePlayers.length];
+    }
+
+    public checkWin() {
+        let housePieces = this.pieces.filter(gp => gp.color == this.playingPlayer.color && gp.pos > 40);
+        if (housePieces.length !== 3) return;
+
+        this.activePlayers.push(this.playingPlayer);
+
+        if (this.activePlayers.length == 1) this.finish();
     }
 
     public finish() {
+        //TODO
+    }
+
+    public removeFromArray<T>(array: Array<T>, element: T): Array<T> {
+        let index = array.indexOf(element);
         
+        if (index < 0) return array;
+        
+        let firstJoinArray = array.slice(0, index);
+        let secondJoinArray = array.slice(index + 1);
+
+        return firstJoinArray.concat(secondJoinArray);
     }
 }
 
