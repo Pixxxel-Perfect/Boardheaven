@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
 class GameCodeValidator {
-
+    public static CODE_LENGTH = 5;
     private codes: string[] = [];
     
     constructor() {
@@ -16,7 +16,7 @@ class GameCodeValidator {
     }
 
     isValid(code: string): boolean {
-        if (code.length != 5) return false;
+        if (code.length != GameCodeValidator.CODE_LENGTH) return false;
         return this.codes.includes(code);
     }
 }
