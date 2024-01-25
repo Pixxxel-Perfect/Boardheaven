@@ -37,19 +37,20 @@
   .color-box {
     border-radius: 36px;
     background-color: var(--box-color);
-    width: 171px;
-    height: 207px;
+    width: 150px;
+    height: 186px;
     margin-top: 15px;
     outline: 3px solid transparent;
     transition: transform 200ms ease-in-out;
   }
 
   .color-box:hover {
-    transform: scale(1.05);
+    transform: scale(1.05, 1.02);
     transition: transform 330ms ease-in-out;
   }
 
   .selected-text {
     color: var(--text-color);
+    font-weight: bold;
   }
 </style>
