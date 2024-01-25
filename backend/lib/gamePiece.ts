@@ -1,13 +1,14 @@
 import { Player } from "./player";
 
 class GamePiece {
-    public owner: Player;
+    
+    public static of(piece: GamePiece): GamePiece {
+        return new GamePiece(piece.owner, piece.homePos, piece.firstPos);
+    }
+    
     public pos: number;
-    public homePos: number;
-
-    constructor(owner: Player, homePos: number) {
-        this.owner = owner;
-        this.homePos = homePos;
+    
+    constructor(public owner: Player, public homePos: number, public firstPos: number) {
         this.pos = homePos;
     }
 
@@ -15,9 +16,10 @@ class GamePiece {
         return this.owner.color;
     }
 
-    capture() {
+    public capture() {
         this.pos = this.homePos;
     }
+    
 }
 
 export { GamePiece };

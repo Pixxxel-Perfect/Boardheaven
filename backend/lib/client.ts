@@ -11,6 +11,10 @@ class Client {
     get roomId() {
         return (this.ws.data as WsData).roomId;
     }
+
+    disconnect() {
+        this.ws.close(1000);
+    }
 }
 
 export { Client };
