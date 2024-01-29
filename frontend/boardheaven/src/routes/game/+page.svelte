@@ -133,7 +133,7 @@
     <div class="playerStats">
       <h2 class="playerHeadline">Player</h2>
       <div class="playerColorYellow">
-        <!-- <h4>You</h4> -->
+        <h4>You</h4>
       </div>
       <div class="playerColorGreen">
         <!-- <h4>You</h4> -->
@@ -271,20 +271,24 @@
     aspect-ratio: 1;
     border-radius: 50%;
   }
+  .circle:hover {
+    background-color: rgb(202, 202, 202);
+    transition: all 0.2s ease-in;
+  }
   .circleDefault {
-    border: 3px solid black;
+    border: 0.2vw solid black;
   }
   .circleGreen {
-    border: 6px solid green;
+    border: 0.5vw solid green;
   }
   .circleRed {
-    border: 6px solid red;
+    border: 0.5vw solid red;
   }
   .circleBlack {
-    border: 6px solid black;
+    border: 0.5vw solid black;
   }
   .circleYellow {
-    border: 6px solid yellow;
+    border: 0.5vw solid yellow;
   }
   .circleFullGreen {
     background-color: green;
