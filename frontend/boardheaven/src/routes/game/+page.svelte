@@ -133,11 +133,17 @@
     <div class="playerStats">
       <h2 class="playerHeadline">Player</h2>
       <div class="playerColorYellow">
-        <h4>You</h4>
+        <!-- <h4>You</h4> -->
       </div>
-      <div class="playerColorGreen"></div>
-      <div class="playerColorRed"></div>
-      <div class="playerColorBlack"></div>
+      <div class="playerColorGreen">
+        <!-- <h4>You</h4> -->
+      </div>
+      <div class="playerColorRed">
+        <!-- <h4>You</h4> -->
+      </div>
+      <div class="playerColorBlack">
+        <!-- <h4>You</h4> -->
+      </div>
     </div>
   </div>
 
@@ -168,25 +174,37 @@
     color: #000000;
 }
   .playerColorGreen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color:#1ED225; 
     border-radius: 40px; 
     height: 5vh;
     width: 20vh;
     margin-bottom: 10px;
+    color: #000000;
   }
   .playerColorRed{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color:#FD0000; 
     border-radius: 40px; 
     height: 5vh;
     width: 20vh;
     margin-bottom: 10px;
+    color: #000000;
   }
   .playerColorBlack{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color:#000000; 
     border-radius: 40px; 
     height: 5vh;
     width: 20vh;
     margin-bottom: 10px;
+    color: #ffffff;
   }
 .playerStats {
   background-color:#F1F1F1;
@@ -197,7 +215,7 @@
 
 .container {
   display: flex; 
-  justify-content: space-around; /*Warum geht das nicht? */
+  gap: 20px; /*Warum geht das nicht? */
 }
 
 .settings-button {
