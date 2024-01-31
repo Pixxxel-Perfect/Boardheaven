@@ -4,6 +4,7 @@
   import { chatStore } from "$lib/components/chatbox/chatStore";
   import settingsicon  from "$lib/images/settings.png";
   import { onMount } from "svelte";
+  import arrowicon  from "$lib/images/arrowright.svg";
 
 
   let ws: WebSocket;
@@ -130,21 +131,28 @@
       <div class="circle circleYellow"></div>
       <div class="circle circleYellow"></div>
     </div>
-    <div class="playerStats">
-      <h2 class="playerHeadline">Player</h2>
-      <div class="playerColorYellow">
-        <h4>You</h4>
+    <div class="container">
+      <div class="pointer">
+        <img src={arrowicon} alt="arrow" class="arrow-icon"/>
       </div>
-      <div class="playerColorGreen">
-        <!-- <h4>You</h4> -->
+
+      <div class="playerStats">
+        <h2 class="playerHeadline">Player</h2>
+        <div class="playerColorYellow">
+          <h4>You</h4>
+        </div>
+        <div class="playerColorGreen">
+          <!-- <h4>You</h4> -->
+        </div>
+        <div class="playerColorRed">
+          <!-- <h4>You</h4> -->
+        </div>
+        <div class="playerColorBlack">
+          <!-- <h4>You</h4> -->
+        </div>
       </div>
-      <div class="playerColorRed">
-        <!-- <h4>You</h4> -->
-      </div>
-      <div class="playerColorBlack">
-        <!-- <h4>You</h4> -->
-      </div>
-    </div>
+  </div>
+
   </div>
 
 
@@ -212,10 +220,21 @@
   padding: 10px; 
   height: 35vh;
 }
+.pointer{
+    margin-top: 90px;
+    /* margin-top: 140px; */
+    /* margin-top: 190px; */
+    /* margin-top: 240px; */
+
+    width: 5vh;
+    height: 5vh;
+    background-color: #F1F1F1;
+    border-radius: 20%;
+}
 
 .container {
   display: flex; 
-  gap: 20px; /*Warum geht das nicht? */
+  gap: 20px;
 }
 
 .settings-button {
@@ -235,6 +254,11 @@
   width: 30px; 
   height: auto; 
 }
+.arrow-icon {
+  width: 40px; 
+  height: auto; 
+}
+
 
 .leave-button {
   margin-bottom: 10px;
