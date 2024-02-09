@@ -1,7 +1,9 @@
 <script>
   import preview from "$lib/images/preview.png";
-  import { setGameMaster } from "../gameMasterStore";
+  import { setGameMaster } from "../stores/gameMasterStore";
   import { goto } from "$app/navigation";
+  import { onMount, setContext } from "svelte";
+  import { websocketStore } from "../stores/websocketStore";
 
   let isOpen = false;
   let code = "";
@@ -23,6 +25,23 @@
   function closeModal() {
     isOpen = false;
   }
+
+  onMount(() => {
+    websocketStore.connect("ws:\\localhost:8888");
+    // what about getting socker directly
+    const unsubscribeWebsocket = websocketStore.subscribe((ws) => {
+      if (ws) {
+        ws.send("teststes from client");
+        ws.addEventListener("message", (event) => {
+          console.log("xxxxxx got message from server:", event.data.toString());
+        });
+      }
+    });
+
+    return () => {
+      unsubscribeWebsocket();
+    };
+  });
 </script>
 
 <svelte:head>

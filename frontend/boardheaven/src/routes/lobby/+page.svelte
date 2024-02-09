@@ -1,15 +1,30 @@
 <script lang="ts">
   import Colorbox from "$lib/components/colorbox/colorbox.svelte";
-  import { isGameMaster } from "../../gameMasterStore";
-  import { onMount } from "svelte";
+  import { get } from "svelte/store";
+  import { isGameMaster } from "../../stores/gameMasterStore";
+  import { getContext, onMount } from "svelte";
+  import { websocketStore } from "../../stores/websocketStore";
 
   onMount(() => {
     let unsubscribeGameMaster = isGameMaster.subscribe((value) => {
       gameMaster = value;
     });
 
+    let unsubscribeWs = websocketStore.subscribe((ws) => {
+      if (ws) {
+        ws.binaryType = "arraybuffer";
+        console.log("we are in lobby and got a socket");
+        const test = { dummy: "here we are" };
+        ws.send(JSON.stringify(test));
+        ws.addEventListener("message", (e) => {
+          console.log("in lobby got message from server:", e.data.toString());
+        });
+      }
+    });
+
     return () => {
       unsubscribeGameMaster();
+      unsubscribeWs();
     };
   });
 
@@ -32,10 +47,10 @@
   <div class="color-box-container">
     <p class="choose-color-text">Choose your color:</p>
     <div class="color-box-row">
-      <Colorbox color={yellow}></Colorbox>
-      <Colorbox color={green}></Colorbox>
-      <Colorbox color={red}></Colorbox>
-      <Colorbox color={black}></Colorbox>
+      <Colorbox color={yellow} colorid={1}></Colorbox>
+      <Colorbox color={green} colorid={2}></Colorbox>
+      <Colorbox color={red} colorid={3}></Colorbox>
+      <Colorbox color={black} colorid={0}></Colorbox>
     </div>
   </div>
 
@@ -55,7 +70,7 @@
     </div>
   {/if}
   {#if !gameMaster}
-    <div class="wait">Wait for game master to start</div>
+    <div class="wait-section">Wait for game master to start</div>
   {/if}
 </div>
 
@@ -103,7 +118,7 @@
     display: block;
   }
 
-  .wait {
+  .wait-section {
     width: 172px;
     height: 30px;
     border-radius: 57px;

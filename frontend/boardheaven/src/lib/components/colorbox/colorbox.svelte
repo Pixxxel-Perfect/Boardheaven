@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
 
   export let color: string;
+  export let colorid: number;
 
   let selectedBy: string = "";
 
