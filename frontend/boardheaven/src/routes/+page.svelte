@@ -3,7 +3,7 @@
   import { setGameMaster } from "../stores/gameMasterStore";
   import { goto } from "$app/navigation";
   import { onMount, setContext } from "svelte";
-  import { websocketStore } from "../stores/websocketStore";
+  //import { websocketStore } from "../stores/websocketStore";
 
   let isOpen = false;
   let code = "";
@@ -27,20 +27,15 @@
   }
 
   onMount(() => {
-    websocketStore.connect("ws:\\localhost:8888");
-    // what about getting socker directly
-    const unsubscribeWebsocket = websocketStore.subscribe((ws) => {
-      if (ws) {
-        ws.send("teststes from client");
-        ws.addEventListener("message", (event) => {
-          console.log("xxxxxx got message from server:", event.data.toString());
-        });
+    /* websocketStore.connect("ws:\\localhost:8888");
+    const unsubscribeWebsocket = websocketStore.subscribe((data) => {
+      if (data) {
+        console.log("msg:", data);
       }
     });
-
     return () => {
       unsubscribeWebsocket();
-    };
+    }; */
   });
 </script>
 

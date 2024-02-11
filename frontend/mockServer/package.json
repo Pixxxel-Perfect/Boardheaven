@@ -1,0 +1,15 @@
+{
+  "name": "mockserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mockServer.js",
+  "scripts": {
+    "start": "node mockServer.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "khachik",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

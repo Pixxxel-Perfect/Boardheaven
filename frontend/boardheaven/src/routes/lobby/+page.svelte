@@ -5,20 +5,24 @@
   import { getContext, onMount } from "svelte";
   import { websocketStore } from "../../stores/websocketStore";
 
+  let generatedLink: string | null = null;
+
   onMount(() => {
     let unsubscribeGameMaster = isGameMaster.subscribe((value) => {
       gameMaster = value;
     });
 
-    let unsubscribeWs = websocketStore.subscribe((ws) => {
-      if (ws) {
-        ws.binaryType = "arraybuffer";
-        console.log("we are in lobby and got a socket");
-        const test = { dummy: "here we are" };
-        ws.send(JSON.stringify(test));
-        ws.addEventListener("message", (e) => {
-          console.log("in lobby got message from server:", e.data.toString());
-        });
+    websocketStore.connect("ws:\\localhost:8888");
+
+    let unsubscribeWs = websocketStore.subscribe((wsData) => {
+      if (!wsData) return;
+      // check with Bachel to share his Types and enums, so I can reuse it, now for just for testing using fix values:
+      // set rommId as info message = 6 ->got room id
+      if (wsData.type === 6) {
+        //generate the room url
+        generatedLink = `${window.location.origin}?roomId=${wsData.value}`;
+      } else {
+        console.log(wsData);
       }
     });
 
@@ -34,8 +38,6 @@
   const green: string = "#1ED225";
   const red: string = "#FD0000";
   const black: string = "#000000";
-
-  let generatedLink: string | null = null;
 </script>
 
 <div>
