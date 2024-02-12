@@ -2,7 +2,7 @@ import { Player } from "./player";
 
 class GamePiece {
     
-    public static of(piece: GamePiece): GamePiece {
+    public static from(piece: GamePiece): GamePiece {
         return new GamePiece(piece.owner, piece.homePos);
     }
     
@@ -13,7 +13,7 @@ class GamePiece {
     }
 
     public get initPos() {
-        return this.color * 10 + 1;
+        return this.color * 10;
     }
     
     constructor(public owner: Player, public homePos: number) {

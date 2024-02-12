@@ -1,6 +1,6 @@
 import { Game } from "./game";
 import { GamePiece } from "./gamePiece";
-import { Player } from "./player";
+import { Player, PlayerColor } from "./player";
 
 //  TODO:
 //      Add logic for skipping a turn automatically when in winning position
@@ -17,14 +17,15 @@ class GameState {
 
     constructor(public game: Game, pieces?: GamePiece[]) {
         this.diceThrow = Math.floor(Math.random() * 6) + 1;
+
         if (pieces) {
-            pieces.forEach(p => this.pieces.push(GamePiece.of(p)));
+            pieces.forEach(p => this.pieces.push(GamePiece.from(p)));
             return;
         }
+        
         this.players.forEach(p => {
             for (let i = 1; i <= 4; i++) {
-                this.pieces.push(new GamePiece(p, ))
-                //TODO finish filling up this crap
+                this.pieces.push(new GamePiece(p, -i * p.color));
             }
         });
     }
@@ -40,21 +41,52 @@ class GameState {
 
 
     // Position is a number ranging from -16 to -1 for the starting house
-    // 1 to 40 for on the board
-    // and add piece.color * 100 for being in the end house
+    // 0 to 39 for on the board
+    // and add 100 for being in the end house
     public movePiece(piece: GamePiece): Boolean {
-        //TODO
+        //TODO test if in the house already.
 
+        let newPos;
         // Test if piece can be initialized on the board
-        if (piece.pos < 0 && this.diceThrow !== 6) {
-            return false;
+        if (piece.pos < 0) {
+            if (this.diceThrow !== 6) return false;
+            newPos = piece.color * 10;
+        }else {
+
+            //newPos = (piece.pos + this.diceThrow) % 40;
+            newPos = piece.pos + this.diceThrow;
+            
+            let housePos;
+            switch (piece.color) {
+                case PlayerColor.BLACK:
+                    housePos = 39;
+                    break;
+                case PlayerColor.YELLOW:
+                    housePos = 9;
+                    break;
+                case PlayerColor.GREEN:
+                    housePos = 19;
+                    break;
+                case PlayerColor.RED:
+                    housePos = 29;
+                    break;
+                default:
+                    housePos = 1000;
+            }
+
+            if (piece.pos > housePos - this.diceThrow) {
+                newPos %= 40;
+                newPos += 100;
+            }
         }
 
-        let newPos = (piece.pos + this.diceThrow) % 40;
+        //TODO Test if new position is valid
+        let possColPiece = this.getPieceAt(newPos);
+        if (possColPiece) {
+            if (possColPiece.color == piece.color) return false;
+            possColPiece.capture();
+        }
 
-        //TODO logic for the branching path
-
-        //test if new position is valid
         //TODO
     }
 
@@ -72,12 +104,16 @@ class GameState {
         newGameState.switchToNextPlayer();
     }
 
-    public playerIsFinished(player: Player) {
+    public isPlayerFinished(player: Player): boolean {
         //TODO
     }
 
-    public shouldEnd() {
+    public shouldEnd(): boolean {
         //TODO
+    }
+
+    public getPieceAt(pos: number): GamePiece | null {
+        return this.pieces.find(p => p.pos = pos) ?? null;
     }
 }
 
