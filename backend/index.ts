@@ -33,19 +33,6 @@ Bun.serve<WsData>({
 
             Add Documentation for lib Classes
         */
-        const reqBody = await Bun.readableStreamToJSON(req.body ?? new ReadableStream()) as RequestBody;
-
-        switch(reqBody.reqType) {
-            case RequestType.CREATE_ROOM:
-                //TODO
-                break;
-            case RequestType.JOIN_ROOM:
-                //TODO
-                break;
-            case RequestType.REJOIN_ROOM:
-                //TODO
-                break;
-        }
 
         const reqUrl = new URL(req.url);
 
@@ -121,10 +108,10 @@ Bun.serve<WsData>({
                     break;
                 case WsMessageType.SET_COLOR:
                     if (room.roomStatus != RoomStatus.LOBBY) return;
-                    try {
-                        player.color = toNumber(parsedMessage.value);
-                        if (player.color < -1 || player.color > 3) player.color = PlayerColor.NOT_SET;
-                    } catch {}
+
+                    player.color = toNumber(parsedMessage.value);
+                    if (player.color < -1 || player.color > 3) player.color = PlayerColor.NOT_SET;
+                    
                     break;
                 case WsMessageType.TURN_ACTION:
                     if (room.roomStatus != RoomStatus.PLAYING) return;

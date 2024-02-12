@@ -5,7 +5,11 @@ enum RequestType {
 }
 
 class RequestBody {
-    constructor(public reqType: RequestType) {}
+    public static fromJson(json: string) {
+        JSON
+    }
+
+    constructor(public reqType: RequestType, public reqData?: string) {}
 }
 
 export { RequestBody, RequestType }

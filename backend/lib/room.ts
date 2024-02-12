@@ -8,6 +8,7 @@ enum RoomStatus {
 
 class Room {
     public static idPattern = "abcdefghijklmnopqrstuvwxyz0123456789";
+    
     public roomId: string;
     public clients: Client[] = []
     public roomMaster: Client;
