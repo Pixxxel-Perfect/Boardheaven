@@ -17,6 +17,7 @@ class Game {
     public startGame() {
         //TODO ORDER PLAYERS BY COLOR FOR GAMESTATE
         //AND PUT NULL IN UNOCCOUPIED SPOTS
+        //Also send a message, that the game started
         this.gameStates.push(new GameState(this));
     }
 

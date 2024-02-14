@@ -35,7 +35,7 @@ class GameState {
 
         if (newGameState.movePiece(piece)) return this;
         newGameState.switchToNextPlayer();
-
+        //TODO Winning Check for players
         return newGameState;
     }
 
@@ -53,8 +53,8 @@ class GameState {
             newPos = piece.color * 10;
         }else {
 
-            //newPos = (piece.pos + this.diceThrow) % 40;
-            newPos = piece.pos + this.diceThrow;
+            //newPos = piece.pos + this.diceThrow;
+            newPos = (piece.pos + this.diceThrow) % 40;
             
             let housePos;
             switch (piece.color) {
@@ -74,8 +74,10 @@ class GameState {
                     housePos = 1000;
             }
 
-            if (piece.pos > housePos - this.diceThrow) {
-                newPos %= 40;
+            if (housePos - piece.pos < this.diceThrow) {
+                if (newPos % 10 > 3) {
+                    return false;
+                }
                 newPos += 100;
             }
         }

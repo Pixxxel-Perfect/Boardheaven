@@ -24,6 +24,14 @@ class Room {
         this.clients.forEach(p => p.ws.send(message));
     }
 
+    public addClient(client: Client): void {
+        if (!this.clients.find(c => c.ws.remoteAddress == client.ws.remoteAddress)) {
+            this.clients.push(client);
+        }
+    }
+
+    //TODO
+
     private generateId(length: number): string {
         let id = "";
         
@@ -33,6 +41,7 @@ class Room {
         
         return id;
     }
+
 }
 
 export { Room, RoomStatus };
