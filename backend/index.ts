@@ -1,10 +1,9 @@
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/wsData";
 import { Player, PlayerColor } from "./lib/player";
-import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { GameState } from "./lib/gameState";
 import { GameCodeValidator } from "./lib/codesApi";
-import { RequestBody, RequestType } from "./lib/reqBody";
+import { Client } from "./lib/client";
 
 const rooms: Room[] = [];
 const codeAPI = new GameCodeValidator();
@@ -17,8 +16,8 @@ Bun.serve<WsData>({
         /*
         TODO:
             Spit request between
-                - making a room [x]
-                - joining a room [x]
+                - making a room 
+                - joining a room 
                 - rejoining a room
 
             Test Websocket Code
@@ -53,7 +52,7 @@ Bun.serve<WsData>({
             
             let room;
             if (room = getRoom(roomId)) {
-                room.addPlayer(new Player(ws));
+                room.addClient(new Client(ws));
 
                 ws.sendText(JSON.stringify(new WsMessage(WsMessageType.INFO, roomId)));
                 

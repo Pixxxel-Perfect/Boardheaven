@@ -1,6 +1,3 @@
-import { ServerWebSocket } from "bun";
-import { WsData } from "./wsData";
-
 enum WsMessageType {
     SET_COLOR,
     START_GAME,
