@@ -2,10 +2,6 @@ import { Game } from "./game";
 import { GamePiece } from "./gamePiece";
 import { Player, PlayerColor } from "./player";
 
-//  TODO:
-//      Add logic for skipping a turn automatically when in winning position
-//      also add logic for ending the game when all are in winning position
-
 class GameState {
     public pieces: GamePiece[] = [];
     public playingPlayerIndex = 0;
@@ -121,12 +117,8 @@ class GameState {
         // do-while is SUPER dangerous
         let failsafe = 0;
         do {
-            if (failsafe > 20) break;
-            do {
-                if (failsafe > 20) break;
-                index = (this.playingPlayerIndex + 1) % 4;
-                failsafe++;
-            } while (!this.players[this.playingPlayerIndex]);
+            if (failsafe > 4) break;
+            index = (this.playingPlayerIndex + 1) % this.players.length;
         } while (this.isPlayerFinished(this.currentPlayer));
     }
 
