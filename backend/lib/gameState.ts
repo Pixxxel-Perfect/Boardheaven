@@ -42,22 +42,34 @@ class GameState {
         const newGameState = new GameState(this.game, this.pieces);
 
         if (newGameState.movePiece(piece)) return this;
-        
-        //TODO Winning Check for players
+
         if (this.shouldEnd()) {
-            //TODO
+            //Todo end game
         }
 
         newGameState.switchToNextPlayer();
         return newGameState;
     }
 
+    //Dude, I will have to optimize movePiece some day VVV
 
     // Position is a number ranging from -16 to -1 for the starting house
     // 0 to 39 for on the board
     // and add 100 for being in the end house
     public movePiece(piece: GamePiece): Boolean {
         //TODO test if in the house already.
+        if (piece.pos > 100) {
+            let newPos = piece.pos + this.diceThrow;
+            if (newPos % 10 > 3) return false;
+
+            //Test if new position is valid
+            if (this.getPieceAt(newPos)) return false;
+            
+            piece.pos = newPos;
+
+            return true;
+            
+        }
 
         let newPos;
         // Test if piece can be initialized on the board
@@ -66,7 +78,6 @@ class GameState {
             newPos = piece.color * 10;
         }else {
 
-            //newPos = piece.pos + this.diceThrow;
             newPos = (piece.pos + this.diceThrow) % 40;
             
             let housePos;
