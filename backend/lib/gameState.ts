@@ -1,8 +1,6 @@
-import { textChangeRangeIsUnchanged } from "typescript";
 import { Game } from "./game";
 import { GamePiece } from "./gamePiece";
 import { Player, PlayerColor } from "./player";
-import { fail } from "assert";
 
 //  TODO:
 //      Add logic for skipping a turn automatically when in winning position
@@ -44,7 +42,8 @@ class GameState {
         if (newGameState.movePiece(piece)) return this;
 
         if (this.shouldEnd()) {
-            //Todo end game
+            this.game.finishGame();
+            return this;
         }
 
         newGameState.switchToNextPlayer();
@@ -57,7 +56,6 @@ class GameState {
     // 0 to 39 for on the board
     // and add 100 for being in the end house
     public movePiece(piece: GamePiece): Boolean {
-        //TODO test if in the house already.
         if (piece.pos > 100) {
             let newPos = piece.pos + this.diceThrow;
             if (newPos % 10 > 3) return false;
@@ -120,11 +118,14 @@ class GameState {
 
     public switchToNextPlayer() {
         let index;
-        // SUPER dangerous
-        // TODO Failsafe
+        // do-while is SUPER dangerous
+        let failsafe = 0;
         do {
+            if (failsafe > 20) break;
             do {
+                if (failsafe > 20) break;
                 index = (this.playingPlayerIndex + 1) % 4;
+                failsafe++;
             } while (!this.players[this.playingPlayerIndex]);
         } while (this.isPlayerFinished(this.currentPlayer));
     }
