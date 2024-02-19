@@ -4,6 +4,7 @@
   import { isGameMaster } from "../../stores/gameMasterStore";
   import { getContext, onMount } from "svelte";
   import { websocketStore } from "../../stores/websocketStore";
+  import { selectedColorIdStore } from "$lib/components/colorbox/colorStore";
 
   let generatedLink: string | null = null;
 
