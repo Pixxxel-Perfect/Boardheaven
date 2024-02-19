@@ -1,7 +1,10 @@
 import { Player } from "./player";
 
 class GamePiece {
-    
+    /**
+     * Creates a shallow copy of a GamePiece
+     * @param {GamePiece} piece the piece which will be copied
+     */
     public static from(piece: GamePiece): GamePiece {
         return new GamePiece(piece.owner, piece.homePos);
     }

@@ -36,6 +36,9 @@ class GameState {
         if (newGameState.movePiece(piece)) return this;
         newGameState.switchToNextPlayer();
         //TODO Winning Check for players
+        if (this.shouldEnd()) {
+            //TODO
+        }
         return newGameState;
     }
 
@@ -82,7 +85,7 @@ class GameState {
             }
         }
 
-        //TODO Test if new position is valid
+        //Test if new position is valid
         let possColPiece = this.getPieceAt(newPos);
         if (possColPiece) {
             if (possColPiece.color == piece.color) return false;
