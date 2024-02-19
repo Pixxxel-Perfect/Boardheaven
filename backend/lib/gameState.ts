@@ -88,8 +88,10 @@ class GameState {
             if (possColPiece.color == piece.color) return false;
             possColPiece.capture();
         }
+        
+        piece.pos = newPos;
 
-        //TODO
+        return true;
     }
 
     public switchToNextPlayer() {
@@ -107,15 +109,20 @@ class GameState {
     }
 
     public isPlayerFinished(player: Player): boolean {
-        //TODO
+        let pieces = this.getPiecesOfPlayer(player);
+        return pieces.every(p => p.pos >= 100);
     }
 
     public shouldEnd(): boolean {
-        //TODO
+        return this.players.every(p => !p.active);
     }
 
     public getPieceAt(pos: number): GamePiece | null {
         return this.pieces.find(p => p.pos = pos) ?? null;
+    }
+
+    public getPiecesOfPlayer(player: Player): GamePiece[] {
+        return this.pieces.filter(p => p.owner == player);
     }
 }
 
