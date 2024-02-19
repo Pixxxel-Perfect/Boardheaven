@@ -16,7 +16,7 @@ class Player extends Client {
     }
 
     public color: PlayerColor = PlayerColor.NOT_SET;
-    public active: boolean = true;
+    public isSpectator: boolean = false;
     
     constructor(ws: ServerWebSocket<WsData>) {
         super(ws);
