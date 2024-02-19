@@ -23,7 +23,7 @@ class GameState {
             return;
         }
         
-        this.players.forEach(p => {
+        this.players.filter(p => !p.isSpectator).forEach(p => {
             for (let i = 1; i <= 4; i++) {
                 this.pieces.push(new GamePiece(p, -i * p.color));
             }
@@ -123,6 +123,8 @@ class GameState {
     }
 
     public isPlayerFinished(player: Player): boolean {
+        if (player.isSpectator) return true;
+
         let pieces = this.getPiecesOfPlayer(player);
         return pieces.every(p => p.pos >= 100);
     }
