@@ -74,7 +74,7 @@ class GameState {
                     housePos = 1000;
             }
 
-            if (housePos - piece.pos < this.diceThrow) {
+            if (piece.pos > housePos - this.diceThrow && piece.pos < housePos) {
                 if (newPos % 10 > 3) {
                     return false;
                 }
