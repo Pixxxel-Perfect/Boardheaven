@@ -1,6 +1,8 @@
+import { textChangeRangeIsUnchanged } from "typescript";
 import { Game } from "./game";
 import { GamePiece } from "./gamePiece";
 import { Player, PlayerColor } from "./player";
+import { fail } from "assert";
 
 //  TODO:
 //      Add logic for skipping a turn automatically when in winning position
@@ -11,8 +13,12 @@ class GameState {
     public playingPlayerIndex = 0;
     public diceThrow: number;
 
-    public get players() {
+    public get players(): Player[] {
         return this.game.players;
+    }
+
+    public get currentPlayer(): Player {
+        return this.players[this.playingPlayerIndex];
     }
 
     constructor(public game: Game, pieces?: GamePiece[]) {
@@ -31,14 +37,18 @@ class GameState {
     }
 
     public nextGameState(piece: GamePiece): GameState {
+        if (piece.owner !== this.currentPlayer) return this;
+
         const newGameState = new GameState(this.game, this.pieces);
 
         if (newGameState.movePiece(piece)) return this;
-        newGameState.switchToNextPlayer();
+        
         //TODO Winning Check for players
         if (this.shouldEnd()) {
             //TODO
         }
+
+        newGameState.switchToNextPlayer();
         return newGameState;
     }
 
@@ -102,13 +112,10 @@ class GameState {
         // SUPER dangerous
         // TODO Failsafe
         do {
-            index = (this.playingPlayerIndex + 1) % 4;
-        } while (!this.players[this.playingPlayerIndex]);
-    }
-
-    public skipTurn() {
-        const newGameState = new GameState(this.game, this.pieces);
-        newGameState.switchToNextPlayer();
+            do {
+                index = (this.playingPlayerIndex + 1) % 4;
+            } while (!this.players[this.playingPlayerIndex]);
+        } while (this.isPlayerFinished(this.currentPlayer));
     }
 
     public isPlayerFinished(player: Player): boolean {
@@ -117,7 +124,7 @@ class GameState {
     }
 
     public shouldEnd(): boolean {
-        return this.players.every(p => !p.active);
+        return this.players.every(p => this.isPlayerFinished(p));
     }
 
     public getPieceAt(pos: number): GamePiece | null {
