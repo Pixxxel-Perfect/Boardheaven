@@ -28,14 +28,14 @@
     "circleDefault", "circleDefault", "circleGreen", "circleDefault", 
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
-    "circleRed", "circleDefault", "circleDefault", "circleDefault",
+    "circleRed", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleBlack",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
     "circleDefault", "circleYellow", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
-    "circleDefault", "circleDefault", "circleFullGreen", "circleFullGreen",
+    "circleDefault", "circleFullGreen", "circleFullGreen",
     "circleFullGreen", "circleFullGreen", "circleFullRed", "circleFullRed",
     "circleFullRed", "circleFullRed", "circleFullBlack", "circleFullBlack",
     "circleFullBlack", "circleFullBlack", "circleFullYellow", "circleFullYellow",
@@ -44,6 +44,7 @@
     "circleRed", "circleBlack", "circleBlack", "circleBlack", "circleBlack",
     "circleYellow", "circleYellow", "circleYellow", "circleYellow",
   ];
+  const numbers123 = [1,2,3];
   // test
   onMount(() => {
     //addPawnSVG();
@@ -84,13 +85,15 @@
       </button>
     </div>
 
-    <!-- <div class="board">
+    <div class="board">
       {#each circles as circleClass}
         <div class={`circle ${circleClass}`}></div>
       {/each}
-    </div>  -->
-
-    <div class="board">
+    </div> 
+    <!-- {#each circles  as circle}
+      <div class={`circle ${circle}`}></div>
+    {/each} -->
+    <!-- <div class="board">
       <div class="circle circleDefault"></div>
       <div class="circle circleDefault"></div>
       <div class="circle circleGreen"></div>
@@ -172,7 +175,7 @@
       <div class="circle circleYellow"></div>
       <div class="circle circleYellow"></div>
       <div class="circle circleYellow"></div>
-    </div>
+    </div> -->
     <div class="container">
       <div class="pointer">
         <img src={arrowicon} alt="arrow" class="arrow-icon"/>
@@ -378,7 +381,7 @@
     grid-column: 6;
     grid-row: 1;
   }
-  .circleGreen:nth-child(3) {
+  .circle:nth-child(3) {
     grid-column: 7;
     grid-row: 1;
   }
@@ -418,7 +421,7 @@
     grid-column: 11;
     grid-row: 6;
   }
-  .circleRed:nth-child(13) {
+  .circle:nth-child(13) {
     grid-column: 11;
     grid-row: 7;
   }
@@ -458,7 +461,7 @@
     grid-column: 6;
     grid-row: 11;
   }
-  .circleBlack:nth-child(23) {
+  .circle:nth-child(23) {
     grid-column: 5;
     grid-row: 11;
   }
@@ -498,7 +501,7 @@
     grid-column: 1;
     grid-row: 6;
   }
-  .circleYellow:nth-child(33) {
+  .circle:nth-child(33) {
     grid-column: 1;
     grid-row: 5;
   }
@@ -534,70 +537,70 @@
   /*
 Full Circles
 */
-  .circleFullGreen:nth-child(41) {
+  .circle:nth-child(41) {
     grid-column: 6;
     grid-row: 2;
   }
-  .circleFullGreen:nth-child(42) {
+  .circle:nth-child(42) {
     grid-column: 6;
     grid-row: 3;
   }
-  .circleFullGreen:nth-child(43) {
+  .circle:nth-child(43) {
     grid-column: 6;
     grid-row: 4;
   }
-  .circleFullGreen:nth-child(44) {
+  .circle:nth-child(44) {
     grid-column: 6;
     grid-row: 5;
   }
 
-  .circleFullRed:nth-child(45) {
+  .circle:nth-child(45) {
     grid-column: 7;
     grid-row: 6;
   }
-  .circleFullRed:nth-child(46) {
+  .circle:nth-child(46) {
     grid-column: 8;
     grid-row: 6;
   }
-  .circleFullRed:nth-child(47) {
+  .circle:nth-child(47) {
     grid-column: 9;
     grid-row: 6;
   }
-  .circleFullRed:nth-child(48) {
+  .circle:nth-child(48) {
     grid-column: 10;
     grid-row: 6;
   }
 
-  .circleFullBlack:nth-child(49) {
+  .circle:nth-child(49) {
     grid-column: 6;
     grid-row: 7;
   }
-  .circleFullBlack:nth-child(50) {
+  .circle:nth-child(50) {
     grid-column: 6;
     grid-row: 8;
   }
-  .circleFullBlack:nth-child(51) {
+  .circle:nth-child(51) {
     grid-column: 6;
     grid-row: 9;
   }
-  .circleFullBlack:nth-child(52) {
+  .circle:nth-child(52) {
     grid-column: 6;
     grid-row: 10;
   }
 
-  .circleFullYellow:nth-child(53) {
+  .circle:nth-child(53) {
     grid-column: 2;
     grid-row: 6;
   }
-  .circleFullYellow:nth-child(54) {
+  .circle:nth-child(54) {
     grid-column: 3;
     grid-row: 6;
   }
-  .circleFullYellow:nth-child(55) {
+  .circle:nth-child(55) {
     grid-column: 4;
     grid-row: 6;
   }
-  .circleFullYellow:nth-child(56) {
+  .circle:nth-child(56) {
     grid-column: 5;
     grid-row: 6;
   }
@@ -605,71 +608,79 @@ Full Circles
   /*
 Home Circles
 */
-  .circleGreen:nth-child(57) {
+  .circle:nth-child(57) {
     grid-column: 10;
     grid-row: 1;
   }
-  .circleGreen:nth-child(58) {
+  .circle:nth-child(58) {
     grid-column: 11;
     grid-row: 1;
   }
-  .circleGreen:nth-child(59) {
+  .circle:nth-child(59) {
     grid-column: 10;
     grid-row: 2;
   }
-  .circleGreen:nth-child(60) {
+  .circle:nth-child(60) {
     grid-column: 11;
     grid-row: 2;
   }
 
-  .circleRed:nth-child(61) {
+  .circle:nth-child(61) {
     grid-column: 10;
     grid-row: 10;
   }
-  .circleRed:nth-child(62) {
+  .circle:nth-child(62) {
     grid-column: 11;
     grid-row: 10;
   }
-  .circleRed:nth-child(63) {
+  .circle:nth-child(63) {
     grid-column: 10;
     grid-row: 11;
   }
-  .circleRed:nth-child(64) {
+  .circle:nth-child(64) {
     grid-column: 11;
     grid-row: 11;
   }
 
-  .circleBlack:nth-child(65) {
+  .circle:nth-child(65) {
     grid-column: 1;
     grid-row: 10;
   }
-  .circleBlack:nth-child(66) {
+  .circle:nth-child(66) {
     grid-column: 2;
     grid-row: 10;
   }
-  .circleBlack:nth-child(67) {
+  .circle:nth-child(67) {
     grid-column: 1;
     grid-row: 11;
   }
-  .circleBlack:nth-child(68) {
+  .circle:nth-child(68) {
     grid-column: 2;
     grid-row: 11;
   }
 
-  .circleYellow:nth-child(69) {
+  .circle:nth-child(69) {
     grid-column: 1;
     grid-row: 1;
   }
-  .circleYellow:nth-child(70) {
+  .circle:nth-child(70) {
     grid-column: 2;
     grid-row: 1;
   }
-  .circleYellow:nth-child(71) {
+  .circle:nth-child(71) {
     grid-column: 1;
     grid-row: 2;
   }
-  .circleYellow:nth-child(72) {
+  .circle:nth-child(72) {
     grid-column: 2;
     grid-row: 2;
   }
+  /* .circle:nth-child(73) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .circle:nth-child(74) {
+    grid-column: 2;
+    grid-row: 1;
+  } */
 </style>
