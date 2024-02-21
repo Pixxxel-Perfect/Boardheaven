@@ -5,12 +5,48 @@
   import settingsicon  from "$lib/images/settings.png";
   import { onMount } from "svelte";
   import arrowicon  from "$lib/images/arrowright.svg";
+  import pawn  from "$lib/images/pawn.svg";
+/*
+  function addPawnSVG() {
+    const circles = document.querySelectorAll('.circleGreen'); 
 
-
+    circles.forEach(circle => {
+      const svgNamespace = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNamespace, "svg");
+      svg.setAttribute("fill", "green");
+      const path = document.createElementNS(svgNamespace, "path");
+      path.setAttribute("fill-rule", "evenodd");
+      path.setAttribute("clip-rule", "evenodd");
+      path.setAttribute("d", "M2.88138 8.90846C1.73464 7.99226 1 6.58192 1 5C1 2.23858 3.23858 0 6 0C8.7614 0 11 2.23858 11 5C11 6.5814 10.2658 7.99133 9.1198 8.90755L11.0777 13.8831C11.6866 15.4306 12.0015 17.1081 12.0015 18.8049V21C12.0015 21.5523 11.5538 22 11.0015 22H1C0.44772 22 0 21.5523 0 21L0 18.8049C0 17.1081 0.31487 15.4306 0.92382 13.8831L2.88138 8.90846z");
+      svg.setAttribute("viewBox", "-9 -4 30 30"); // Setzen Sie die viewBox entsprechend Ihren Anforderungen
+      svg.appendChild(path);
+      circle.appendChild(svg);
+    });
+  }*/
   let ws: WebSocket;
-
+  const circles = [
+    "circleDefault", "circleDefault", "circleGreen", "circleDefault", 
+    "circleDefault", "circleDefault", "circleDefault", "circleDefault",
+    "circleDefault", "circleDefault", "circleDefault", "circleDefault",
+    "circleRed", "circleDefault", "circleDefault", "circleDefault",
+    "circleDefault", "circleDefault", "circleDefault", "circleDefault",
+    "circleDefault", "circleDefault", "circleDefault", "circleBlack",
+    "circleDefault", "circleDefault", "circleDefault", "circleDefault",
+    "circleDefault", "circleDefault", "circleDefault", "circleDefault",
+    "circleDefault", "circleYellow", "circleDefault", "circleDefault",
+    "circleDefault", "circleDefault", "circleDefault", "circleDefault",
+    "circleDefault", "circleDefault", "circleFullGreen", "circleFullGreen",
+    "circleFullGreen", "circleFullGreen", "circleFullRed", "circleFullRed",
+    "circleFullRed", "circleFullRed", "circleFullBlack", "circleFullBlack",
+    "circleFullBlack", "circleFullBlack", "circleFullYellow", "circleFullYellow",
+    "circleFullYellow", "circleFullYellow", "circleGreen", "circleGreen",
+    "circleGreen", "circleGreen", "circleRed", "circleRed", "circleRed",
+    "circleRed", "circleBlack", "circleBlack", "circleBlack", "circleBlack",
+    "circleYellow", "circleYellow", "circleYellow", "circleYellow",
+  ];
   // test
   onMount(() => {
+    //addPawnSVG();
     //Establish the WS connection
     //here you need to connect to WebSocket
     //check for incomming message
@@ -43,11 +79,16 @@
       <button class="leave-button">
         <span class="leave-arrow">&#10132;</span> Leave
       </button>
-      
       <button class="settings-button">
         <img src={settingsicon} alt="Settings" class="settings-icon"/>
       </button>
     </div>
+
+    <!-- <div class="board">
+      {#each circles as circleClass}
+        <div class={`circle ${circleClass}`}></div>
+      {/each}
+    </div>  -->
 
     <div class="board">
       <div class="circle circleDefault"></div>
@@ -111,6 +152,7 @@
       <div class="circle circleFullYellow"></div>
       <div class="circle circleFullYellow"></div>
   
+
       <div class="circle circleGreen"></div>
       <div class="circle circleGreen"></div>
       <div class="circle circleGreen"></div>
@@ -166,6 +208,7 @@
 </div>
 
 <style>
+  
   .playerHeadline{
     font-size: 28px;
     color: #000000;
@@ -174,7 +217,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color:#F9FF00; 
+    background-color:yellow; 
     border-radius: 40px; 
     height: 5vh;
     width: 20vh;
@@ -185,7 +228,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color:#1ED225; 
+    background-color:green; 
     border-radius: 40px; 
     height: 5vh;
     width: 20vh;
@@ -196,7 +239,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color:#FD0000; 
+    background-color:red; 
     border-radius: 40px; 
     height: 5vh;
     width: 20vh;
@@ -221,11 +264,6 @@
   height: 35vh;
 }
 .pointer{
-    margin-top: 90px;
-    /* margin-top: 140px; */
-    /* margin-top: 190px; */
-    /* margin-top: 240px; */
-
     width: 5vh;
     height: 5vh;
     background-color: #F1F1F1;
@@ -264,7 +302,7 @@
   margin-bottom: 10px;
   transition: all 0.1s ease-in;
   padding: 10px 20px; 
-  background-color: #f70000; 
+  background-color: red; 
   color: white; 
   font-size: 18px;
   border: none; 
@@ -291,9 +329,14 @@
     gap: 10px;
   }
 
+
   .circle {
     aspect-ratio: 1;
     border-radius: 50%;
+    position: relative; /* Wichtig für die Zentrierung des Bauern */
+    display: flex; /* Ermöglicht die Verwendung von justify-content und align-items zur Zentrierung */
+    justify-content: center; /* Zentriert den Inhalt horizontal */
+    align-items: center; /* Zentriert den Inhalt vertikal */
   }
   .circle:hover {
     background-color: rgb(202, 202, 202);
