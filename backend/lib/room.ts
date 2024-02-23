@@ -1,5 +1,8 @@
+import { ServerWebSocket } from "bun";
 import { Client } from "./client";
 import { Game } from "./game";
+import { WsMessage } from "./wsMessage";
+import { WsData } from "./wsData";
 
 enum RoomStatus {
     LOBBY,
@@ -7,9 +10,11 @@ enum RoomStatus {
 }
 
 class Room {
-    public static idPattern = "abcdefghijklmnopqrstuvwxyz0123456789";
+    public static readonly ID_PATTERN = "abcdefghijklmnopqrstuvwxyz0123456789";
+    public static readonly DEFAULT_LENGTH = 8;
     
     public roomId: string;
+    public roomStatus: RoomStatus = RoomStatus.LOBBY;
     public clients: Client[] = []
     public roomMaster: Client;
     public game?: Game;
@@ -17,11 +22,11 @@ class Room {
     constructor(roomMaster: Client, roomId?: string) {
         this.clients.push(roomMaster);
         this.roomMaster = roomMaster;
-        this.roomId = roomId ?? this.generateId(8);
+        this.roomId = roomId ?? this.generateId(Room.DEFAULT_LENGTH);
     }
 
-    public broadcast(message: string | Buffer) {
-        this.clients.forEach(p => p.ws.send(message));
+    public broadcast(wsMessage: WsMessage<unknown>) {
+        this.clients.forEach(p => p.ws.send(JSON.stringify(wsMessage)));
     }
 
     public addClient(client: Client): void {
@@ -30,13 +35,28 @@ class Room {
         }
     }
 
+    public getClient(ws: ServerWebSocket<WsData>): Client | null {
+        return this.clients.find(c => c.ws.remoteAddress == ws.remoteAddress) ?? null;
+    }
+
+    public removeClient(client: Client): void {
+        if (!this.clients.find(c => c.ws.remoteAddress == client.ws.remoteAddress)) return;
+
+        for (let i = 0; i < this.clients.length; i++) {
+            if (this.clients[i].ws.remoteAddress == client.ws.remoteAddress) {
+                this.clients.splice(i);
+                break;
+            }
+        }
+    }
+
     //TODO
 
     private generateId(length: number): string {
         let id = "";
-        
+        let patternLength = Room.ID_PATTERN.length;
         for (let i = 0; i < 8; i++) {
-            id += Room.idPattern.charAt(Math.floor(Math.random() * Room.idPattern.length));
+            id += Room.ID_PATTERN.charAt(Math.floor(Math.random() * patternLength));
         }
         
         return id;
