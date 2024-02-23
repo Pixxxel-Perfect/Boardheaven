@@ -30,20 +30,20 @@ class Room {
     }
 
     public addClient(client: Client): void {
-        if (!this.clients.find(c => c.ws.remoteAddress == client.ws.remoteAddress)) {
+        if (!this.clients.find(c => c.equals(client))) {
             this.clients.push(client);
         }
     }
 
     public getClient(ws: ServerWebSocket<WsData>): Client | null {
-        return this.clients.find(c => c.ws.remoteAddress == ws.remoteAddress) ?? null;
+        return this.clients.find(c => c.equals(ws)) ?? null;
     }
 
     public removeClient(client: Client): void {
-        if (!this.clients.find(c => c.ws.remoteAddress == client.ws.remoteAddress)) return;
+        if (!this.clients.find(c => c.equals(client))) return;
 
         for (let i = 0; i < this.clients.length; i++) {
-            if (this.clients[i].ws.remoteAddress == client.ws.remoteAddress) {
+            if (this.clients[i].equals(client)) {
                 this.clients.splice(i);
                 break;
             }

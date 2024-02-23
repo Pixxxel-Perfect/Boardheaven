@@ -47,8 +47,6 @@ Bun.serve<WsData>({
             rooms.push(room);
         },
         message(ws, message) {
-            /*console.log("'" + message + "' was sent from " + ws.remoteAddress);
-            getRoom(ws.data.roomId)?.broadcast(JSON.stringify({sender: ws.remoteAddress, message: message}));*/
 
             //TODO: handle incoming messages
 
@@ -73,13 +71,24 @@ Bun.serve<WsData>({
             room.broadcast(preParsedMessage);
             //DEBUG
 
+            switch (parsedMessage.messageType) {
+                case WsMessageType.START_GAME:
+                    break;
+                case WsMessageType.CHOOSE_COLOR:
+                    break;
+                case WsMessageType.TURN_ACTION:
+                    break;
+                default:
+
+            }
+
 
         },
         close(ws) {
             const room = rooms.find(r => r.roomId == ws.data.roomId);
             if (!room) return;
             //TODO better VVV
-            const client = room.clients.find(c => c.ws.remoteAddress == ws.remoteAddress);
+            const client = room.clients.find(c => c.equals(ws));
             if (!client) return;
 
             room.removeClient(client);
