@@ -25,24 +25,24 @@
   }*/
   let ws: WebSocket;
   const circles = [
-    "circleGreen", "circleDefault", 
+    "circleBlack", "circleDefault", 
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
-    "circleRed", "circleDefault", "circleDefault",
+    "circleYellow", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
-    "circleDefault", "circleDefault", "circleDefault", "circleBlack",
+    "circleDefault", "circleDefault", "circleDefault", "circleGreen",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
-    "circleDefault", "circleYellow", "circleDefault", "circleDefault",
+    "circleDefault", "circleRed", "circleDefault", "circleDefault",
     "circleDefault", "circleDefault", "circleDefault", "circleDefault",
-    "circleDefault", "circleDefault", "circleDefault", "circleFullGreen", "circleFullGreen",
-    "circleFullGreen", "circleFullGreen", "circleFullRed", "circleFullRed",
-    "circleFullRed", "circleFullRed", "circleFullBlack", "circleFullBlack",
+    "circleDefault", "circleDefault", "circleDefault", "circleFullBlack", "circleFullBlack",
     "circleFullBlack", "circleFullBlack", "circleFullYellow", "circleFullYellow",
-    "circleFullYellow", "circleFullYellow", "circleGreen", "circleGreen",
-    "circleGreen", "circleGreen", "circleRed", "circleRed", "circleRed",
-    "circleRed", "circleBlack", "circleBlack", "circleBlack", "circleBlack",
-    "circleYellow", "circleYellow", "circleYellow", "circleYellow",
+    "circleFullYellow", "circleFullYellow", "circleFullGreen", "circleFullGreen",
+    "circleFullGreen", "circleFullGreen", "circleFullRed", "circleFullRed",
+    "circleFullRed", "circleFullRed", "circleBlack", "circleBlack",
+    "circleBlack", "circleBlack", "circleYellow", "circleYellow", "circleYellow",
+    "circleYellow", "circleGreen", "circleGreen", "circleGreen", "circleGreen",
+    "circleRed", "circleRed", "circleRed", "circleRed",
   ];
   // test
   onMount(() => {
