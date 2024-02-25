@@ -1,10 +1,8 @@
 <script lang="ts">
   import Colorbox from "$lib/components/colorbox/colorbox.svelte";
-  import { get } from "svelte/store";
   import { isGameMaster } from "../../stores/gameMasterStore";
-  import { getContext, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { websocketStore } from "../../stores/websocketStore";
-  import { selectedColorIdStore } from "$lib/components/colorbox/colorStore";
 
   let generatedLink: string | null = null;
 

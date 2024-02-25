@@ -8,24 +8,9 @@
 
   let isSelected: boolean = false;
 
-  //let selectedColorId: number | null = null;
-
   let selectedBy: string = "";
 
   onMount(() => {
-    /*let unsubscribeColor = selectedColorStore.subscribe((value) => {
-      if (value !== color) {
-        isSelected = false;
-        console.log(isSelected);
-        selectedBy = "";
-      } else {
-        isSelected = true;
-        console.log(isSelected);
-
-        selectedBy = "You";
-      }
-    });*/
-
     let unsubscribeColor = selectedColorStore.subscribe((value) => {
       isSelected = value === color;
       selectedBy = isSelected ? "You" : "";
@@ -40,20 +25,14 @@
       }
     });
 
-    /*let unsubscribeColorSelection = selectedColorIdStore.subscribe((value) => {
-      selectedColorId = value;
-    });*/
-
     return () => {
       unsubscribeColor();
       unsubscribeWebsocket();
-      //unsubscribeColorSelection();
     };
   });
 
   function selectItem(): void {
     setSelectedColor(color);
-    //setSelectedColorId(colorid);
     //I need the correct type for set-color command
     // sending type = 0 means -> set color
     websocketStore.send(JSON.stringify({ type: 0, value: colorid }));
