@@ -1,71 +1,47 @@
-import { ServerWebSocket } from "bun";
-import { Player } from "./player";
-import { getTokenSourceMapRange } from "typescript";
+import { Client } from "./client";
+import { Game } from "./game";
 
 enum RoomStatus {
-    INIT,
     LOBBY,
     PLAYING,
-    REJOIN,
-    END,
-    CLOSING
 }
 
 class Room {
-    public static readonly PLAYER_LIMIT = 4;
-
-    public players: Player[];
-    public gameMaster: Player;
+    public static idPattern = "abcdefghijklmnopqrstuvwxyz0123456789";
+    
     public roomId: string;
-    public roomStatus: RoomStatus = RoomStatus.INIT;
+    public clients: Client[] = []
+    public roomMaster: Client;
+    public game?: Game;
 
-    constructor(gameMaster: Player, roomId?: string) {
-        //this.gameMaster = (players && players.length > 0) ? players[0] : null;
-        this.gameMaster = gameMaster;
-        this.players = [gameMaster];
-        this.roomId = (roomId) ? roomId : this.generateId();
+    constructor(roomMaster: Client, roomId?: string) {
+        this.clients.push(roomMaster);
+        this.roomMaster = roomMaster;
+        this.roomId = roomId ?? this.generateId(8);
     }
 
-    //Length: 8
-    private generateId(): string {
-        const idPattern = "abcdefghijklmnopqrstuvwxyz0123456789";
+    public broadcast(message: string | Buffer) {
+        this.clients.forEach(p => p.ws.send(message));
+    }
+
+    public addClient(client: Client): void {
+        if (!this.clients.find(c => c.ws.remoteAddress == client.ws.remoteAddress)) {
+            this.clients.push(client);
+        }
+    }
+
+    //TODO
+
+    private generateId(length: number): string {
         let id = "";
         
         for (let i = 0; i < 8; i++) {
-            id += idPattern.charAt(Math.random() * idPattern.length);
+            id += Room.idPattern.charAt(Math.floor(Math.random() * Room.idPattern.length));
         }
         
         return id;
     }
 
-    public addPlayer(player: Player): Boolean {
-        if (this.players.length >= Room.PLAYER_LIMIT) {
-            return false;
-        }
-        
-        if (this.players.includes(player)) {
-            return false;
-        }
-
-        this.players.push(player);
-
-        return true;
-    }
-
-    public removePlayer(player: Player): Boolean {
-        let index = this.players.indexOf(player);
-        if (index == -1) {
-            return false;
-        }
-
-        this.players.splice(index, 1);
-        
-        return true;
-    }
-
-    public broadcast(message: string | Buffer) {
-        this.players.forEach(p => p.ws.send(message));
-    }
 }
 
 export { Room, RoomStatus };

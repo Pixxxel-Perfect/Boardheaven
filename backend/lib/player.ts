@@ -1,16 +1,26 @@
 import { ServerWebSocket } from "bun";
-import { WsData } from "./ws-data";
+import { WsData } from "./wsData";
+import { Client } from "./client";
 
-class Player {
-    public ws: ServerWebSocket<unknown>;
+enum PlayerColor {
+    NOT_SET = -1,
+    BLACK = 0,
+    YELLOW = 1,
+    GREEN = 2,
+    RED = 3
+}
 
-    constructor(ws: ServerWebSocket<unknown>) {
-        this.ws = ws;
+class Player extends Client {
+    public static from(client: Client): Player {
+        return new this(client.ws);
     }
 
-    get roomId() {
-        return (this.ws.data as WsData).roomId;
+    public color: PlayerColor = PlayerColor.NOT_SET;
+    public isSpectator: boolean = false;
+    
+    constructor(ws: ServerWebSocket<WsData>) {
+        super(ws);
     }
 }
 
-export { Player };
+export { Player, PlayerColor };
