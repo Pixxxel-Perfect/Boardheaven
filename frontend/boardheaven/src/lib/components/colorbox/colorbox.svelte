@@ -1,11 +1,6 @@
 <script lang="ts">
   import { websocketStore } from "../../../stores/websocketStore";
-  import {
-    selectedColorStore,
-    setSelectedColor,
-    setSelectedColorId,
-    selectedColorIdStore,
-  } from "./colorStore";
+  import { selectedColorStore, setSelectedColor } from "./colorStore";
   import { onMount } from "svelte";
 
   export let color: string;
@@ -18,22 +13,30 @@
   let selectedBy: string = "";
 
   onMount(() => {
-    let unsubscribeColor = selectedColorStore.subscribe((value) => {
+    /*let unsubscribeColor = selectedColorStore.subscribe((value) => {
       if (value !== color) {
         isSelected = false;
+        console.log(isSelected);
         selectedBy = "";
       } else {
         isSelected = true;
+        console.log(isSelected);
+
         selectedBy = "You";
       }
+    });*/
+
+    let unsubscribeColor = selectedColorStore.subscribe((value) => {
+      isSelected = value === color;
+      selectedBy = isSelected ? "You" : "";
     });
 
     let unsubscribeWebsocket = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
       //got color selectd message
-      if (wsData.type === 7 && wsData.value === colorid) {
+      if (wsData.type === 7) {
         //the value represents the button to disable
-        isSelected = true;
+        isSelected = colorid === wsData.value;
       }
     });
 
@@ -65,9 +68,7 @@
 <button
   id={colorid.toString()}
   class="color-box"
-  style="--box-color: {color}; {isSelected
-    ? 'background-color: gray;'
-    : `${color}`}"
+  style="background-color: {isSelected ? '#949494' : color};"
   on:click={selectItem}
   disabled={isSelected}
   ><p class="selected-text" style="--text-color: {colorBoxBlack()}">
@@ -78,7 +79,6 @@
 <style>
   .color-box {
     border-radius: 36px;
-    background-color: var(--box-color);
     width: 150px;
     height: 186px;
     margin-top: 15px;
