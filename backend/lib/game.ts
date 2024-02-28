@@ -30,6 +30,8 @@ class Game {
         // TODO When disconnecting it would make sense to send some sort of finishe message
         this.players.forEach(p => p.disconnect());
     }
+
+    //TODO handle player disconnecting
 }
 
 export { Game };

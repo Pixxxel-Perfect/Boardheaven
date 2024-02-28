@@ -48,9 +48,15 @@ class Room {
                 break;
             }
         }
+
+        //TODO handle roommaster
+
+        if (!this.clients.find(c => c.equals(this.roomMaster))) {
+            this.roomMaster
+        }
     }
 
-    //TODO
+    //TODO handle player disconnecting
 
     private generateId(length: number): string {
         let id = "";
