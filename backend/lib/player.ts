@@ -1,6 +1,7 @@
 import { ServerWebSocket } from "bun";
 import { WsData } from "./wsData";
 import { Client } from "./client";
+import { WsMessage, WsMessageType } from "./wsMessage";
 
 enum PlayerColor {
     NOT_SET = -1,
@@ -18,8 +19,13 @@ class Player extends Client {
     public color: PlayerColor = PlayerColor.NOT_SET;
     public isSpectator: boolean = false;
     
-    constructor(ws: ServerWebSocket<WsData>) {
+    public constructor(ws: ServerWebSocket<WsData>) {
         super(ws);
+    }
+
+    public finishGame() {
+        this.send(new WsMessage(WsMessageType.GAME_FINISH, null));
+        this.disconnect();
     }
 }
 

@@ -1,12 +1,10 @@
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/wsData";
 import { Player, PlayerColor } from "./lib/player";
-import { GameState } from "./lib/gameState";
 import { GameCodeValidator } from "./lib/codesApi";
 import { Client } from "./lib/client";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
 
-const rooms: Room[] = [];
 const codeAPI = new GameCodeValidator();
 
 //URL = ws:[IP]/<ID>
@@ -35,7 +33,7 @@ Bun.serve<WsData>({
             if (room = getRoom(roomId)) {
 
                 room.addClient(new Client(ws));
-                room.broadcast(new WsMessage<Room>(WsMessageType.ROOM_STATUS, room));
+                room.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, room));
 
                 return;
             }
@@ -44,7 +42,7 @@ Bun.serve<WsData>({
             room.roomStatus = RoomStatus.LOBBY;
             room.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, room));
 
-            rooms.push(room);
+            Room.ROOMS.push(room);
         },
         message(ws, message) {
 
@@ -85,9 +83,9 @@ Bun.serve<WsData>({
 
         },
         close(ws) {
-            const room = rooms.find(r => r.roomId == ws.data.roomId);
+            const room = Room.ROOMS.find(r => r.roomId == ws.data.roomId);
             if (!room) return;
-            //TODO better VVV
+            //TODO better maybe VVV
             const client = room.clients.find(c => c.equals(ws));
             if (!client) return;
 
@@ -97,7 +95,7 @@ Bun.serve<WsData>({
 });
 
 function getRoom(roomId: string): Room | null {
-    return rooms.find(r => r.roomId == roomId) ?? null;
+    return Room.ROOMS.find(r => r.roomId == roomId) ?? null;
 }
 
 function toNumber(text: string | number): number {

@@ -10,6 +10,8 @@ enum RoomStatus {
 }
 
 class Room {
+    public static ROOMS: Room[] = [];
+
     public static readonly ID_PATTERN = "abcdefghijklmnopqrstuvwxyz0123456789";
     public static readonly DEFAULT_LENGTH = 8;
     
@@ -25,8 +27,8 @@ class Room {
         this.roomId = roomId ?? this.generateId(Room.DEFAULT_LENGTH);
     }
 
-    public broadcast(wsMessage: WsMessage<unknown>) {
-        this.clients.forEach(p => p.ws.send(JSON.stringify(wsMessage)));
+    public broadcast(message: WsMessage<unknown>) {
+        this.clients.forEach(p => p.send(message));
     }
 
     public addClient(client: Client): void {
@@ -41,7 +43,7 @@ class Room {
 
     public removeClient(client: Client): void {
         if (!this.clients.find(c => c.equals(client))) return;
-
+        
         for (let i = 0; i < this.clients.length; i++) {
             if (this.clients[i].equals(client)) {
                 this.clients.splice(i);
@@ -49,14 +51,17 @@ class Room {
             }
         }
 
-        //TODO handle roommaster
+        if (this.clients.length == 0) {
+            const index = Room.ROOMS.indexOf(this);
+            if (index < 0) return;
 
-        if (!this.clients.find(c => c.equals(this.roomMaster))) {
-            this.roomMaster
+            Room.ROOMS.splice(index, 1);
+        }
+
+        if (this.roomMaster.equals(client)) {
+            this.roomMaster = this.clients[0];
         }
     }
-
-    //TODO handle player disconnecting
 
     private generateId(length: number): string {
         let id = "";

@@ -2,6 +2,7 @@ enum WsMessageType {
     //SERVER
     ROOM_STATUS,
     GAME_STATUS,
+    GAME_FINISH,
     //CLIENT
     START_GAME,
     CHOOSE_COLOR,

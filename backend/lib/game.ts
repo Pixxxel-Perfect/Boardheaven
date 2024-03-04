@@ -27,11 +27,9 @@ class Game {
         // I am throwing out everyone after a game
         // TODO That can/will be changed later to allow multiple games in succession
         this.isFinished = true;
-        // TODO When disconnecting it would make sense to send some sort of finishe message
-        this.players.forEach(p => p.disconnect());
+        // TODO When disconnecting it would make sense to send some sort of finish message
+        this.players.forEach(p => p.finishGame());
     }
-
-    //TODO handle player disconnecting
 }
 
 export { Game };

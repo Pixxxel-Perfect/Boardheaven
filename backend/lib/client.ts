@@ -1,6 +1,7 @@
 import { ServerWebSocket } from "bun";
 import { WsData } from "./wsData";
 import { totalCompileTime } from "bun:jsc";
+import { WsMessage } from "./wsMessage";
 
 class Client {
     public ws: ServerWebSocket<WsData>;
@@ -11,6 +12,10 @@ class Client {
 
     constructor(ws: ServerWebSocket<WsData>) {
         this.ws = ws;
+    }
+
+    public send(message: WsMessage<unknown>) {
+        this.ws.send(JSON.stringify(message));
     }
 
     public disconnect() {
