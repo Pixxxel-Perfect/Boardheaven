@@ -12,8 +12,16 @@ enum PlayerColor {
 }
 
 class Player extends Client {
-    public static from(client: Client): Player {
+    public static fromClient(client: Client): Player {
         return new this(client.ws);
+    }
+
+    public static fromClients(clients: Client[]): Player[] {
+        const players: Player[] = [];
+
+        clients.forEach(c => players.push(Player.fromClient(c)));
+        
+        return players;
     }
 
     public color: PlayerColor = PlayerColor.NOT_SET;

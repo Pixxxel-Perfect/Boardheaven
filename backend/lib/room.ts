@@ -1,8 +1,10 @@
 import { ServerWebSocket } from "bun";
 import { Client } from "./client";
 import { Game } from "./game";
-import { WsMessage } from "./wsMessage";
+import { WsMessage, WsMessageType } from "./wsMessage";
 import { WsData } from "./wsData";
+import { Player, PlayerColor } from "./player";
+import { timingSafeEqual } from "crypto";
 
 enum RoomStatus {
     LOBBY,
@@ -14,6 +16,10 @@ class Room {
 
     public static readonly ID_PATTERN = "abcdefghijklmnopqrstuvwxyz0123456789";
     public static readonly DEFAULT_LENGTH = 8;
+
+    public static getRoom(roomId: string): Room | null {
+        return Room.ROOMS.find(r => r.roomId == roomId) ?? null;
+    }
     
     public roomId: string;
     public roomStatus: RoomStatus = RoomStatus.LOBBY;
@@ -27,8 +33,12 @@ class Room {
         this.roomId = roomId ?? this.generateId(Room.DEFAULT_LENGTH);
     }
 
-    public broadcast(message: WsMessage<unknown>) {
+    public broadcast(message: WsMessage<unknown>): void {
         this.clients.forEach(c => c.send(message));
+    }
+
+    public broadcastRoomStatus() {
+        this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, this));
     }
 
     public addClient(client: Client): void {
@@ -61,6 +71,14 @@ class Room {
         if (this.roomMaster.equals(client)) {
             this.roomMaster = this.clients[0];
         }
+    }
+
+    public startGameLobby() {
+        this.game = new Game(Player.fromClients(this.clients));
+    }
+
+    public isColorFree(color: PlayerColor): boolean {
+        return this.game?.isColorFree(color) ?? false;
     }
 
     private generateId(length: number): string {

@@ -4,6 +4,7 @@ import { Player, PlayerColor } from "./lib/player";
 import { GameCodeValidator } from "./lib/codesApi";
 import { Client } from "./lib/client";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
+import { Game } from "./lib/game";
 
 const codeAPI = new GameCodeValidator();
 
@@ -30,17 +31,18 @@ Bun.serve<WsData>({
             const roomId = ws.data.roomId;
             
             let room;
-            if (room = getRoom(roomId)) {
+            if (room = Room.getRoom(roomId)) {
 
                 room.addClient(new Client(ws));
-                room.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, room));
+                room.broadcastRoomStatus();
 
                 return;
             }
 
             room = new Room(new Player(ws), roomId);
             room.roomStatus = RoomStatus.LOBBY;
-            room.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, room));
+            room.startGameLobby();
+            room.broadcastRoomStatus();
 
             Room.ROOMS.push(room);
         },
@@ -58,7 +60,7 @@ Bun.serve<WsData>({
                 return;
             }
 
-            let room = getRoom(ws.data.roomId);
+            const room = Room.getRoom(ws.data.roomId);
             if (!room) return ws.close();
 
             let client = room.getClient(ws);
@@ -69,17 +71,41 @@ Bun.serve<WsData>({
             room.broadcast(preParsedMessage);
             //DEBUG
 
+
             switch (parsedMessage.messageType) {
                 case WsMessageType.START_GAME:
+                    if (!room.roomMaster.equals(client)) break;
+                    room.game = new Game(Player.fromClients(room.clients));
+                    room.game.startGame();
                     break;
                 case WsMessageType.CHOOSE_COLOR:
+                    if (!room.game) break;
+                    
+                    const player = room.game.getPlayer(client);
+                    if (!player) break;
+                    
+                    let color;
+                    try {
+                        color = parsedMessage.value as PlayerColor;
+                    } catch {
+                        break;
+                    }
+                    if (!room.isColorFree(color)) break;
+
+                    player.color = color;
+                    room.broadcastRoomStatus();
                     break;
                 case WsMessageType.TURN_ACTION:
+                    //TODO
+                    break;
+                case WsMessageType.CLOSE:
+                    //TODO
                     break;
                 default:
-
+                    //TODO
             }
 
+            room.broadcastRoomStatus();
 
         },
         close(ws) {
@@ -93,10 +119,6 @@ Bun.serve<WsData>({
         }
     }
 });
-
-function getRoom(roomId: string): Room | null {
-    return Room.ROOMS.find(r => r.roomId == roomId) ?? null;
-}
 
 function toNumber(text: string | number): number {
     try {
