@@ -1,6 +1,9 @@
 <script lang="ts">
   import { websocketStore } from "../../../stores/websocketStore";
-  import { selectedColorStore, setSelectedColor } from "./colorStore";
+  import {
+    selectedColorStore,
+    setSelectedColor,
+  } from "../../../stores/colorStore";
   import { onMount } from "svelte";
 
   export let color: string;
@@ -19,7 +22,7 @@
     let unsubscribeWebsocket = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
       //got color selectd message
-      if (wsData.type === 7) {
+      if (wsData.type === 3) {
         //the value represents the button to disable
         isSelected = colorid === wsData.value;
       }
@@ -35,7 +38,7 @@
     setSelectedColor(color);
     //I need the correct type for set-color command
     // sending type = 0 means -> set color
-    websocketStore.send(JSON.stringify({ type: 0, value: colorid }));
+    websocketStore.send(JSON.stringify({ type: 3, value: colorid }));
   }
 
   function colorBoxBlack(): string {

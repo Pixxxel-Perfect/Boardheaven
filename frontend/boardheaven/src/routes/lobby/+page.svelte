@@ -11,15 +11,15 @@
       gameMaster = value;
     });
 
-    websocketStore.connect("ws:\\localhost:8888");
+    websocketStore.connect("ws:\\localhost:3000");
 
     let unsubscribeWs = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
       // check with Bachel to share his Types and enums, so I can reuse it, now for just for testing using fix values:
       // set rommId as info message = 6 ->got room id
-      if (wsData.type === 6) {
+      if (wsData.type === 0) {
         //generate the room url
-        generatedLink = `${window.location.origin}?roomId=${wsData.value}`;
+        generatedLink = `${window.location.origin}/${wsData.value}`;
       } else {
         console.log(wsData);
       }
