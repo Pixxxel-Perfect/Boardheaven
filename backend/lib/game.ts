@@ -1,9 +1,9 @@
 import { GameState } from "./gameState";
 import { Player, PlayerColor } from "./player";
+import { WsMessage, WsMessageType } from "./wsMessage";
 
 class Game {
     public gameStates: GameState[] = [];
-    public isFinished: boolean = false;
 
     public get currentGameState() {
         return this.gameStates[this.gameStates.length - 1];
@@ -18,16 +18,16 @@ class Game {
         this.players.sort((p1, p2) => p1.color - p2.color);
     }
 
+    public broadcast(message: WsMessage<unknown>) {
+        this.players.forEach(p => p.send(message));
+    }
+
     public startGame() {
-        // TODO Maybe send a message at this point, that the game is starting
-        this.gameStates.push(new GameState(this));
+        this.gameStates[0] = new GameState(this);
+        this.broadcast(new WsMessage<GameState>(WsMessageType.GAME_STATUS, this.gameStates[0]));
     }
 
     public finishGame() {
-        // I am throwing out everyone after a game
-        // TODO That can/will be changed later to allow multiple games in succession
-        this.isFinished = true;
-        // TODO When disconnecting it would make sense to send some sort of finish message
         this.players.forEach(p => p.finishGame());
     }
 }

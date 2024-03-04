@@ -28,7 +28,7 @@ class Room {
     }
 
     public broadcast(message: WsMessage<unknown>) {
-        this.clients.forEach(p => p.send(message));
+        this.clients.forEach(c => c.send(message));
     }
 
     public addClient(client: Client): void {
