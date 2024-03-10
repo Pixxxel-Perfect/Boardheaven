@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { chatStore } from "./chatStore";
+  import { chatStore } from "../../../stores/chatStore";
   import Message from "./message.svelte";
   import type { ParentSendMessage } from "../../utils";
 
