@@ -1,4 +1,5 @@
 import { Client } from "./client";
+import { GamePiece } from "./gamePiece";
 import { GameState } from "./gameState";
 import { Player, PlayerColor } from "./player";
 import { WsMessage, WsMessageType } from "./wsMessage";
@@ -26,6 +27,12 @@ class Game {
     public startGame(): void {
         this.gameStates[0] = new GameState(this);
         this.broadcast(new WsMessage<GameState>(WsMessageType.GAME_STATUS, this.gameStates[0]));
+    }
+
+    public nextGameState(piece: GamePiece): void {
+        const nextGameState = this.currentGameState.nextGameState(piece);
+        if (nextGameState.equals(this.currentGameState)) return;
+        this.gameStates.push(this.currentGameState.nextGameState(piece));
     }
 
     public finishGame(): void {

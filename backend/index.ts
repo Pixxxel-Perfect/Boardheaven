@@ -5,6 +5,7 @@ import { GameCodeValidator } from "./lib/codesApi";
 import { Client } from "./lib/client";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { Game } from "./lib/game";
+import { GamePiece } from "./lib/gamePiece";
 
 const codeAPI = new GameCodeValidator();
 
@@ -49,12 +50,13 @@ Bun.serve<WsData>({
         message(ws, message) {
 
             //TODO: handle incoming messages
+            //TODO: send Error messages on error
 
             if (Buffer.isBuffer(message)) return;
 
-            const preParsedMessage = JSON.parse(message);
             let parsedMessage;
             try {
+                const preParsedMessage = JSON.parse(message);
                 parsedMessage = preParsedMessage as WsMessage<unknown>;
             } catch {
                 return;
@@ -66,17 +68,14 @@ Bun.serve<WsData>({
             let client = room.getClient(ws);
             if (!client) return ws.close();
 
-            //TODO switch for the message type
-            //DEBUG
-            room.broadcast(preParsedMessage);
-            //DEBUG
-
-
             switch (parsedMessage.messageType) {
                 case WsMessageType.START_GAME:
                     if (!room.roomMaster.equals(client)) break;
                     room.game = new Game(Player.fromClients(room.clients));
                     room.game.startGame();
+
+                    room.broadcastRoomStatus();
+                    room.broadcastGameStatus();
                     break;
                 case WsMessageType.CHOOSE_COLOR:
                     if (!room.game) break;
@@ -93,29 +92,34 @@ Bun.serve<WsData>({
                     if (!room.isColorFree(color)) break;
 
                     player.color = color;
+
                     room.broadcastRoomStatus();
                     break;
                 case WsMessageType.TURN_ACTION:
-                    //TODO
+                    if (!room.game) break;
+                    room.game.nextGameState(parsedMessage.value as GamePiece);
+                    //TODO add Error handling for .value
+
+                    room.broadcastRoomStatus();
                     break;
                 case WsMessageType.CLOSE:
                     //TODO
                     break;
                 default:
-                    //TODO
+                    client.send(new WsMessage<string>(WsMessageType.ERROR, "The sent WsMessageType is unknown to the Server."));
+                    return;
             }
 
-            room.broadcastRoomStatus();
+            //TODO find solution to this VVV (sort of done already)
+            //room.broadcastRoomStatus();
 
         },
         close(ws) {
             const room = Room.ROOMS.find(r => r.roomId == ws.data.roomId);
             if (!room) return;
-            //TODO better maybe VVV
-            const client = room.clients.find(c => c.equals(ws));
-            if (!client) return;
 
-            room.removeClient(client);
+            room.removeClientViaServerWebsocket(ws);
+            room.broadcastRoomStatus();
         }
     }
 });

@@ -46,6 +46,19 @@ class GameState {
         return newGameState;
     }
 
+    public equals(gameState: GameState): boolean {
+        if (this.playingPlayerIndex !== gameState.playingPlayerIndex) return false;
+        if (this.diceThrow !== gameState.diceThrow) return false;
+
+        this.pieces.forEach(p => {
+            gameState.pieces.forEach(gsp => {
+                if (!p.equals(gsp)) return false;
+            });
+        });
+
+        return true;
+    }
+
     //Dude, I will have to optimize movePiece some day VVV
 
     // Position is a number ranging from -16 to -1 for the starting house

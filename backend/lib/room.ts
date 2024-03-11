@@ -37,8 +37,13 @@ class Room {
         this.clients.forEach(c => c.send(message));
     }
 
-    public broadcastRoomStatus() {
+    public broadcastRoomStatus(): void {
         this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, this));
+    }
+
+    public broadcastGameStatus(): void {
+        if (!this.game) return;
+        this.broadcast(new WsMessage(WsMessageType.GAME_STATUS, this.game.currentGameState));
     }
 
     public addClient(client: Client): void {
@@ -73,7 +78,18 @@ class Room {
         }
     }
 
-    public startGameLobby() {
+    public removeClientViaServerWebsocket(ws: ServerWebSocket<WsData>): void {
+        if (!this.clients.find(c => c.equals(ws))) return;
+
+        for (let i = 0; i < this.clients.length; i++) {
+            if (this.clients[i].equals(ws)) {
+                this.clients.splice(i);
+                break;
+            }
+        }
+    }
+
+    public startGameLobby(): void {
         this.game = new Game(Player.fromClients(this.clients));
     }
 
