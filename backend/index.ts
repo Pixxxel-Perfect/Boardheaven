@@ -105,6 +105,8 @@ Bun.serve<WsData>({
                 case WsMessageType.CLOSE:
                     //TODO
                     break;
+                case WsMessageType.ERROR:
+                    break;
                 default:
                     client.send(new WsMessage<string>(WsMessageType.ERROR, "The sent WsMessageType is unknown to the Server."));
                     return;
