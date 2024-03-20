@@ -6,6 +6,7 @@ import { Client } from "./lib/client";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { Game } from "./lib/game";
 import { GamePiece } from "./lib/gamePiece";
+import { ServerWebSocket } from "bun";
 
 const codeAPI = new GameCodeValidator();
 
@@ -16,7 +17,16 @@ Bun.serve<WsData>({
     async fetch(req: Request): Promise<Response> {
 
         const reqUrl = new URL(req.url);
-        if (!this.upgrade(req, {data: new WsData(reqUrl.pathname.slice(1))})) {
+        const roomId = reqUrl.pathname.slice(1);
+
+        if (roomId.length < Room.DEFAULT_LENGTH) {
+            return new Response(null, {
+                status: 400,
+                statusText: "Invalid Room-ID"
+            });
+        }
+
+        if (!this.upgrade(req, {data: new WsData(roomId)})) {
             return new Response(null, {
                 status: 426,
                 statusText: "Could not upgrade connection."
@@ -42,7 +52,6 @@ Bun.serve<WsData>({
 
             room = new Room(new Player(ws), roomId);
             room.roomStatus = RoomStatus.LOBBY;
-            room.startGameLobby();
             room.broadcastRoomStatus();
 
             Room.ROOMS.push(room);
@@ -103,7 +112,8 @@ Bun.serve<WsData>({
                     room.broadcastRoomStatus();
                     break;
                 case WsMessageType.CLOSE:
-                    //TODO
+                    //TODO maybe message
+                    ws.close();
                     break;
                 case WsMessageType.ERROR:
                     break;
@@ -120,11 +130,15 @@ Bun.serve<WsData>({
             const room = Room.ROOMS.find(r => r.roomId == ws.data.roomId);
             if (!room) return;
 
-            room.removeClientViaServerWebsocket(ws);
-            room.broadcastRoomStatus();
+            removeWsFromRoom(room, ws);
         }
     }
 });
+
+function removeWsFromRoom(room: Room, ws: ServerWebSocket<WsData>): void {
+    room.removeClientViaServerWebsocket(ws);
+    room.broadcastRoomStatus();
+}
 
 function toNumber(text: string | number): number {
     try {

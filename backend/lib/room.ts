@@ -89,10 +89,6 @@ class Room {
         }
     }
 
-    public startGameLobby(): void {
-        this.game = new Game(Player.fromClients(this.clients));
-    }
-
     public isColorFree(color: PlayerColor): boolean {
         return this.game?.isColorFree(color) ?? false;
     }
