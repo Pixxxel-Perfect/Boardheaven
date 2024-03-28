@@ -3,14 +3,6 @@ import { WsData } from "./wsData";
 import { Client } from "./client";
 import { WsMessage, WsMessageType } from "./wsMessage";
 
-enum PlayerColor {
-    NOT_SET = -1,
-    BLACK = 0,
-    YELLOW = 1,
-    GREEN = 2,
-    RED = 3
-}
-
 class Player extends Client {
     public static fromClient(client: Client): Player {
         return new this(client.ws);
@@ -24,7 +16,6 @@ class Player extends Client {
         return players;
     }
 
-    public color: PlayerColor = PlayerColor.NOT_SET;
     public isSpectator: boolean = false;
     
     public constructor(ws: ServerWebSocket<WsData>) {
@@ -39,4 +30,4 @@ class Player extends Client {
     }
 }
 
-export { Player, PlayerColor };
+export { Player };

@@ -1,10 +1,8 @@
 import { ServerWebSocket } from "bun";
-import { Client } from "./client";
+import { Client, Color } from "./client";
 import { Game } from "./game";
 import { WsMessage, WsMessageType } from "./wsMessage";
 import { WsData } from "./wsData";
-import { Player, PlayerColor } from "./player";
-import { timingSafeEqual } from "crypto";
 
 enum RoomStatus {
     LOBBY,
@@ -89,8 +87,13 @@ class Room {
         }
     }
 
-    public isColorFree(color: PlayerColor): boolean {
-        return this.game?.isColorFree(color) ?? false;
+    public isColorFree(color: Color): boolean {
+        for (let i = 0; i < this.clients.length; i++) {
+            if (this.clients[i].color == color) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private generateId(length: number): string {

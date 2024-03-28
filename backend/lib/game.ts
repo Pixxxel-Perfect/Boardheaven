@@ -1,7 +1,7 @@
-import { Client } from "./client";
+import { Client, Color } from "./client";
 import { GamePiece } from "./gamePiece";
 import { GameState } from "./gameState";
-import { Player, PlayerColor } from "./player";
+import { Player } from "./player";
 import { WsMessage, WsMessageType } from "./wsMessage";
 
 class Game {
@@ -14,7 +14,7 @@ class Game {
     constructor(public players: Player[]) {
         // Any player that doesn't choose a color will enter a spectator state
         players
-        .filter(p => p.color == PlayerColor.NOT_SET)
+        .filter(p => p.color == Color.NOT_SET)
         .forEach(p => p.isSpectator = true);
 
         this.players.sort((p1, p2) => p1.color - p2.color);
@@ -37,16 +37,6 @@ class Game {
 
     public finishGame(): void {
         this.players.forEach(p => p.finishGame());
-    }
-
-    public isColorFree(color: PlayerColor): boolean {
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].color == color) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public getPlayer(client: Client): Player | null {

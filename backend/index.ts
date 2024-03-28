@@ -1,8 +1,8 @@
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/wsData";
-import { Player, PlayerColor } from "./lib/player";
+import { Player } from "./lib/player";
 import { GameCodeValidator } from "./lib/codesApi";
-import { Client } from "./lib/client";
+import { Client, Color } from "./lib/client";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { Game } from "./lib/game";
 import { GamePiece } from "./lib/gamePiece";
@@ -87,20 +87,16 @@ Bun.serve<WsData>({
                     room.broadcastGameStatus();
                     break;
                 case WsMessageType.CHOOSE_COLOR:
-                    if (!room.game) break;
-                    
-                    const player = room.game.getPlayer(client);
-                    if (!player) break;
                     
                     let color;
                     try {
-                        color = parsedMessage.value as PlayerColor;
+                        color = parsedMessage.value as Color;
                     } catch {
                         break;
                     }
                     if (!room.isColorFree(color)) break;
 
-                    player.color = color;
+                    client.color = color;
 
                     room.broadcastRoomStatus();
                     break;

@@ -2,8 +2,17 @@ import { ServerWebSocket } from "bun";
 import { WsData } from "./wsData";
 import { WsMessage } from "./wsMessage";
 
+enum Color {
+    NOT_SET = -1,
+    BLACK = 0,
+    YELLOW = 1,
+    GREEN = 2,
+    RED = 3
+}
+
 class Client {
     public ws: ServerWebSocket<WsData>;
+    public color: Color = Color.NOT_SET;
 
     public get roomId() {
         return (this.ws.data as WsData).roomId;
@@ -27,4 +36,4 @@ class Client {
     }
 }
 
-export { Client };
+export { Client, Color };
