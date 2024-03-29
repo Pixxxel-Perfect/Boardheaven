@@ -1,6 +1,7 @@
+import { Color } from "./client";
 import { Game } from "./game";
 import { GamePiece } from "./gamePiece";
-import { Player, PlayerColor } from "./player";
+import { Player } from "./player";
 
 class GameState {
     public pieces: GamePiece[] = [];
@@ -89,16 +90,16 @@ class GameState {
             
             let housePos;
             switch (piece.color) {
-                case PlayerColor.BLACK:
+                case Color.BLACK:
                     housePos = 39;
                     break;
-                case PlayerColor.YELLOW:
+                case Color.YELLOW:
                     housePos = 9;
                     break;
-                case PlayerColor.GREEN:
+                case Color.GREEN:
                     housePos = 19;
                     break;
-                case PlayerColor.RED:
+                case Color.RED:
                     housePos = 29;
                     break;
                 default:

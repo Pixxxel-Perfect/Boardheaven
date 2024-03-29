@@ -50,9 +50,11 @@ Bun.serve<WsData>({
                 return;
             }
 
-            room = new Room(new Player(ws), roomId);
+            room = new Room(new Player(ws));
             room.roomStatus = RoomStatus.LOBBY;
             room.broadcastRoomStatus();
+
+            ws.data.roomId = room.roomId;
 
             Room.ROOMS.push(room);
         },
@@ -102,10 +104,16 @@ Bun.serve<WsData>({
                     break;
                 case WsMessageType.TURN_ACTION:
                     if (!room.game) break;
-                    room.game.nextGameState(parsedMessage.value as GamePiece);
-                    //TODO add Error handling for .value
 
-                    room.broadcastRoomStatus();
+                    let piece;
+                    try {
+                        piece = parsedMessage.value as GamePiece;
+                    } catch {
+                        break;
+                    }
+                    room.game.nextGameState(piece);
+
+                    room.broadcastGameStatus();
                     break;
                 case WsMessageType.CLOSE:
                     //TODO maybe message
@@ -115,7 +123,6 @@ Bun.serve<WsData>({
                     break;
                 default:
                     client.send(new WsMessage<string>(WsMessageType.ERROR, "The sent WsMessageType is unknown to the Server."));
-                    return;
             }
 
             //TODO find solution to this VVV (sort of done already)

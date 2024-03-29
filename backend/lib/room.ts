@@ -25,10 +25,10 @@ class Room {
     public roomMaster: Client;
     public game?: Game;
 
-    constructor(roomMaster: Client, roomId?: string) {
+    constructor(roomMaster: Client) {
         this.clients.push(roomMaster);
         this.roomMaster = roomMaster;
-        this.roomId = roomId ?? this.generateId(Room.DEFAULT_LENGTH);
+        this.roomId = this.generateId(Room.DEFAULT_LENGTH);
     }
 
     public broadcast(message: WsMessage<unknown>): void {
