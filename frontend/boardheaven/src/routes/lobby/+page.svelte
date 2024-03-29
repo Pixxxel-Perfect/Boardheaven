@@ -2,7 +2,11 @@
   import Colorbox from "$lib/components/colorbox/colorbox.svelte";
   import { isGameMaster } from "../../stores/gameMasterStore";
   import { onMount } from "svelte";
-  import { websocketStore } from "../../stores/websocketStore";
+  import { websocketStore, WsMessageType } from "../../stores/websocketStore";
+  import { page } from "$app/stores";
+
+  let idFromparam = $page.url.searchParams.get("roomId");
+  let connectionUrl = "ws://localhost:3000";
 
   let generatedLink: string | null = null;
 
@@ -11,15 +15,24 @@
       gameMaster = value;
     });
 
-    websocketStore.connect("ws:\\localhost:3000");
+    if (idFromparam) {
+      // mach die Verbindung url zu ws server mit param
+
+      connectionUrl += `/${idFromparam}`;
+    }
+
+    websocketStore.connect(connectionUrl); // \\lobby?roomId=123455
+
+    console.log(connectionUrl);
 
     let unsubscribeWs = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
       // check with Bachel to share his Types and enums, so I can reuse it, now for just for testing using fix values:
       // set rommId as info message = 6 ->got room id
-      if (wsData.type === 0) {
+      //console.log(wsData);
+      if (wsData.messageType === WsMessageType.ROOM_STATUS) {
         //generate the room url
-        generatedLink = `${window.location.origin}/${wsData.value}`;
+        generatedLink = `${window.location.origin}/lobby?roomId=${wsData.value.roomId}`;
       } else {
         console.log(wsData);
       }

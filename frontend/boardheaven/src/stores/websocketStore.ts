@@ -1,8 +1,23 @@
 import { writable } from 'svelte/store';
 
+
+export enum WsMessageType {
+  //SERVER
+  ROOM_STATUS,
+  GAME_STATUS,
+  GAME_FINISH,
+  //CLIENT
+  START_GAME,
+  CHOOSE_COLOR,
+  TURN_ACTION,
+  //BOTH
+  ERROR,
+  CLOSE,
+}
+
 type WsComData = {
-  type: number,
-  value: string | number;
+  messageType: number,
+  value: string | number | object;
 }
 
 function createWebSocketStore() {
@@ -28,8 +43,9 @@ function createWebSocketStore() {
     };
 
     ws.onmessage = (ev) => {
-      //console.log("got msg:", ev.data.toString())
+      console.log("got msg")
       let wsData = JSON.parse(ev.data.toString()) as WsComData;
+      console.log("the message:", ev.data.toString())
       set(wsData);
     };
 
@@ -45,7 +61,6 @@ function createWebSocketStore() {
 
   const send = (message: string) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.binaryType = "arraybuffer";
       ws.send(message);
     } else {
       console.error("WebSocket is not connected");

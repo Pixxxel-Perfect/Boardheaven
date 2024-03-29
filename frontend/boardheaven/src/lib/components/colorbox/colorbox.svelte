@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { websocketStore } from "../../../stores/websocketStore";
+  import {
+    websocketStore,
+    WsMessageType,
+  } from "../../../stores/websocketStore";
   import {
     selectedColorStore,
     setSelectedColor,
@@ -21,10 +24,30 @@
 
     let unsubscribeWebsocket = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
+      //console.log("--->", wsData.messageType);
+      //console.log("xxx", wsData.value.game.players);
       //got color selectd message
-      if (wsData.type === 3) {
+      if (wsData.messageType === WsMessageType.ROOM_STATUS) {
+        //console.log("message on status 0->", wsData.value);
         //the value represents the button to disable
-        isSelected = colorid === wsData.value;
+        if (!(wsData.value instanceof Object)) return;
+        if (!(wsData.value.clients instanceof Array)) return;
+
+        const players = wsData.value.clients as [];
+        if (!players) return;
+
+        isSelected = false;
+
+        players.forEach((player) => {
+          //console.log(player);
+          if (player.color == colorid) {
+            //console.log("selected");
+            isSelected = true;
+          }
+        });
+
+        //console.log("player: ->", players);
+        //isSelected = colorid === wsData.value;
       }
     });
 
@@ -38,7 +61,12 @@
     setSelectedColor(color);
     //I need the correct type for set-color command
     // sending type = 0 means -> set color
-    websocketStore.send(JSON.stringify({ type: 3, value: colorid }));
+    websocketStore.send(
+      JSON.stringify({
+        messageType: WsMessageType.CHOOSE_COLOR,
+        value: colorid,
+      })
+    );
   }
 
   function colorBoxBlack(): string {

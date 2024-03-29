@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 
 //ws server on port 88888
 const server = new WebSocket.Server({
-  port: 8888
+  port: 3000
 });
 
 const generateRoomIdMessage = ()=> {
@@ -16,7 +16,7 @@ const generateRoomIdMessage = ()=> {
 
 const generateResponseColorSelected = (color) =>{
   return {
-    type: 7, //a gamer selected a color
+    type: 4, //a gamer selected a color
     value: color //color value
   }
 }
