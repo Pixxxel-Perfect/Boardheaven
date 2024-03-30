@@ -14,7 +14,9 @@ const codeAPI = new GameCodeValidator();
 //[FIX], <Optional>
 
 Bun.serve<WsData>({
-    async fetch(req: Request): Promise<Response> {
+    async fetch(req: Request) {
+
+        //TODO Game Code Validation
 
         const reqUrl = new URL(req.url);
         const roomId = reqUrl.pathname.slice(1);
@@ -26,16 +28,12 @@ Bun.serve<WsData>({
             });
         }
 
-        if (!this.upgrade(req, {data: new WsData(roomId)})) {
+        if (this.upgrade(req, {data: new WsData(roomId)})) {
             return new Response(null, {
                 status: 426,
                 statusText: "Could not upgrade connection."
             });
         }
-
-        // TODO change to room message
-        return new Response("Connection established.");
-        
     },
     websocket: {
         open(ws) {
@@ -116,7 +114,7 @@ Bun.serve<WsData>({
                     room.broadcastGameStatus();
                     break;
                 case WsMessageType.CLOSE:
-                    //TODO maybe message
+                    ws.send(JSON.stringify(new WsMessage(WsMessageType.CLOSE, null)));
                     ws.close();
                     break;
                 case WsMessageType.ERROR:
