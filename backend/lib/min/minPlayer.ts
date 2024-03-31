@@ -1,12 +1,8 @@
-import { Player } from "../player";
 import { MinClient } from "./minClient";
 
 class MinPlayer extends MinClient {
-    public isSpectator: boolean = false;
-    
-    constructor(origin: Player) {
-        super(origin);
-        this.isSpectator = origin.isSpectator;
+    constructor(public address: string, public color: number, public isSpectator: boolean) {
+        super(address, color);
     }
 }
 

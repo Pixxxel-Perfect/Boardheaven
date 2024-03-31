@@ -5,6 +5,10 @@ import { WsMessage, WsMessageType } from "./wsMessage";
 import { WsData } from "./wsData";
 import { MinRoom } from "./min/minRoom";
 import { MinGameState } from "./min/minGameState";
+import { MinClient } from "./min/minClient";
+import { MinGamePiece } from "./min/minGamePiece";
+import { MinPlayer } from "./min/minPlayer";
+import { MinColor } from "./min/minColor";
 
 enum RoomStatus {
     LOBBY,
@@ -38,12 +42,39 @@ class Room {
     }
 
     public broadcastRoomStatus(): void {
-        this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, new MinRoom(this)));
+        const minClients: MinClient[] = [];
+        const minRoomMaster: MinClient = new MinClient(this.roomMaster.ws.remoteAddress, this.roomMaster.color);
+        this.clients.forEach(c => minClients.push(new MinClient(c.ws.remoteAddress, c.color)));
+
+        this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, new MinRoom(this.roomId, this.roomStatus, minClients, minRoomMaster)));
     }
 
     public broadcastGameStatus(): void {
         if (!this.game) return;
-        this.broadcast(new WsMessage(WsMessageType.GAME_STATUS, new MinGameState(this.game.currentGameState)));
+
+        const minGamePieces: MinGamePiece[] = [];
+        const minPlayers: MinPlayer[] = [];
+
+        this.game.currentGameState.pieces.forEach(p => minGamePieces.push(new MinGamePiece(
+            new MinPlayer(p.owner.ws.remoteAddress, p.color, p.owner.isSpectator),
+            p.homePos,
+            p.pos,
+            p.color as number,
+            p.initPos
+            )));
+        
+        this.game.players.forEach(p => minPlayers.push(new MinPlayer(
+            p.ws.remoteAddress,
+            p.color as number,
+            p.isSpectator
+        )));
+
+        this.broadcast(new WsMessage(WsMessageType.GAME_STATUS, new MinGameState(
+            minGamePieces,
+            this.game.currentGameState.playingPlayerIndex,
+            this.game.currentGameState.diceThrow,
+            minPlayers
+            )));
     }
 
     public addClient(client: Client): void {
