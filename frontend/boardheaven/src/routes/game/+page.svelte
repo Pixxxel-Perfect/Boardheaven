@@ -6,6 +6,9 @@
   import { onMount } from "svelte";
   import arrowicon from "$lib/images/arrowright.svg";
   import pawn from "$lib/images/pawn.svg";
+  import { websocketStore, WsMessageType } from "../../stores/websocketStore";
+  import type { GameState } from "../../helper/gameState";
+
   let ws: WebSocket;
   const circles = [
     "circleBlack",
@@ -99,18 +102,38 @@
       "and this is the best game!!!! ÄöÜ?",
     ]);
     chatStore.update((messages) => [...messages, "PK"]);
+
+    let unsubscribeWs = websocketStore.subscribe((wsData) => {
+      if (!wsData) {
+        console.log("No data received");
+        return;
+      }
+      if (wsData.messageType === WsMessageType.GAME_STATUS) {
+        var data: GameState = wsData.value as GameState;
+
+        pawns.length = 0; 
+
+        data.pieces.forEach((piece) => {
+          pawns.push({ index: piece.pos, color: `${piece.color}` });
+        });
+
+        console.log(data);
+      } else {
+        console.log(wsData);
+      }
+    });
   });
 
   let showPawn = true;
   function toggleSVG() {
-    showPawn = !showPawn; // Toggle between true and false
+    showPawn = !showPawn; 
   }
   function sendMessage(message: string) {
     //use ws to send the  message!!!
     //ws.send(message);
     console.log("parent", message);
   }
-  const pawns = [
+  var pawns = [
     { index: -10, color: "green" },
     /*
     { index: 56, color: 'green' },
