@@ -1,4 +1,4 @@
-import { MinColor } from "./minColor";
+import { MinColor } from "./minClient";
 import { MinPlayer } from "./minPlayer";
 
 class MinGamePiece {

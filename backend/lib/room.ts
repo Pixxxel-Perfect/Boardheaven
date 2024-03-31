@@ -8,7 +8,6 @@ import { MinGameState } from "./min/minGameState";
 import { MinClient } from "./min/minClient";
 import { MinGamePiece } from "./min/minGamePiece";
 import { MinPlayer } from "./min/minPlayer";
-import { MinColor } from "./min/minColor";
 
 enum RoomStatus {
     LOBBY,
@@ -43,10 +42,14 @@ class Room {
 
     public broadcastRoomStatus(): void {
         const minClients: MinClient[] = [];
-        const minRoomMaster: MinClient = new MinClient(this.roomMaster.ws.remoteAddress, this.roomMaster.color);
-        this.clients.forEach(c => minClients.push(new MinClient(c.ws.remoteAddress, c.color)));
+        const minRoomMaster: MinClient = new MinClient(this.roomMaster.ws.remoteAddress, this.roomMaster.color as number);
+        this.clients.forEach(c => minClients.push(new MinClient(c.ws.remoteAddress, c.color as number)));
 
-        this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, new MinRoom(this.roomId, this.roomStatus, minClients, minRoomMaster)));
+        this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, new MinRoom(
+            this.roomId,
+            this.roomStatus as number,
+            minClients,
+            minRoomMaster)));
     }
 
     public broadcastGameStatus(): void {

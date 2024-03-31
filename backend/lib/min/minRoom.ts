@@ -1,14 +1,17 @@
-import { Room, RoomStatus } from "../room";
 import { MinClient } from "./minClient";
 
+enum MinRoomStatus {
+    LOBBY,
+    PLAYING,
+}
 
 class MinRoom {
     constructor(
         public roomId: string,
-        public roomStatus: RoomStatus,
+        public roomStatus: MinRoomStatus,
         public clients: MinClient[],
         public roomMaster: MinClient
         ) {}
 }
 
-export { MinRoom };
+export { MinRoom, MinRoomStatus };
