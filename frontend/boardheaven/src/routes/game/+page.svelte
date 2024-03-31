@@ -134,7 +134,7 @@
     console.log("parent", message);
   }
   var pawns = [
-    { index: -10, color: "green" },
+    //{ index: -10, color: "green" },
     /*
     { index: 56, color: 'green' },
     { index: 57, color: 'green' },
