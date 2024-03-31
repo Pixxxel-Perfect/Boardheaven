@@ -133,7 +133,7 @@
     //ws.send(message);
     console.log("parent", message);
   }
-  var pawns = [
+  var pawns: { index: number; color: string; }[] = [
     //{ index: -10, color: "green" },
     /*
     { index: 56, color: 'green' },

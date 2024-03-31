@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
   import { page } from "$app/stores";
+    import type { Room } from "../../helper/room";
 
   let idFromparam = $page.url.searchParams.get("roomId");
   let connectionUrl = "ws://localhost:3000";
@@ -32,7 +33,7 @@
       //console.log(wsData);
       if (wsData.messageType === WsMessageType.ROOM_STATUS) {
         //generate the room url
-        generatedLink = `${window.location.origin}/lobby?roomId=${wsData.value.roomId}`;
+        generatedLink = `${window.location.origin}/lobby?roomId=${(wsData.value as Room).roomId}`;
       } else {
         console.log(wsData);
       }
