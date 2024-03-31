@@ -3,6 +3,8 @@ import { Client, Color } from "./client";
 import { Game } from "./game";
 import { WsMessage, WsMessageType } from "./wsMessage";
 import { WsData } from "./wsData";
+import { MinRoom } from "./min/minRoom";
+import { MinGameState } from "./min/minGameState";
 
 enum RoomStatus {
     LOBBY,
@@ -36,12 +38,12 @@ class Room {
     }
 
     public broadcastRoomStatus(): void {
-        this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, this));
+        this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, new MinRoom(this)));
     }
 
     public broadcastGameStatus(): void {
         if (!this.game) return;
-        this.broadcast(new WsMessage(WsMessageType.GAME_STATUS, this.game.currentGameState));
+        this.broadcast(new WsMessage(WsMessageType.GAME_STATUS, new MinGameState(this.game.currentGameState)));
     }
 
     public addClient(client: Client): void {
