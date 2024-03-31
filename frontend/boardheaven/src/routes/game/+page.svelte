@@ -7,7 +7,7 @@
   import arrowicon from "$lib/images/arrowright.svg";
   import pawn from "$lib/images/pawn.svg";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
-  import type { GameState } from "../../helper/gameState";
+    import type { MinGameState } from "../../helper/minGameState";
 
   let ws: WebSocket;
   const circles = [
@@ -109,11 +109,11 @@
         return;
       }
       if (wsData.messageType === WsMessageType.GAME_STATUS) {
-        var data: GameState = wsData.value as GameState;
+        var data: MinGameState = wsData.value as MinGameState;
 
         pawns.length = 0; 
 
-        data.pieces.forEach((piece) => {
+        data.pieces.forEach((piece: { pos: any; color: any; }) => {
           pawns.push({ index: piece.pos, color: `${piece.color}` });
         });
 
