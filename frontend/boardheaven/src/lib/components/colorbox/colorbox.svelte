@@ -8,6 +8,9 @@
     setSelectedColor,
   } from "../../../stores/colorStore";
   import { onMount } from "svelte";
+  import type { MinRoom } from "../../../helper/minRoom";
+  import type { MinClient } from "../../../helper/minClient";
+  import type { MinPlayer } from "../../../helper/minPlayer";
 
   export let color: string;
   export let colorid: number;
@@ -31,16 +34,16 @@
         //console.log("message on status 0->", wsData.value);
         //the value represents the button to disable
         if (!(wsData.value instanceof Object)) return;
-        if (!(wsData.value.clients instanceof Array)) return;
+        if (!((wsData.value as MinRoom).clients instanceof Array)) return;
 
-        const players = wsData.value.clients as [];
+        const players = (wsData.value as MinRoom).clients as [];
         if (!players) return;
 
         isSelected = false;
 
         players.forEach((player) => {
           //console.log(player);
-          if (player.color == colorid) {
+          if ((player as MinPlayer).color == colorid) {
             //console.log("selected");
             isSelected = true;
           }
