@@ -5,6 +5,7 @@
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
   import { page } from "$app/stores";
   import type { MinRoom } from "../../helper/minRoom";
+  import { goto } from "$app/navigation";
 
   let idFromparam = $page.url.searchParams.get("roomId");
   let connectionUrl = "ws://10.91.116.43:3000";
@@ -30,12 +31,18 @@
       if (!wsData) return;
       // check with Bachel to share his Types and enums, so I can reuse it, now for just for testing using fix values:
       // set rommId as info message = 6 ->got room id
-      //console.log(wsData);
+      console.log(wsData);
       if (wsData.messageType === WsMessageType.ROOM_STATUS) {
         //generate the room url
         generatedLink = `${window.location.origin}/lobby?roomId=${(wsData.value as MinRoom).roomId}`;
+      }
+      if (wsData.messageType === WsMessageType.GAME_STATUS) {
+        goto("/game");
       } else {
-        console.log(wsData);
+        console.log(
+          "message not room_status (will be ingnored in lobby):",
+          wsData
+        );
       }
     });
 
@@ -44,6 +51,15 @@
       unsubscribeWs();
     };
   });
+
+  function startTheGame(): void {
+    console.log("sending start_game message");
+    websocketStore.send(
+      JSON.stringify({
+        messageType: WsMessageType.START_GAME,
+      })
+    );
+  }
 
   let gameMaster: boolean = false;
 
@@ -81,7 +97,9 @@
           type="text"
         />
       </label>
-      <button class="start-game-button">Start game</button>
+      <button class="start-game-button" on:click={startTheGame}
+        >Start game</button
+      >
     </div>
   {/if}
   {#if !gameMaster}

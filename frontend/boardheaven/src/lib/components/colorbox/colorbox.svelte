@@ -9,7 +9,6 @@
   } from "../../../stores/colorStore";
   import { onMount } from "svelte";
   import type { MinRoom } from "../../../helper/minRoom";
-  import type { MinClient } from "../../../helper/minClient";
   import type { MinPlayer } from "../../../helper/minPlayer";
 
   export let color: string;
@@ -27,30 +26,17 @@
 
     let unsubscribeWebsocket = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
-      //console.log("--->", wsData.messageType);
-      //console.log("xxx", wsData.value.game.players);
       //got color selectd message
       if (wsData.messageType === WsMessageType.ROOM_STATUS) {
-        //console.log("message on status 0->", wsData.value);
-        //the value represents the button to disable
-        if (!(wsData.value instanceof Object)) return;
-        if (!((wsData.value as MinRoom).clients instanceof Array)) return;
-
-        const players = (wsData.value as MinRoom).clients as [];
+        const players = (wsData.value as MinRoom).clients;
         if (!players) return;
 
         isSelected = false;
-
         players.forEach((player) => {
-          //console.log(player);
           if ((player as MinPlayer).color == colorid) {
-            //console.log("selected");
             isSelected = true;
           }
         });
-
-        //console.log("player: ->", players);
-        //isSelected = colorid === wsData.value;
       }
     });
 
