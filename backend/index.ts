@@ -17,23 +17,27 @@ Bun.serve<WsData>({
     async fetch(req: Request) {
 
         //TODO Game Code Validation
+        //TODO add Client/WS Timeout
 
         const reqUrl = new URL(req.url);
         const roomId = reqUrl.pathname.slice(1);
 
-        if (roomId.length < Room.DEFAULT_LENGTH) {
-            return new Response(null, {
-                status: 400,
-                statusText: "Invalid Room-ID"
+        if (!Room.PATTERN_REGEX.test(roomId)) {
+            console.log("rejected connection");
+            return new Response("Invalid Room-ID", {
+                status: 400
             });
         }
 
         if (this.upgrade(req, {data: new WsData(roomId)})) {
-            return new Response(null, {
-                status: 426,
-                statusText: "Could not upgrade connection."
+            return new Response("Could not upgrade connection.", {
+                status: 426
             });
         }
+
+        return new Response(Bun.file("index.html"), {
+            status: 400
+        });
     },
     websocket: {
         open(ws) {
@@ -139,12 +143,4 @@ Bun.serve<WsData>({
 function removeWsFromRoom(room: Room, ws: ServerWebSocket<WsData>): void {
     room.removeClientViaServerWebsocket(ws);
     room.broadcastRoomStatus();
-}
-
-function toNumber(text: string | number): number {
-    try {
-        return Math.floor(parseInt(text + ""));
-    } catch {
-        return 0;
-    }
 }

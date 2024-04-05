@@ -17,6 +17,7 @@ enum RoomStatus {
 class Room {
     public static ROOMS: Room[] = [];
 
+    public static readonly PATTERN_REGEX = /^[a-zA-Z0-9]{0,8}$/;
     public static readonly ID_PATTERN = "abcdefghijklmnopqrstuvwxyz0123456789";
     public static readonly DEFAULT_LENGTH = 8;
 
@@ -50,6 +51,7 @@ class Room {
             this.roomStatus as number,
             minClients,
             minRoomMaster)));
+        console.log(this);
     }
 
     public broadcastGameStatus(): void {
