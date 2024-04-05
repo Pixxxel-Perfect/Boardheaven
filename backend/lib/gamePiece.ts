@@ -23,6 +23,13 @@ class GamePiece {
         this.pos = homePos;
     }
 
+    public equals(piece: GamePiece): boolean {
+        if (piece.color !== this.color) return false;
+        if (piece.pos !== this.pos) return false;
+        if (piece.homePos !== this.homePos) return false;
+        return true;
+    }
+
     public capture() {
         this.pos = this.homePos;
     }

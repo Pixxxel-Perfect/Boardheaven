@@ -1,9 +1,11 @@
+import { Client, Color } from "./client";
+import { GamePiece } from "./gamePiece";
 import { GameState } from "./gameState";
-import { Player, PlayerColor } from "./player";
+import { Player } from "./player";
+import { WsMessage, WsMessageType } from "./wsMessage";
 
 class Game {
     public gameStates: GameState[] = [];
-    public isFinished: boolean = false;
 
     public get currentGameState() {
         return this.gameStates[this.gameStates.length - 1];
@@ -12,23 +14,33 @@ class Game {
     constructor(public players: Player[]) {
         // Any player that doesn't choose a color will enter a spectator state
         players
-        .filter(p => p.color == PlayerColor.NOT_SET)
+        .filter(p => p.color == Color.NOT_SET)
         .forEach(p => p.isSpectator = true);
 
         this.players.sort((p1, p2) => p1.color - p2.color);
     }
 
-    public startGame() {
-        // TODO Maybe send a message at this point, that the game is starting
-        this.gameStates.push(new GameState(this));
+    public broadcast(message: WsMessage<unknown>): void {
+        this.players.forEach(p => p.send(message));
     }
 
-    public finishGame() {
-        // I am throwing out everyone after a game
-        // TODO That can/will be changed later to allow multiple games in succession
-        this.isFinished = true;
-        // TODO When disconnecting it would make sense to send some sort of finishe message
-        this.players.forEach(p => p.disconnect());
+    public startGame(): void {
+        this.gameStates[0] = new GameState(this);
+        this.broadcast(new WsMessage<GameState>(WsMessageType.GAME_STATUS, this.gameStates[0]));
+    }
+
+    public nextGameState(piece: GamePiece): void {
+        const nextGameState = this.currentGameState.nextGameState(piece);
+        if (nextGameState.equals(this.currentGameState)) return;
+        this.gameStates.push(this.currentGameState.nextGameState(piece));
+    }
+
+    public finishGame(): void {
+        this.players.forEach(p => p.finishGame());
+    }
+
+    public getPlayer(client: Client): Player | null {
+        return this.players.find(p => p.equals(client)) ?? null;
     }
 }
 

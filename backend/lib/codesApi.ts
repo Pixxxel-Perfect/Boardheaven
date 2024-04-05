@@ -9,7 +9,7 @@ class GameCodeValidator {
     }
     
     loadCodes() {
-        const fileData = fs.readFileSync("codes.txt", "utf-8");
+        const fileData = fs.readFileSync("lib/codes.txt", "utf-8");
         for (const line of fileData.split("\n")) {
             this.codes.push(line);
         }
