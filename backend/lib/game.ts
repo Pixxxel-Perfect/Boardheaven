@@ -26,7 +26,6 @@ class Game {
 
     public startGame(): void {
         this.gameStates[0] = new GameState(this);
-        this.broadcast(new WsMessage<GameState>(WsMessageType.GAME_STATUS, this.gameStates[0]));
     }
 
     public nextGameState(piece: GamePiece): void {
