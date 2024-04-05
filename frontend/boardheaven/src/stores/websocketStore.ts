@@ -46,7 +46,7 @@ function createWebSocketStore() {
 
     ws.onmessage = (ev) => {
       console.log("got msg")
-      let wsData = JSON.parse(ev.data.toString()) as WsComData;
+      let wsData = JSON.parse(ev.data) as WsComData;
       console.log("the message:", ev.data.toString())
       set(wsData);
     };

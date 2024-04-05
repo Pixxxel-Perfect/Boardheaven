@@ -7,7 +7,7 @@
   import type { MinRoom } from "../../helper/minRoom";
 
   let idFromparam = $page.url.searchParams.get("roomId");
-  let connectionUrl = "ws://localhost:3000";
+  let connectionUrl = "ws://10.91.116.43:3000";
 
   let generatedLink: string | null = null;
 
