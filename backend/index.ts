@@ -87,7 +87,6 @@ Bun.serve<WsData>({
                     room.game = new Game(Player.fromClients(room.clients));
                     room.game.startGame();
 
-                    room.broadcastRoomStatus();
                     room.broadcastGameStatus();
                     break;
                 case WsMessageType.CHOOSE_COLOR:
