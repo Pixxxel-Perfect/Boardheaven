@@ -38,32 +38,28 @@ function createWebSocketStore() {
       connectTo = (window.location.protocol === "https" ? "wss://" : "ws://") + window.location.host;
     }
 
-    try {
-      ws = new WebSocket(connectTo);
-      ws.onopen = () => {
-        console.log("connected to server:", connectTo)
-      };
-  
-      ws.onmessage = (ev) => {
-        console.log("got msg")
-        let wsData = JSON.parse(ev.data.toString()) as WsComData;
-        set(wsData);
-      };
-  
-      ws.onclose = () => {
-        console.log("WebSocket connection closed");
-        ws = null; // Reset the WebSocket instance
-      };
-  
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
-    }
-    catch (e) {
-      console.log("can not connect to websocker server:")
-      console.log(e)
-    }
+    ws = new WebSocket(connectTo);
 
+    ws.onopen = () => {
+      console.log("connected to server:", connectTo)
+    };
+
+    ws.onmessage = (ev) => {
+      console.log("got msg")
+      let wsData = JSON.parse(ev.data.toString()) as WsComData;
+      console.log("the message:", ev.data.toString())
+      set(wsData);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+      ws = null; // Reset the WebSocket instance
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+  };
 
   const send = (message: string) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
