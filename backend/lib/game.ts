@@ -1,8 +1,7 @@
 import { Client, Color } from "./client";
-import { GamePiece } from "./gamePiece";
 import { GameState } from "./gameState";
+import { MinGamePiece } from "./min/minGamePiece";
 import { Player } from "./player";
-import { WsMessage, WsMessageType } from "./wsMessage";
 
 class Game {
     public gameStates: GameState[] = [];
@@ -24,7 +23,7 @@ class Game {
         this.gameStates[0] = new GameState(this);
     }
 
-    public nextGameState(piece: GamePiece): void {
+    public nextGameState(piece: MinGamePiece): void {
         const nextGameState = this.currentGameState.nextGameState(piece);
         if (nextGameState.equals(this.currentGameState)) return;
         this.gameStates.push(this.currentGameState.nextGameState(piece));

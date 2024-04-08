@@ -1,6 +1,7 @@
 import { Color } from "./client";
 import { Game } from "./game";
 import { GamePiece } from "./gamePiece";
+import { MinGamePiece } from "./min/minGamePiece";
 import { Player } from "./player";
 
 class GameState {
@@ -36,7 +37,10 @@ class GameState {
         });
     }
 
-    public nextGameState(piece: GamePiece): GameState {
+    public nextGameState(minPiece: MinGamePiece): GameState {
+        let piece = this.pieces.find(p => p.pos == minPiece.pos);
+        if (!piece) return this;
+        
         if (piece.owner !== this.currentPlayer) return this;
 
         const newGameState = new GameState(this.game, this.pieces);

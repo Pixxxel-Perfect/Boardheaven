@@ -5,8 +5,8 @@ import { GameCodeValidator } from "./lib/codesApi";
 import { Client, Color } from "./lib/client";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { Game } from "./lib/game";
-import { GamePiece } from "./lib/gamePiece";
 import { ServerWebSocket } from "bun";
+import { MinGamePiece } from "./lib/min/minGamePiece";
 
 const codeAPI = new GameCodeValidator();
 
@@ -108,7 +108,7 @@ Bun.serve<WsData>({
 
                     let piece;
                     try {
-                        piece = parsedMessage.value as GamePiece;
+                        piece = parsedMessage.value as MinGamePiece;
                     } catch {
                         break;
                     }
