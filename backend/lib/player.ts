@@ -1,11 +1,11 @@
 import { ServerWebSocket } from "bun";
 import { WsData } from "./wsData";
-import { Client } from "./client";
+import { Client, Color } from "./client";
 import { WsMessage, WsMessageType } from "./wsMessage";
 
 class Player extends Client {
     public static fromClient(client: Client): Player {
-        return new this(client.ws);
+        return new this(client.ws, client.color);
     }
 
     public static fromClients(clients: Client[]): Player[] {
@@ -18,8 +18,9 @@ class Player extends Client {
 
     public isSpectator: boolean = false;
     
-    public constructor(ws: ServerWebSocket<WsData>) {
+    public constructor(ws: ServerWebSocket<WsData>, public color: Color = Color.NOT_SET) {
         super(ws);
+        color = color;
     }
 
     public finishGame() {

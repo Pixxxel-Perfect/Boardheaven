@@ -20,10 +20,6 @@ class Game {
         this.players.sort((p1, p2) => p1.color - p2.color);
     }
 
-    public broadcast(message: WsMessage<unknown>): void {
-        this.players.forEach(p => p.send(message));
-    }
-
     public startGame(): void {
         this.gameStates[0] = new GameState(this);
     }

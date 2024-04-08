@@ -23,10 +23,15 @@ class GameState {
             pieces.forEach(p => this.pieces.push(GamePiece.from(p)));
             return;
         }
+
+        game.players.filter(p => {
+            console.log(!p.isSpectator);
+            return !p.isSpectator
+        }).length;
         
-        this.players.filter(p => !p.isSpectator).forEach(p => {
+        game.players.filter(p => !p.isSpectator).forEach(p => {
             for (let i = 1; i <= 4; i++) {
-                this.pieces.push(new GamePiece(p, -i * p.color));
+                this.pieces.push(new GamePiece(p, -4 * p.color - i));
             }
         });
     }

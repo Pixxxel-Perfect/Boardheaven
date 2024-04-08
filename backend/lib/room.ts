@@ -51,7 +51,6 @@ class Room {
             this.roomStatus as number,
             minClients,
             minRoomMaster)));
-        console.log(this);
     }
 
     public broadcastGameStatus(): void {
