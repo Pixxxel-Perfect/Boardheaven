@@ -8,6 +8,8 @@
   import pawn from "$lib/images/pawn.svg";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
     import type { MinGameState } from "../../helper/minGameState";
+    import type { MinColor } from "../../helper/minClient";
+    import type { MinGamePiece } from "../../helper/minGamePiece";
 
   let ws: WebSocket;
   const circles = [
@@ -113,7 +115,7 @@
 
         pawns.length = 0; 
 
-        data.pieces.forEach((piece: { pos: any; color: any; }) => {
+        data.pieces.forEach((piece: MinGamePiece) => {
           pawns.push({ index: piece.pos, color: `${piece.color}` });
         });
 
@@ -134,7 +136,7 @@
     console.log("parent", message);
   }
   var pawns: { index: number; color: string; }[] = [
-    //{ index: -10, color: "green" },
+    //  { index: -4, color: "green" },
     /*
     { index: 56, color: 'green' },
     { index: 57, color: 'green' },
@@ -191,7 +193,7 @@
 
     <div class="board">
       {#each circles as circleClass, index}
-        <div class={`circle ${circleClass}`}>
+      <div class={`circle ${circleClass}`}>
           {#if pawns.find((pawn) => smartIndex(pawn) === index)}
             {#if showPawn}
               <svg
