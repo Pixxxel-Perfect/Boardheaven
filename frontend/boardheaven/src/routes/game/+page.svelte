@@ -8,8 +8,9 @@
   import pawn from "$lib/images/pawn.svg";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
     import type { MinGameState } from "../../helper/minGameState";
-    import type { MinColor } from "../../helper/minClient";
+    import { MinColor } from "../../helper/minClient";
     import type { MinGamePiece } from "../../helper/minGamePiece";
+    import { LOGNAME } from "$env/static/private";
 
   let ws: WebSocket;
   const circles = [
@@ -116,7 +117,15 @@
         pawns.length = 0; 
 
         data.pieces.forEach((piece: MinGamePiece) => {
-          pawns.push({ index: piece.pos, color: `${piece.color}` });
+          data.pieces.forEach((piece: MinGamePiece) => {
+            pawns.push({
+                pos: piece.pos,
+                color: piece.color,
+                owner: piece.owner,
+                homePos: piece.homePos,
+                initPos: piece.initPos
+            });
+          });
         });
 
         console.log(data);
@@ -135,43 +144,36 @@
     //ws.send(message);
     console.log("parent", message);
   }
-  var pawns: { index: number; color: string; }[] = [
+  var pawns: MinGamePiece[] = [
     //  { index: -4, color: "green" },
-    /*
-    { index: 56, color: 'green' },
-    { index: 57, color: 'green' },
-    { index: 58, color: 'green' },
-    { index: 59, color: 'green' },
-
-    { index: 60, color: 'red' },
-    { index: 61, color: 'red' },
-    { index: 62, color: 'red' },
-    { index: 63, color: 'red' },
-
-    { index: 68, color: 'yellow' },
-    { index: 69, color: 'yellow' },
-    { index: 70, color: 'yellow' },
-    { index: 71, color: 'yellow' },
-
-    { index: 64, color: 'black' },
-    { index: 65, color: 'black' },
-    { index: 66, color: 'black' },
-    { index: 67, color: 'black' },
-    */
   ];
-  function smartIndex(pawn: { index: any; color?: string }) {
-    if (pawn.index >= 110 && pawn.index <= 113) {
-      return 44 + (pawn.index - 110);
-    } else if (pawn.index >= 100 && pawn.index <= 103) {
-      return 40 + (pawn.index - 100);
-    } else if (pawn.index >= 120 && pawn.index <= 123) {
-      return 48 + (pawn.index - 120);
-    } else if (pawn.index >= 130 && pawn.index <= 133) {
-      return 52 + (pawn.index - 130);
-    } else if (pawn.index >= -16 && pawn.index <= -1) {
-      return 56 + Math.abs(pawn.index + 1);
+  function smartIndex(pawn: MinGamePiece) {
+    if (pawn.pos >= 110 && pawn.pos <= 113) {
+      return 44 + (pawn.pos - 110);
+    } else if (pawn.pos >= 100 && pawn.pos <= 103) {
+      return 40 + (pawn.pos - 100);
+    } else if (pawn.pos >= 120 && pawn.pos <= 123) {
+      return 48 + (pawn.pos - 120);
+    } else if (pawn.pos >= 130 && pawn.pos <= 133) {
+      return 52 + (pawn.pos - 130);
+    } else if (pawn.pos >= -16 && pawn.pos <= -1) {
+      return 56 + Math.abs(pawn.pos + 1);
     }
-    return pawn.index;
+    return pawn.pos;
+  }
+  function getColorNameByColorIndex(pawn: Number) {
+    switch (pawn) {
+      case MinColor.BLACK:
+        return 'black';
+      case MinColor.RED:
+        return 'red';
+      case MinColor.YELLOW:
+        return 'yellow';
+      case MinColor.GREEN:
+        return 'green';
+      default:
+        return 'black';
+    }
   }
 </script>
 
@@ -202,7 +204,7 @@
                 height="800px"
                 viewBox="-5 0 22 22"
                 id="meteor-icon-kit__solid-pawn"
-                fill={pawns.find((pawn) => smartIndex(pawn) === index)?.color}
+                fill={getColorNameByColorIndex(pawns.find((pawn) => smartIndex(pawn) === index)?.color ?? 0)}
                 stroke="black"
                 stroke-width="0.4"
                 xmlns="http://www.w3.org/2000/svg"
@@ -215,7 +217,7 @@
               </svg>
             {:else}
               <svg
-                fill={pawns.find((pawn) => smartIndex(pawn) === index)?.color}
+                fill={getColorNameByColorIndex(pawns.find((pawn) => smartIndex(pawn) === index)?.color ?? 0)}
                 stroke="black"
                 stroke-width="0.4"
                 class="pawn"
