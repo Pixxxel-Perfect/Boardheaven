@@ -60,7 +60,7 @@
   }
 
   function copyLinkTextbox(): void {
-    if (generatedLink) {
+    if (generatedLink && window.isSecureContext) {
       navigator.clipboard.writeText(generatedLink);
     }
   }
