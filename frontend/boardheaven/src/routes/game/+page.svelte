@@ -7,10 +7,10 @@
   import arrowicon from "$lib/images/arrowright.svg";
   import pawn from "$lib/images/pawn.svg";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
-    import type { MinGameState } from "../../helper/minGameState";
-    import { MinColor } from "../../helper/minClient";
-    import type { MinGamePiece } from "../../helper/minGamePiece";
-    import { LOGNAME } from "$env/static/private";
+  import type { MinGameState } from "../../helper/minGameState";
+  import { MinColor } from "../../helper/minClient";
+  import type { MinGamePiece } from "../../helper/minGamePiece";
+  import { LOGNAME } from "$env/static/private";
 
   let ws: WebSocket;
   const circles = [
@@ -114,16 +114,16 @@
       if (wsData.messageType === WsMessageType.GAME_STATUS) {
         var data: MinGameState = wsData.value as MinGameState;
 
-        pawns.length = 0; 
+        pawns.length = 0;
 
         data.pieces.forEach((piece: MinGamePiece) => {
           data.pieces.forEach((piece: MinGamePiece) => {
             pawns.push({
-                pos: piece.pos,
-                color: piece.color,
-                owner: piece.owner,
-                homePos: piece.homePos,
-                initPos: piece.initPos
+              pos: piece.pos,
+              color: piece.color,
+              owner: piece.owner,
+              homePos: piece.homePos,
+              initPos: piece.initPos,
             });
           });
         });
@@ -137,7 +137,7 @@
 
   let showPawn = true;
   function toggleSVG() {
-    showPawn = !showPawn; 
+    showPawn = !showPawn;
   }
   function sendMessage(message: string) {
     //use ws to send the  message!!!
@@ -147,7 +147,7 @@
   var pawns: MinGamePiece[] = [
     //  { index: -4, color: "green" },
   ];
-  function smartIndex(pawn: MinGamePiece) {
+  /*function smartIndex(pawn.pos: MinGamePiece) {
     if (pawn.pos >= 110 && pawn.pos <= 113) {
       return 44 + (pawn.pos - 110);
     } else if (pawn.pos >= 100 && pawn.pos <= 103) {
@@ -160,21 +160,52 @@
       return 56 + Math.abs(pawn.pos + 1);
     }
     return pawn.pos;
+  }*/
+
+  function smartIndex(pos: number) {
+    const oneOffset = pos % 10;
+    const tenOffset = (pos % 100) - oneOffset;
+
+    if (pos < 0) return 55 - pos;
+    if (pos < 100) return pos;
+
+    return pos - 60 - tenOffset * 6;
   }
+
+  function reverseSmartIndex(pos: number) {
+    if (pos >= 56 && pos <= 71) {
+      return -1 - (pos - 56);
+    }
+    if (pos >= 44 && pos <= 47) {
+      return 110 + (pos - 44);
+    } else if (pos >= 40 && pos <= 43) {
+      return 100 + (pos - 40);
+    } else if (pos >= 48 && pos <= 51) {
+      return 120 + (pos - 48);
+    } else if (pos >= 52 && pos <= 55) {
+      return 130 + (pos - 52);
+    }
+    return pos;
+  }
+
   function getColorNameByColorIndex(pawn: Number) {
     switch (pawn) {
       case MinColor.BLACK:
-        return 'black';
+        return "black";
       case MinColor.RED:
-        return 'red';
+        return "red";
       case MinColor.YELLOW:
-        return 'yellow';
+        return "yellow";
       case MinColor.GREEN:
-        return 'green';
+        return "green";
       default:
-        return 'black';
+        return "black";
     }
   }
+    function pressedPawn(): any {
+        throw new Error("Pressed Pawn");
+    }
+
 </script>
 
 <div>
@@ -195,8 +226,8 @@
 
     <div class="board">
       {#each circles as circleClass, index}
-      <div class={`circle ${circleClass}`}>
-          {#if pawns.find((pawn) => smartIndex(pawn) === index)}
+        <div class={`circle ${circleClass}`}>
+          {#if pawns.find((pawn) => smartIndex(pawn.pos) === index)}
             {#if showPawn}
               <svg
                 class="pawn"
@@ -204,7 +235,10 @@
                 height="800px"
                 viewBox="-5 0 22 22"
                 id="meteor-icon-kit__solid-pawn"
-                fill={getColorNameByColorIndex(pawns.find((pawn) => smartIndex(pawn) === index)?.color ?? 0)}
+                fill={getColorNameByColorIndex(
+                  pawns.find((pawn) => smartIndex(pawn.pos) === index)?.color ??
+                    0,
+                )}
                 stroke="black"
                 stroke-width="0.4"
                 xmlns="http://www.w3.org/2000/svg"
@@ -217,7 +251,10 @@
               </svg>
             {:else}
               <svg
-                fill={getColorNameByColorIndex(pawns.find((pawn) => smartIndex(pawn) === index)?.color ?? 0)}
+                fill={getColorNameByColorIndex(
+                  pawns.find((pawn) => smartIndex(pawn.pos) === index)?.color ??
+                    0,
+                )}
                 stroke="black"
                 stroke-width="0.4"
                 class="pawn"
@@ -232,7 +269,7 @@
               </svg>
             {/if}
           {/if}
-        </div>
+            </div>
       {/each}
     </div>
     <div class="container">
