@@ -67,13 +67,16 @@ Bun.serve<WsData>({
 
             if (Buffer.isBuffer(message)) return;
 
+            console.log(message);
             let parsedMessage;
             try {
                 const preParsedMessage = JSON.parse(message);
                 parsedMessage = preParsedMessage as WsMessage<unknown>;
             } catch {
+                console.log("could not parse message");
                 return;
             }
+
 
             const room = Room.getRoom(ws.data.roomId);
             if (!room) return ws.close();
@@ -112,6 +115,7 @@ Bun.serve<WsData>({
                     } catch {
                         break;
                     }
+                    if (!(client.ws.remoteAddress == piece.owner.address)) break;
                     room.game.nextGameState(piece);
 
                     room.broadcastGameStatus();

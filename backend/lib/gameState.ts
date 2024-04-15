@@ -6,8 +6,6 @@ import { Player } from "./player";
 
 class GameState {
     public pieces: GamePiece[] = [];
-    public playingPlayerIndex = 0;
-    public diceThrow: number;
 
     public get players(): Player[] {
         return this.game.players;
@@ -17,20 +15,15 @@ class GameState {
         return this.players[this.playingPlayerIndex];
     }
 
-    constructor(public game: Game, pieces?: GamePiece[]) {
-        this.diceThrow = Math.floor(Math.random() * 6) + 1;
+    constructor(public game: Game, public playingPlayerIndex: number, public diceThrow: number, pieces?: GamePiece[]) {
+        //this.diceThrow = Math.floor(Math.random() * 6) + 1;
 
         if (pieces) {
             pieces.forEach(p => this.pieces.push(GamePiece.from(p)));
             return;
         }
-
-        game.players.filter(p => {
-            console.log(!p.isSpectator);
-            return !p.isSpectator
-        }).length;
-        
-        game.players.filter(p => !p.isSpectator).forEach(p => {
+        const activePlayers = this.players.filter(p => !p.isSpectator);
+        activePlayers.forEach(p => {
             for (let i = 1; i <= 4; i++) {
                 this.pieces.push(new GamePiece(p, -4 * p.color - i));
             }
@@ -43,7 +36,7 @@ class GameState {
         
         if (piece.owner !== this.currentPlayer) return this;
 
-        const newGameState = new GameState(this.game, this.pieces);
+        const newGameState = new GameState(this.game, this.playingPlayerIndex, this.diceThrow, this.pieces);
 
         if (newGameState.movePiece(piece)) return this;
 
@@ -52,7 +45,9 @@ class GameState {
             return this;
         }
 
+        newGameState.diceThrow = Math.floor(Math.random() * 6) + 1;
         newGameState.switchToNextPlayer();
+
         return newGameState;
     }
 
@@ -137,12 +132,12 @@ class GameState {
 
     public switchToNextPlayer() {
         let index;
+        console.log("is player finished (no): " + this.isPlayerFinished(this.currentPlayer));
         // do-while is SUPER dangerous
-        let failsafe = 0;
         do {
-            if (failsafe > 4) break;
             index = (this.playingPlayerIndex + 1) % this.players.length;
         } while (this.isPlayerFinished(this.currentPlayer));
+        this.playingPlayerIndex = index;
     }
 
     public isPlayerFinished(player: Player): boolean {

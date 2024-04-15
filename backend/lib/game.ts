@@ -20,12 +20,16 @@ class Game {
     }
 
     public startGame(): void {
-        this.gameStates[0] = new GameState(this);
+        const firstPlayer = this.players.filter(p => !p.isSpectator)[0];
+        this.gameStates[0] = new GameState(this, this.players.indexOf(firstPlayer), Math.floor(Math.random() * 6) + 1);
     }
 
     public nextGameState(piece: MinGamePiece): void {
         const nextGameState = this.currentGameState.nextGameState(piece);
-        if (nextGameState.equals(this.currentGameState)) return;
+        if (nextGameState.equals(this.currentGameState)) {
+            console.log("game state not changed");
+            return;
+        }
         this.gameStates.push(this.currentGameState.nextGameState(piece));
     }
 

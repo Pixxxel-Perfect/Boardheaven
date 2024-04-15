@@ -11,6 +11,7 @@
   import { MinColor } from "../../helper/minClient";
   import type { MinGamePiece } from "../../helper/minGamePiece";
   import { LOGNAME } from "$env/static/private";
+    import { WsMessage } from "../../helper/wsMessage";
 
   let ws: WebSocket;
   const circles = [
@@ -173,19 +174,26 @@
   }
 
   function reverseSmartIndex(pos: number) {
+    var varpos: number = pos;
     if (pos >= 56 && pos <= 71) {
-      return -1 - (pos - 56);
+      varpos = -1 - (pos - 56);
     }
     if (pos >= 44 && pos <= 47) {
-      return 110 + (pos - 44);
+      varpos = 110 + (pos - 44);
     } else if (pos >= 40 && pos <= 43) {
-      return 100 + (pos - 40);
+      varpos = 100 + (pos - 40);
     } else if (pos >= 48 && pos <= 51) {
-      return 120 + (pos - 48);
+      varpos = 120 + (pos - 48);
     } else if (pos >= 52 && pos <= 55) {
-      return 130 + (pos - 52);
+      varpos = 130 + (pos - 52);
     }
-    return pos;
+    console.log("Irt works")
+    const pawn = pawns.find((pawn) => pawn.pos === varpos);
+    console.log(pawn);
+    if (pawn == null) return;
+    const message = new WsMessage<MinGamePiece>(WsMessageType.TURN_ACTION, {pos: varpos, color: pawn?.color, owner: pawn?.owner, homePos: pawn?.homePos, initPos: pawn?.initPos});
+    console.log(message);
+    websocketStore.send(JSON.stringify(message));
   }
 
   function getColorNameByColorIndex(pawn: Number) {
@@ -228,12 +236,13 @@
       {#each circles as circleClass, index}
         <div class={`circle ${circleClass}`}>
           {#if pawns.find((pawn) => smartIndex(pawn.pos) === index)}
-            {#if showPawn}
+          <button on:click={() => reverseSmartIndex(index)} style="all: unset;">
+                        {#if showPawn}
               <svg
                 class="pawn"
                 width="800px"
                 height="800px"
-                viewBox="-5 0 22 22"
+                viewBox="-7.5 -2 22 22"
                 id="meteor-icon-kit__solid-pawn"
                 fill={getColorNameByColorIndex(
                   pawns.find((pawn) => smartIndex(pawn.pos) === index)?.color ??
@@ -260,7 +269,7 @@
                 class="pawn"
                 width="800px"
                 height="800px"
-                viewBox="0 0 32 32"
+                viewBox="-3.5 -1 32 32"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -268,6 +277,7 @@
                 ></path>
               </svg>
             {/if}
+          </button>
           {/if}
             </div>
       {/each}
