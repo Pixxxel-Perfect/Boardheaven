@@ -1,6 +1,7 @@
 import { ServerWebSocket } from "bun";
 import { WsData } from "./wsData";
-import { WsMessage } from "./wsMessage";
+import { WsMessage, WsMessageType } from "./wsMessage";
+import { GamePiece } from "./gamePiece";
 
 enum Color {
     NOT_SET = -1,
@@ -13,6 +14,7 @@ enum Color {
 class Client {
     public ws: ServerWebSocket<WsData>;
     public color: Color = Color.NOT_SET;
+    public isSpectator: boolean = false;
 
     public get roomId() {
         return (this.ws.data as WsData).roomId;
@@ -31,8 +33,19 @@ class Client {
     }
 
     public equals(client: Client | ServerWebSocket<WsData>) {
-        if (client instanceof Client) return client.ws.remoteAddress == this.ws.remoteAddress;
-        return client.remoteAddress == this.ws.remoteAddress;
+        if (client instanceof Client) client = client.ws;
+        return client == this.ws;
+    }
+
+    public finishGame(winningColor: Color) {
+        // I am throwing out everyone after a game
+        // TODO That can/will be changed later to allow multiple games in succession
+        this.send(new WsMessage(WsMessageType.GAME_FINISH, winningColor));
+        this.disconnect();
+    }
+
+    public ownsPiece(piece: GamePiece): boolean {
+        return this.color == piece.color;
     }
 }
 

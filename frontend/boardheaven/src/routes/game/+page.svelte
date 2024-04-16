@@ -1,17 +1,13 @@
 <script lang="ts">
-  import Wuerfel from "$lib/images/Wuerfel.png";
-  import Chatbox from "$lib/components/chatbox/chatbox.svelte";
   import { chatStore } from "../../stores/chatStore";
   import settingsicon from "$lib/images/settings.png";
   import { onMount } from "svelte";
   import arrowicon from "$lib/images/arrowright.svg";
-  import pawn from "$lib/images/pawn.svg";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
   import type { MinGameState } from "../../helper/minGameState";
   import { MinColor } from "../../helper/minClient";
   import type { MinGamePiece } from "../../helper/minGamePiece";
-  import { LOGNAME } from "$env/static/private";
-    import { WsMessage } from "../../helper/wsMessage";
+  import { WsMessage } from "../../helper/wsMessage";
 
   let ws: WebSocket;
   const circles = [
@@ -122,7 +118,6 @@
             pawns.push({
               pos: piece.pos,
               color: piece.color,
-              owner: piece.owner,
               homePos: piece.homePos,
               initPos: piece.initPos,
             });
@@ -163,7 +158,7 @@
     return pawn.pos;
   }*/
 
-  function smartIndex(pos: number) {
+  /*function smartIndex(pos: number) {
     const oneOffset = pos % 10;
     const tenOffset = (pos % 100) - oneOffset;
 
@@ -171,6 +166,21 @@
     if (pos < 100) return pos;
 
     return pos - 60 - tenOffset * 6;
+  }*/
+
+  function smartIndex(pos: number) {
+    if (pos >= 110 && pos <= 113) {
+      return 44 + (pos - 110);
+    } else if (pos >= 100 && pos <= 103) {
+      return 40 + (pos - 100);
+    } else if (pos >= 120 && pos <= 123) {
+      return 48 + (pos - 120);
+    } else if (pos >= 130 && pos <= 133) {
+      return 52 + (pos - 130);
+    } else if (pos >= -16 && pos <= -1) {
+      return 56 + Math.abs(pos + 1); 
+    }
+    return pos;
   }
 
   function reverseSmartIndex(pos: number) {
@@ -191,7 +201,7 @@
     const pawn = pawns.find((pawn) => pawn.pos === varpos);
     console.log(pawn);
     if (pawn == null) return;
-    const message = new WsMessage<MinGamePiece>(WsMessageType.TURN_ACTION, {pos: varpos, color: pawn?.color, owner: pawn?.owner, homePos: pawn?.homePos, initPos: pawn?.initPos});
+    const message = new WsMessage<MinGamePiece>(WsMessageType.TURN_ACTION, {pos: varpos, color: pawn?.color, homePos: pawn?.homePos, initPos: pawn?.initPos});
     console.log(message);
     websocketStore.send(JSON.stringify(message));
   }

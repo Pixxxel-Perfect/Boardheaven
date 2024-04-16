@@ -1,163 +1,168 @@
 import { Color } from "./client";
-import { Game } from "./game";
 import { GamePiece } from "./gamePiece";
 import { MinGamePiece } from "./min/minGamePiece";
-import { Player } from "./player";
+import { Room } from "./room";
 
 class GameState {
     public pieces: GamePiece[] = [];
+    public currentPlayerColor: Color;
+    public diceThrow: number;
+    
+    private room: Room;
+    private activeColors: Color[];
+    
+    constructor(room: Room) {
+        this.room = room;
+        this.activeColors = this.room.getActiveColors();
+        this.currentPlayerColor = this.activeColors[0];
+        this.diceThrow = rollDice();
 
-    public get players(): Player[] {
-        return this.game.players;
-    }
-
-    public get currentPlayer(): Player {
-        return this.players[this.playingPlayerIndex];
-    }
-
-    constructor(public game: Game, public playingPlayerIndex: number, public diceThrow: number, pieces?: GamePiece[]) {
-        //this.diceThrow = Math.floor(Math.random() * 6) + 1;
-
-        if (pieces) {
-            pieces.forEach(p => this.pieces.push(GamePiece.from(p)));
-            return;
-        }
-        const activePlayers = this.players.filter(p => !p.isSpectator);
-        activePlayers.forEach(p => {
+        this.activeColors.forEach(c => {
             for (let i = 1; i <= 4; i++) {
-                this.pieces.push(new GamePiece(p, -4 * p.color - i));
+                this.pieces.push(new GamePiece(c, -(4 * c + i)));
             }
         });
+        return;
     }
 
-    public nextGameState(minPiece: MinGamePiece): GameState {
+    //the return type gives the info if an update occoured (broadcastGameState needs to be called or not)
+    public makeMoveWithPiece(minPiece: MinGamePiece): boolean {
         let piece = this.pieces.find(p => p.pos == minPiece.pos);
-        if (!piece) return this;
+        if (!piece) return false;
         
-        if (piece.owner !== this.currentPlayer) return this;
+        if (piece.color !== this.currentPlayerColor) return false;
 
-        const newGameState = new GameState(this.game, this.playingPlayerIndex, this.diceThrow, this.pieces);
-
-        if (newGameState.movePiece(piece)) return this;
-
-        if (this.shouldEnd()) {
-            this.game.finishGame();
-            return this;
+        //TODO: make it so that a player does not have to choose a figure when softlocked
+        // VVV Maybe remove this when adding the bottom part
+        if (this.isCurrentPlayerSoftlocked()) {
+            this.switchToNextPlayer();
+            this.diceThrow = rollDice();
+            return true;
         }
 
-        newGameState.diceThrow = Math.floor(Math.random() * 6) + 1;
-        newGameState.switchToNextPlayer();
+        if (!this.movePiece(piece)) return false;
+        
+        if (this.shouldEnd()) {
+            this.room.finishGame();
+            return false;
+        }
 
-        return newGameState;
-    }
-
-    public equals(gameState: GameState): boolean {
-        if (this.playingPlayerIndex !== gameState.playingPlayerIndex) return false;
-        if (this.diceThrow !== gameState.diceThrow) return false;
-
-        this.pieces.forEach(p => {
-            gameState.pieces.forEach(gsp => {
-                if (!p.equals(gsp)) return false;
-            });
-        });
-
+        this.switchToNextPlayer();
+        this.diceThrow = rollDice();
         return true;
-    }
 
-    //Dude, I will have to optimize movePiece some day VVV
+        // VVV Thats a suprise tool that will help us later VVV
+        /*for (let failSafeTries = 100; failSafeTries > 0; failSafeTries--) {
+            if (!this.isCurrentPlayerSoftlocked()) return true;
+            this.switchToNextPlayer();
+            this.diceThrow = rollDice();
+        }
+
+        // VVV This should never happen
+        console.log("Softlock failsafe failed, we're all doomed!");
+        return false;*/
+    }
 
     // Position is a number ranging from -16 to -1 for the starting house
     // 0 to 39 for on the board
     // and add 100 for being in the end house
-    public movePiece(piece: GamePiece): Boolean {
-        if (piece.pos > 100) {
+    private movePiece(piece: GamePiece): Boolean {
+        if (piece.pos >= 100) {
             let newPos = piece.pos + this.diceThrow;
-            if (newPos % 10 > 3) return false;
 
-            //Test if new position is valid
+            if (newPos % 10 > 3) return false;
             if (this.getPieceAt(newPos)) return false;
             
             piece.pos = newPos;
-
             return true;
-            
         }
 
-        let newPos;
         // Test if piece can be initialized on the board
         if (piece.pos < 0) {
-            if (this.diceThrow !== 6) return false;
-            newPos = piece.color * 10;
-        }else {
-
-            newPos = (piece.pos + this.diceThrow) % 40;
-            
-            let housePos;
-            switch (piece.color) {
-                case Color.BLACK:
-                    housePos = 39;
-                    break;
-                case Color.YELLOW:
-                    housePos = 9;
-                    break;
-                case Color.GREEN:
-                    housePos = 19;
-                    break;
-                case Color.RED:
-                    housePos = 29;
-                    break;
-                default:
-                    housePos = 1000;
-            }
-
-            if (piece.pos > housePos - this.diceThrow && piece.pos < housePos) {
-                if (newPos % 10 > 3) {
-                    return false;
+            const isSix = this.diceThrow == 6;
+            if (isSix) {
+                const possColPiece = this.getPieceAt(piece.initPos);
+                if (possColPiece) {
+                    if (possColPiece.color == piece.color) return false;
+                    possColPiece.capture();
                 }
-                newPos += 100;
+                piece.init();
             }
+            return isSix;
+        }
+
+        let newPos = (piece.pos + this.diceThrow) % 40;
+        let housePos = (39 + piece.initPos) % 40;
+
+        if (piece.pos + this.diceThrow > housePos && piece.pos <= housePos) {
+            if (newPos % 10 > 3) return false;
+            newPos += 100;
+            const possColPiece = this.getPieceAt(newPos);
+            if (possColPiece) return false;
+
+            piece.pos = newPos;
+            return true;
         }
 
         //Test if new position is valid
-        let possColPiece = this.getPieceAt(newPos);
+        const possColPiece = this.getPieceAt(newPos);
         if (possColPiece) {
             if (possColPiece.color == piece.color) return false;
             possColPiece.capture();
         }
         
         piece.pos = newPos;
-
         return true;
     }
 
-    public switchToNextPlayer() {
-        let index;
-        console.log("is player finished (no): " + this.isPlayerFinished(this.currentPlayer));
-        // do-while is SUPER dangerous
+    private switchToNextPlayer(): void {
+        if (this.diceThrow == 6) return;
+
+        let index = this.activeColors.indexOf(this.currentPlayerColor);
+        if (index < 0) console.error("The current Player is not marked as active.");
+
         do {
-            index = (this.playingPlayerIndex + 1) % this.players.length;
-        } while (this.isPlayerFinished(this.currentPlayer));
-        this.playingPlayerIndex = index;
+            index += 1
+            index %= this.activeColors.length;
+        } while (this.isPlayerFinished(this.currentPlayerColor));
+
+        this.currentPlayerColor = this.activeColors[index];
     }
 
-    public isPlayerFinished(player: Player): boolean {
-        if (player.isSpectator) return true;
-
-        let pieces = this.getPiecesOfPlayer(player);
+    private isPlayerFinished(color: Color): boolean {
+        let pieces = this.getPiecesOfColor(color);
         return pieces.every(p => p.pos >= 100);
     }
 
-    public shouldEnd(): boolean {
-        return this.players.every(p => this.isPlayerFinished(p));
+    private shouldEnd(): boolean {
+        return this.room.getActiveColors().every(c => this.isPlayerFinished(c));
     }
 
-    public getPieceAt(pos: number): GamePiece | null {
-        return this.pieces.find(p => p.pos = pos) ?? null;
+    private getPieceAt(pos: number): GamePiece | null {
+        return this.pieces.find(p => p.pos == pos) ?? null;
     }
 
-    public getPiecesOfPlayer(player: Player): GamePiece[] {
-        return this.pieces.filter(p => p.owner == player);
+    private getPiecesOfColor(color: Color): GamePiece[] {
+        return this.pieces.filter(p => p.color == color);
+    }
+
+    private isCurrentPlayerSoftlocked(): boolean {
+        const pieces = this.getPiecesOfColor(this.currentPlayerColor);
+
+        for (let i = 0; i < pieces.length; i++) {
+            const lastPos = pieces[i].pos;
+            if (this.movePiece(pieces[i])) {
+                pieces[i].pos = lastPos;
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
 
-export { GameState };
+function rollDice(): number {
+    return Math.floor(Math.random() * 6) + 1;
+}
+
+export { GameState, rollDice };

@@ -1,4 +1,4 @@
-import { Player } from "./player";
+import { Color } from "./client";
 
 class GamePiece {
     /**
@@ -6,20 +6,16 @@ class GamePiece {
      * @param {GamePiece} piece the piece which will be copied
      */
     public static from(piece: GamePiece): GamePiece {
-        return new GamePiece(piece.owner, piece.homePos);
+        return new GamePiece(piece.color, piece.homePos);
     }
     
     public pos: number;
-
-    public get color() {
-        return this.owner.color;
-    }
 
     public get initPos() {
         return this.color * 10;
     }
     
-    constructor(public owner: Player, public homePos: number) {
+    constructor(public color: Color, public homePos: number) {
         this.pos = homePos;
     }
 
@@ -27,6 +23,7 @@ class GamePiece {
         if (piece.color !== this.color) return false;
         if (piece.pos !== this.pos) return false;
         if (piece.homePos !== this.homePos) return false;
+        
         return true;
     }
 

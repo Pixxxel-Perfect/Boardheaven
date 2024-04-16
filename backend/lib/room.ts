@@ -1,13 +1,12 @@
 import { ServerWebSocket } from "bun";
 import { Client, Color } from "./client";
-import { Game } from "./game";
 import { WsMessage, WsMessageType } from "./wsMessage";
 import { WsData } from "./wsData";
 import { MinRoom } from "./min/minRoom";
 import { MinGameState } from "./min/minGameState";
 import { MinClient } from "./min/minClient";
 import { MinGamePiece } from "./min/minGamePiece";
-import { MinPlayer } from "./min/minPlayer";
+import { GameState } from "./gameState";
 
 enum RoomStatus {
     LOBBY,
@@ -27,9 +26,9 @@ class Room {
     
     public roomId: string;
     public roomStatus: RoomStatus = RoomStatus.LOBBY;
-    public clients: Client[] = []
+    public clients: Client[] = [];
     public roomMaster: Client;
-    public game?: Game;
+    public currentGameState: GameState | null = null;
 
     constructor(roomMaster: Client) {
         this.clients.push(roomMaster);
@@ -43,8 +42,9 @@ class Room {
 
     public broadcastRoomStatus(): void {
         const minClients: MinClient[] = [];
-        const minRoomMaster: MinClient = new MinClient(this.roomMaster.ws.remoteAddress, this.roomMaster.color as number);
-        this.clients.forEach(c => minClients.push(new MinClient(c.ws.remoteAddress, c.color as number)));
+        const minRoomMaster: MinClient = new MinClient(this.roomMaster.ws.remoteAddress, this.roomMaster.color as number, this.roomMaster.isSpectator);
+        
+        this.clients.forEach(c => minClients.push(new MinClient(c.ws.remoteAddress, c.color as number, c.isSpectator)));
 
         this.broadcast(new WsMessage(WsMessageType.ROOM_STATUS, new MinRoom(
             this.roomId,
@@ -54,31 +54,33 @@ class Room {
     }
 
     public broadcastGameStatus(): void {
-        if (!this.game) return;
+        if (!this.currentGameState) return;
 
         const minGamePieces: MinGamePiece[] = [];
-        const minPlayers: MinPlayer[] = [];
+        const minClients: MinClient[] = [];
 
-        this.game.currentGameState.pieces.forEach(p => minGamePieces.push(new MinGamePiece(
-            new MinPlayer(p.owner.ws.remoteAddress, p.color, p.owner.isSpectator),
+        this.currentGameState.pieces.forEach(p => minGamePieces.push(new MinGamePiece(
             p.homePos,
             p.pos,
             p.color as number,
             p.initPos
             )));
         
-        this.game.players.forEach(p => minPlayers.push(new MinPlayer(
-            p.ws.remoteAddress,
-            p.color as number,
-            p.isSpectator
+        this.clients.forEach(c => minClients.push(new MinClient(
+            c.ws.remoteAddress,
+            c.color as number,
+            c.isSpectator
         )));
 
         this.broadcast(new WsMessage(WsMessageType.GAME_STATUS, new MinGameState(
             minGamePieces,
-            this.game.currentGameState.playingPlayerIndex,
-            this.game.currentGameState.diceThrow,
-            minPlayers
+            this.currentGameState.currentPlayerColor as number,
+            this.currentGameState.diceThrow,
             )));
+    }
+
+    public getClient(ws: ServerWebSocket<WsData>): Client | null {
+        return this.clients.find(c => c.equals(ws)) ?? null;
     }
 
     public addClient(client: Client): void {
@@ -87,8 +89,8 @@ class Room {
         }
     }
 
-    public getClient(ws: ServerWebSocket<WsData>): Client | null {
-        return this.clients.find(c => c.equals(ws)) ?? null;
+    public sortClientsByColor() {
+        this.clients.sort((a, b) => a.color - b.color);
     }
 
     public removeClient(client: Client): void {
@@ -122,6 +124,12 @@ class Room {
                 break;
             }
         }
+        if (this.clients.length == 0) {
+            const index = Room.ROOMS.indexOf(this);
+            if (index < 0) return;
+
+            Room.ROOMS.splice(index, 1);
+        }
     }
 
     public isColorFree(color: Color): boolean {
@@ -131,6 +139,33 @@ class Room {
             }
         }
         return true;
+    }
+    
+    /*public getActiveColors(): Color[] {
+        const colors: Color[] = [];
+        this.clients.forEach(p => {
+            if (p.isSpectator) return;
+            colors.push(p.color);
+        });
+        return colors;
+    } VVV  */
+    public getActiveColors(): Color[] {
+        return this.clients.map(c => c.color).filter(c => c != Color.NOT_SET);
+    }
+
+    public startGame(): void {
+        this.currentGameState = new GameState(this);
+    }
+
+    public updateGameState(piece: MinGamePiece): boolean {
+        if (!this.currentGameState) return false;
+        return this.currentGameState.makeMoveWithPiece(piece);
+    }
+    
+    public finishGame(): void {
+        //TODO send finish message + last game state
+        this.broadcastGameStatus();
+        this.clients.forEach(c => c.finishGame(this.currentGameState?.currentPlayerColor as Color));
     }
 
     private generateId(length: number): string {

@@ -7,7 +7,7 @@ enum MinColor {
 }
 
 class MinClient {
-    constructor(public address: string, public color: MinColor) {}
+    constructor(public address: string, public color: MinColor, public isSpectator: boolean) {}
 }
 
 export { MinClient, MinColor };

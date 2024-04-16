@@ -1,17 +1,11 @@
 import { MinGamePiece } from "./minGamePiece";
-import { MinPlayer } from "./minPlayer";
-
+import { MinColor } from "./minClient";
 
 class MinGameState {
-    public get currentPlayer(): MinPlayer {
-        return this.players[this.playingPlayerIndex];
-    }
-
     constructor(
-        public pieces: MinGamePiece[],
-        public playingPlayerIndex: number,
+        public pieces: MinGamePiece[] = [],
+        public currentPlayerColor: MinColor,
         public diceThrow: number,
-        public players: MinPlayer[]
         ) {}
 }
 

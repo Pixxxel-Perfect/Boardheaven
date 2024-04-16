@@ -1,10 +1,8 @@
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/wsData";
-import { Player } from "./lib/player";
 import { GameCodeValidator } from "./lib/codesApi";
 import { Client, Color } from "./lib/client";
 import { WsMessage, WsMessageType } from "./lib/wsMessage";
-import { Game } from "./lib/game";
 import { ServerWebSocket } from "bun";
 import { MinGamePiece } from "./lib/min/minGamePiece";
 
@@ -52,7 +50,7 @@ Bun.serve<WsData>({
                 return;
             }
 
-            room = new Room(new Player(ws));
+            room = new Room(new Client(ws));
             room.roomStatus = RoomStatus.LOBBY;
             room.broadcastRoomStatus();
 
@@ -61,13 +59,8 @@ Bun.serve<WsData>({
             Room.ROOMS.push(room);
         },
         message(ws, message) {
-
-            //TODO: handle incoming messages
-            //TODO: send Error messages on error
-
             if (Buffer.isBuffer(message)) return;
 
-            console.log(message);
             let parsedMessage;
             try {
                 const preParsedMessage = JSON.parse(message);
@@ -87,13 +80,13 @@ Bun.serve<WsData>({
             switch (parsedMessage.messageType) {
                 case WsMessageType.START_GAME:
                     if (!room.roomMaster.equals(client)) break;
-                    room.game = new Game(Player.fromClients(room.clients));
-                    room.game.startGame();
+                    room.sortClientsByColor();
+                    room.startGame();
 
+                    room.roomStatus = RoomStatus.PLAYING;
                     room.broadcastGameStatus();
                     break;
                 case WsMessageType.CHOOSE_COLOR:
-                    
                     let color;
                     try {
                         color = parsedMessage.value as Color;
@@ -107,7 +100,7 @@ Bun.serve<WsData>({
                     room.broadcastRoomStatus();
                     break;
                 case WsMessageType.TURN_ACTION:
-                    if (!room.game) break;
+                    if (!room.currentGameState) break;
 
                     let piece;
                     try {
@@ -115,10 +108,8 @@ Bun.serve<WsData>({
                     } catch {
                         break;
                     }
-                    if (!(client.ws.remoteAddress == piece.owner.address)) break;
-                    room.game.nextGameState(piece);
 
-                    room.broadcastGameStatus();
+                    if (room.updateGameState(piece)) room.broadcastGameStatus();
                     break;
                 case WsMessageType.CLOSE:
                     ws.send(JSON.stringify(new WsMessage(WsMessageType.CLOSE, null)));
@@ -129,10 +120,6 @@ Bun.serve<WsData>({
                 default:
                     client.send(new WsMessage<string>(WsMessageType.ERROR, "The sent WsMessageType is unknown to the Server."));
             }
-
-            //TODO find solution to this VVV (sort of done already)
-            //room.broadcastRoomStatus();
-
         },
         close(ws) {
             const room = Room.ROOMS.find(r => r.roomId == ws.data.roomId);

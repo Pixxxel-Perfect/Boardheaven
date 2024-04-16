@@ -8,7 +8,8 @@
   import { goto } from "$app/navigation";
 
   let idFromparam = $page.url.searchParams.get("roomId");
-  let connectionUrl = "ws://10.91.139.127:3000";
+  //let connectionUrl = "ws://10.91.141.236:3000";
+  let connectionUrl = `ws://${location.hostname}:3000`;
 
   let generatedLink: string | null = null;
 
