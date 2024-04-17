@@ -457,7 +457,7 @@
     height: 5vh;
     width: 20vh;
     margin-bottom: 10px;
-    color: #000000;
+    color: #ffffff;
   }
   .playerColorRed {
     display: flex;
