@@ -6,6 +6,7 @@
   import {
     selectedColorStore,
     setSelectedColor,
+    setSelectedColorId,
   } from "../../../stores/colorStore";
   import { onMount } from "svelte";
   import type { MinRoom } from "../../../helper/minRoom";
@@ -48,6 +49,7 @@
 
   function selectItem(): void {
     setSelectedColor(color);
+    setSelectedColorId(colorid);
     //I need the correct type for set-color command
     // sending type = 0 means -> set color
     websocketStore.send(

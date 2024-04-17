@@ -9,6 +9,8 @@
   import type { MinGamePiece } from "../../helper/minGamePiece";
   import { WsMessage } from "../../helper/wsMessage";
   import wuerfel2 from "../../lib/images/Wuerfel.png";
+  import { selectedColorIdStore } from "../../stores/colorStore";
+  //import { LOGNAME } from "$env/static/private";
 
   let ws: WebSocket;
   const circles = [
@@ -85,6 +87,14 @@
     "circleRed",
     "circleRed",
   ];
+
+  let selectedColorId: number = -1;
+  let show: boolean = false;
+
+  $: showYellow = selectedColorId !== MinColor.YELLOW;
+  $: showGreen = selectedColorId !== MinColor.GREEN;
+  $: showRed = selectedColorId !== MinColor.RED;
+  $: showBlack = selectedColorId !== MinColor.BLACK;
   
   // test
   onMount(() => {
@@ -105,12 +115,21 @@
     ]);
     chatStore.update((messages) => [...messages, "PK"]);
 
+    let unsubscribeSelectedColorIdStore = selectedColorIdStore.subscribe(
+      (value) => {
+        selectedColorId = value as number;
+        console.log(selectedColorId);
+      }
+    );
+
     let unsubscribeWs = websocketStore.subscribe((wsData) => {
       if (!wsData) {
         console.log("No data received");
         return;
       }
       if (wsData.messageType === WsMessageType.GAME_STATUS) {
+        console.log("Halo halo");
+        console.log(wsData);
         var data: MinGameState = wsData.value as MinGameState;
 
         pawns.length = 0;
@@ -131,6 +150,11 @@
         console.log(wsData);
       }
     });
+
+    return () => {
+      unsubscribeWs();
+      unsubscribeSelectedColorIdStore();
+    };
   });
   var dice = 999; 
 
@@ -222,7 +246,13 @@
         return "black";
     }
   }
+<<<<<<< HEAD
 
+=======
+  function pressedPawn(): any {
+    throw new Error("Pressed Pawn");
+  }
+>>>>>>> 45d102d (Show selected color in game)
 </script>
 
 <div>
@@ -255,7 +285,7 @@
                 id="meteor-icon-kit__solid-pawn"
                 fill={getColorNameByColorIndex(
                   pawns.find((pawn) => smartIndex(pawn.pos) === index)?.color ??
-                    0,
+                    0
                 )}
                 stroke="black"
                 stroke-width="0.4"
@@ -271,7 +301,7 @@
               <svg
                 fill={getColorNameByColorIndex(
                   pawns.find((pawn) => smartIndex(pawn.pos) === index)?.color ??
-                    0,
+                    0
                 )}
                 stroke="black"
                 stroke-width="0.4"
@@ -288,7 +318,7 @@
             {/if}
           </button>
           {/if}
-            </div>
+        </div>
       {/each}
     </div>
     <div class="container">
@@ -299,16 +329,16 @@
       <div class="playerStats">
         <h2 class="playerHeadline">Player</h2>
         <div class="playerColorYellow">
-          <h4>You</h4>
+          <h4 class:hideNonSelected={showYellow}>Me</h4>
         </div>
         <div class="playerColorGreen">
-          <!-- <h4>You</h4> -->
+          <h4 class:hideNonSelected={showGreen}>Me</h4>
         </div>
         <div class="playerColorRed">
-          <!-- <h4>You</h4> -->
+          <h4 class:hideNonSelected={showRed}>Me</h4>
         </div>
         <div class="playerColorBlack">
-          <!-- <h4>You</h4> -->
+          <h4 class:hideNonSelected={showBlack}>Me</h4>
         </div>
         <div class="flexer">
           <img src={wuerfel2} alt="Würfel"/>
@@ -328,11 +358,16 @@
   .padding {
     padding-left: 20px;
   }
+
   .flexer {
     padding-top: 10px;
     display: flex;
     justify-content: left;
     align-items: center;
+  }
+
+  .hideNonSelected {
+    display: none;
   }
   .switch {
     position: relative;
