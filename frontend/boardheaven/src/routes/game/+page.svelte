@@ -8,6 +8,7 @@
   import { MinColor } from "../../helper/minClient";
   import type { MinGamePiece } from "../../helper/minGamePiece";
   import { WsMessage } from "../../helper/wsMessage";
+  import wuerfel2 from "../../lib/images/Wuerfel.png";
 
   let ws: WebSocket;
   const circles = [
@@ -84,6 +85,7 @@
     "circleRed",
     "circleRed",
   ];
+  
   // test
   onMount(() => {
     //addPawnSVG();
@@ -123,13 +125,14 @@
             });
           });
         });
-
+        dice = data.diceThrow;
         console.log(data);
       } else {
         console.log(wsData);
       }
     });
   });
+  var dice = 999; 
 
   let showPawn = true;
   function toggleSVG() {
@@ -197,7 +200,6 @@
     } else if (pos >= 52 && pos <= 55) {
       varpos = 130 + (pos - 52);
     }
-    console.log("Irt works")
     const pawn = pawns.find((pawn) => pawn.pos === varpos);
     console.log(pawn);
     if (pawn == null) return;
@@ -220,9 +222,6 @@
         return "black";
     }
   }
-    function pressedPawn(): any {
-        throw new Error("Pressed Pawn");
-    }
 
 </script>
 
@@ -311,6 +310,10 @@
         <div class="playerColorBlack">
           <!-- <h4>You</h4> -->
         </div>
+        <div class="flexer">
+          <img src={wuerfel2} alt="Würfel"/>
+          <h1 class="padding">{dice}</h1>
+        </div>
       </div>
     </div>
   </div>
@@ -322,6 +325,15 @@
 </div>
 
 <style>
+  .padding {
+    padding-left: 20px;
+  }
+  .flexer {
+    padding-top: 10px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+  }
   .switch {
     position: relative;
     display: inline-block;
