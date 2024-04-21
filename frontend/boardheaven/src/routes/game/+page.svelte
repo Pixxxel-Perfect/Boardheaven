@@ -12,6 +12,8 @@
   import { selectedColorIdStore } from "../../stores/colorStore";
   import { flip } from "svelte/animate";
   import type { MinPlayer } from "../../helper/minPlayer";
+  import { scale } from "svelte/transition";
+  import { quintOut } from "svelte/easing";
   //import { LOGNAME } from "$env/static/private";
 
   let ws: WebSocket;
@@ -106,16 +108,16 @@
     show: selectedColorId !== color.id,
   }));
 
-  const colorGradients: { [key: number]: string } = {
+  /*const colorGradients: { [key: number]: string } = {
     [MinColor.YELLOW]: "linear-gradient(to right, yellow, orange)",
     [MinColor.GREEN]: "linear-gradient(to right, green, lightgreen)",
     [MinColor.RED]: "linear-gradient(to right, red, orangered)",
     [MinColor.BLACK]: "linear-gradient(to right, black, darkgray)",
-  };
+  };*/
 
-  let gradientColor: string;
+  //let gradientColor: string;
 
-  $: gradientColor = colorGradients[turnColorId];
+  //$: gradientColor = colorGradients[turnColorId];
 
   // test
   onMount(() => {
@@ -163,9 +165,7 @@
             });
           });
         });
-<<<<<<< HEAD
         dice = data.diceThrow;
-=======
 
         data.players.forEach((player: MinPlayer, index) => {
           if (data.playingPlayerIndex === index) {
@@ -173,7 +173,6 @@
           }
         });
 
->>>>>>> 21eee44 (indicating turn, switch to each block, mapping turn color from playerPLayingIndex ws)
         console.log(data);
       } else {
         console.log(wsData);
@@ -275,13 +274,10 @@
         return "black";
     }
   }
-<<<<<<< HEAD
 
-=======
   function pressedPawn(): any {
     throw new Error("Pressed Pawn");
   }
->>>>>>> 45d102d (Show selected color in game)
 </script>
 
 <div>
@@ -351,13 +347,13 @@
       {/each}
     </div>
     <div class="container">
-      <div class="pointer">
+      <div class="pointer" hidden>
         <img src={arrowicon} alt="arrow" class="arrow-icon" />
       </div>
 
       <!--Switched to each block to use sveltekit animation:flip, but dropped the idea. I'll leave it as it is tho-->
-      <!-- 
-      <div class="playerStats">
+
+      <!-- <div class="playerStats">
         <h2 class="playerHeadline">Player</h2>
         <div class="playerColorYellow">
           <h4 class:hideNonSelected={showYellow}>Me</h4>
@@ -365,7 +361,7 @@
         <div class="playerColorGreen">
           <h4 class:hideNonSelected={showGreen}>Me</h4>
         </div>
-        <div class="playerColorRed">
+        <div class="playerColorRed xxpulse">
           <h4 class:hideNonSelected={showRed}>Me</h4>
         </div>
         <div class="playerColorBlack">
@@ -383,10 +379,9 @@
         <h2 class="playerHeadline">Player</h2>
         {#each colors as color}
           <div
-            class="playerColor{color.name}"
-            style="--gradientColor: {turnColorId === color.id
-              ? gradientColor
-              : undefined};"
+            class="playerColor{color.name} {turnColorId !== color.id
+              ? 'notTurn'
+              : ''}"
           >
             <h4 class:hideNonSelected={color.show}>Me</h4>
           </div>
@@ -412,6 +407,10 @@
     display: flex;
     justify-content: left;
     align-items: center;
+}
+
+  .notTurn {
+    opacity: 0.3;
   }
 
   .hideNonSelected {
@@ -495,7 +494,6 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #000000;
-    background: var(--gradientColor);
   }
   .playerColorGreen {
     display: flex;
@@ -507,7 +505,6 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #ffffff;
-    background: var(--gradientColor);
   }
   .playerColorRed {
     display: flex;
@@ -519,7 +516,6 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #000000;
-    background: var(--gradientColor);
   }
   .playerColorBlack {
     display: flex;
@@ -531,7 +527,6 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #ffffff;
-    background: var(--gradientColor);
   }
   .playerStats {
     background-color: #f1f1f1;
