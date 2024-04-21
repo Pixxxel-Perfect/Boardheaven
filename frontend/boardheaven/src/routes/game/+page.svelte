@@ -10,6 +10,8 @@
   import { WsMessage } from "../../helper/wsMessage";
   import wuerfel2 from "../../lib/images/Wuerfel.png";
   import { selectedColorIdStore } from "../../stores/colorStore";
+  import { flip } from "svelte/animate";
+  import type { MinPlayer } from "../../helper/minPlayer";
   //import { LOGNAME } from "$env/static/private";
 
   let ws: WebSocket;
@@ -88,14 +90,33 @@
     "circleRed",
   ];
 
-  let selectedColorId: number = -1;
-  let show: boolean = false;
+  let colors = [
+    { id: MinColor.YELLOW, name: "Yellow", show: true },
+    { id: MinColor.GREEN, name: "Green", show: true },
+    { id: MinColor.RED, name: "Red", show: true },
+    { id: MinColor.BLACK, name: "Black", show: true },
+  ];
 
-  $: showYellow = selectedColorId !== MinColor.YELLOW;
-  $: showGreen = selectedColorId !== MinColor.GREEN;
-  $: showRed = selectedColorId !== MinColor.RED;
-  $: showBlack = selectedColorId !== MinColor.BLACK;
-  
+  let selectedColorId: number = -1;
+  let turnColorId: number = 0;
+
+  // Needs to be reactive --> Sets every non-selected color: false
+  $: colors = colors.map((color) => ({
+    ...color,
+    show: selectedColorId !== color.id,
+  }));
+
+  const colorGradients: { [key: number]: string } = {
+    [MinColor.YELLOW]: "linear-gradient(to right, yellow, orange)",
+    [MinColor.GREEN]: "linear-gradient(to right, green, lightgreen)",
+    [MinColor.RED]: "linear-gradient(to right, red, orangered)",
+    [MinColor.BLACK]: "linear-gradient(to right, black, darkgray)",
+  };
+
+  let gradientColor: string;
+
+  $: gradientColor = colorGradients[turnColorId];
+
   // test
   onMount(() => {
     //addPawnSVG();
@@ -128,8 +149,6 @@
         return;
       }
       if (wsData.messageType === WsMessageType.GAME_STATUS) {
-        console.log("Halo halo");
-        console.log(wsData);
         var data: MinGameState = wsData.value as MinGameState;
 
         pawns.length = 0;
@@ -144,7 +163,17 @@
             });
           });
         });
+<<<<<<< HEAD
         dice = data.diceThrow;
+=======
+
+        data.players.forEach((player: MinPlayer, index) => {
+          if (data.playingPlayerIndex === index) {
+            turnColorId = player.color;
+          }
+        });
+
+>>>>>>> 21eee44 (indicating turn, switch to each block, mapping turn color from playerPLayingIndex ws)
         console.log(data);
       } else {
         console.log(wsData);
@@ -326,6 +355,8 @@
         <img src={arrowicon} alt="arrow" class="arrow-icon" />
       </div>
 
+      <!--Switched to each block to use sveltekit animation:flip, but dropped the idea. I'll leave it as it is tho-->
+      <!-- 
       <div class="playerStats">
         <h2 class="playerHeadline">Player</h2>
         <div class="playerColorYellow">
@@ -340,10 +371,27 @@
         <div class="playerColorBlack">
           <h4 class:hideNonSelected={showBlack}>Me</h4>
         </div>
+<<<<<<< HEAD
         <div class="flexer">
           <img src={wuerfel2} alt="Würfel"/>
           <h1 class="padding">{dice}</h1>
         </div>
+=======
+      </div> -->
+
+      <div class="playerStats">
+        <h2 class="playerHeadline">Player</h2>
+        {#each colors as color}
+          <div
+            class="playerColor{color.name}"
+            style="--gradientColor: {turnColorId === color.id
+              ? gradientColor
+              : undefined};"
+          >
+            <h4 class:hideNonSelected={color.show}>Me</h4>
+          </div>
+        {/each}
+>>>>>>> 21eee44 (indicating turn, switch to each block, mapping turn color from playerPLayingIndex ws)
       </div>
     </div>
   </div>
@@ -447,6 +495,7 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #000000;
+    background: var(--gradientColor);
   }
   .playerColorGreen {
     display: flex;
@@ -458,6 +507,7 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #ffffff;
+    background: var(--gradientColor);
   }
   .playerColorRed {
     display: flex;
@@ -469,6 +519,7 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #000000;
+    background: var(--gradientColor);
   }
   .playerColorBlack {
     display: flex;
@@ -480,6 +531,7 @@
     width: 20vh;
     margin-bottom: 10px;
     color: #ffffff;
+    background: var(--gradientColor);
   }
   .playerStats {
     background-color: #f1f1f1;
