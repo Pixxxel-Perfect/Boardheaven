@@ -1,163 +1,136 @@
 import { Room, RoomStatus } from "./lib/room";
 import { WsData } from "./lib/wsData";
-import { Player, PlayerColor } from "./lib/player";
-import { GameState } from "./lib/gameState";
 import { GameCodeValidator } from "./lib/codesApi";
-import { Client } from "./lib/client";
+import { Client, Color } from "./lib/client";
+import { WsMessage, WsMessageType } from "./lib/wsMessage";
+import { ServerWebSocket } from "bun";
+import { MinGamePiece } from "./lib/min/minGamePiece";
 
-const rooms: Room[] = [];
 const codeAPI = new GameCodeValidator();
 
 //URL = ws:[IP]/<ID>
 //[FIX], <Optional>
 
 Bun.serve<WsData>({
-    async fetch(req: Request): Promise<Response> {
-        /*
-        TODO:
-            Spit request between
-                - making a room 
-                - joining a room 
-                - rejoining a room
+    async fetch(req: Request) {
 
-            Test Websocket Code
-
-            add Player choosing color
-
-            Test Player Code
-            
-            Add Logic for all cases and then:
-                - Error Detection
-                - Error Handling
-
-            Add Documentation for lib Classes
-        */
+        //TODO Game Code Validation
+        //TODO add Client/WS Timeout
 
         const reqUrl = new URL(req.url);
+        const roomId = reqUrl.pathname.slice(1);
 
-        if (!this.upgrade(req, {data: new WsData(reqUrl.pathname.slice(1))})) {
-            return new Response(null, {
-                status: 426,
-                statusText: "Could not upgrade connection."
+        if (!Room.PATTERN_REGEX.test(roomId)) {
+            console.log("rejected connection");
+            return new Response("Invalid Room-ID", {
+                status: 400
             });
         }
 
-        return new Response("Connection established.");
-        
+        if (this.upgrade(req, {data: new WsData(roomId)})) {
+            return new Response("Could not upgrade connection.", {
+                status: 426
+            });
+        }
+
+        return new Response(Bun.file("index.html"), {
+            status: 400
+        });
     },
     websocket: {
         open(ws) {
             const roomId = ws.data.roomId;
             
-            
             let room;
-            if (room = getRoom(roomId)) {
-                room.addClient(new Client(ws));
+            if (room = Room.getRoom(roomId)) {
 
-                ws.sendText(JSON.stringify(new WsMessage(WsMessageType.INFO, roomId)));
-                
-                
+                room.addClient(new Client(ws));
+                room.broadcastRoomStatus();
+
                 return;
             }
 
-            //TODO: message client that they created a new room
-            room = new Room(new Player(ws), roomId);
-            rooms.push(room);
+            room = new Room(new Client(ws));
             room.roomStatus = RoomStatus.LOBBY;
+            room.broadcastRoomStatus();
 
-            //DEBUG comment-outing
-            ws.sendText(JSON.stringify(new WsMessage(WsMessageType.INFO, room.roomId)));
-            
-            //console.log(rooms);
-            
+            ws.data.roomId = room.roomId;
+
+            Room.ROOMS.push(room);
         },
         message(ws, message) {
-            /*console.log("'" + message + "' was sent from " + ws.remoteAddress);
-            getRoom(ws.data.roomId)?.broadcast(JSON.stringify({sender: ws.remoteAddress, message: message}));*/
-
-            //TODO: handle incoming messages
-
             if (Buffer.isBuffer(message)) return;
-            let parsedMessage: WsMessage;
+
+            let parsedMessage;
             try {
-                parsedMessage = JSON.parse(message) as WsMessage;
+                const preParsedMessage = JSON.parse(message);
+                parsedMessage = preParsedMessage as WsMessage<unknown>;
             } catch {
+                console.log("could not parse message");
                 return;
             }
 
-            let room = getRoom(ws.data.roomId);
+
+            const room = Room.getRoom(ws.data.roomId);
             if (!room) return ws.close();
 
-            let player = room?.getPlayer(ws);
-            if (!player) return;
+            let client = room.getClient(ws);
+            if (!client) return ws.close();
 
-            switch (parsedMessage.type) {
+            switch (parsedMessage.messageType) {
                 case WsMessageType.START_GAME:
-                    if (room.gameMaster.ws != ws) return;
-                    if (room.roomStatus != RoomStatus.LOBBY) return;
+                    if (!room.roomMaster.equals(client)) break;
+                    room.sortClientsByColor();
+                    room.startGame();
 
-                    let allHaveColor = true;
-                    room.players.forEach(p => {
-                        if (p.color == PlayerColor.NOT_SET) allHaveColor = false;
-                    });
-                    if (!allHaveColor) return;
-
-                    room.gameState = new GameState(room.players, room.gameMaster);
                     room.roomStatus = RoomStatus.PLAYING;
+                    room.broadcastGameStatus();
                     break;
-                case WsMessageType.SET_COLOR:
-                    if (room.roomStatus != RoomStatus.LOBBY) return;
+                case WsMessageType.CHOOSE_COLOR:
+                    let color;
+                    try {
+                        color = parsedMessage.value as Color;
+                    } catch {
+                        break;
+                    }
+                    if (!room.isColorFree(color)) break;
 
-                    player.color = toNumber(parsedMessage.value);
-                    if (player.color < -1 || player.color > 3) player.color = PlayerColor.NOT_SET;
-                    
+                    client.color = color;
+
+                    room.broadcastRoomStatus();
                     break;
                 case WsMessageType.TURN_ACTION:
-                    if (room.roomStatus != RoomStatus.PLAYING) return;
-                    if (room.gameState?.playingPlayer != player) return;
+                    if (!room.currentGameState) break;
 
-                    //  TODO look over the fact, that you may not have to assign it
-                    //  because the state already modifies itself.
-                    let newGameState = room.gameState.calcNextState(toNumber(parsedMessage.value));
+                    let piece;
+                    try {
+                        piece = parsedMessage.value as MinGamePiece;
+                    } catch {
+                        break;
+                    }
 
-                    room.gameState = newGameState ?? room.gameState;
-                case WsMessageType.TURN_SKIP:
-                    // TODO Validate the possible skip
-                    room.gameState?.nextPlayer();
+                    if (room.updateGameState(piece)) room.broadcastGameStatus();
                     break;
-                //TODO other types
-                
+                case WsMessageType.CLOSE:
+                    ws.send(JSON.stringify(new WsMessage(WsMessageType.CLOSE, null)));
+                    ws.close();
+                    break;
+                case WsMessageType.ERROR:
+                    break;
+                default:
+                    client.send(new WsMessage<string>(WsMessageType.ERROR, "The sent WsMessageType is unknown to the Server."));
             }
-
-
         },
         close(ws) {
-            /*rooms.forEach(r => {
-                for (let i = 0; i < r.players.length; i++) {
-                    const p = r.players[i];
-                    if (p.ws.remoteAddress === ws.remoteAddress) {
-                        r.removePlayer(p)
-                    };
-                }
-            });*/
+            const room = Room.ROOMS.find(r => r.roomId == ws.data.roomId);
+            if (!room) return;
 
-            const room = rooms.find(r => r.roomId == ws.data.roomId);
-            //TODO better VVV
-            const player = room?.players.find(p => p.ws.remoteAddress == ws.remoteAddress);
-
-            room?.removePlayer(player);
+            removeWsFromRoom(room, ws);
         }
     }
 });
 
-function getRoom(roomId: string): Room | null {
-    return rooms.find(r => r.roomId == roomId) ?? null;
-}
-
-function toNumber(text: string | number): number {
-    try {
-        return Math.floor(parseInt(text + ""));
-    } catch {
-        return 0;
-    }
+function removeWsFromRoom(room: Room, ws: ServerWebSocket<WsData>): void {
+    room.removeClientViaServerWebsocket(ws);
+    room.broadcastRoomStatus();
 }

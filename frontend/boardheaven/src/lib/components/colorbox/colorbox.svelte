@@ -6,8 +6,11 @@
   import {
     selectedColorStore,
     setSelectedColor,
+    setSelectedColorId,
   } from "../../../stores/colorStore";
   import { onMount } from "svelte";
+  import type { MinRoom } from "../../../helper/minRoom";
+  import type { MinClient } from "../../../helper/minClient";
 
   export let color: string;
   export let colorid: number;
@@ -24,30 +27,17 @@
 
     let unsubscribeWebsocket = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
-      //console.log("--->", wsData.messageType);
-      //console.log("xxx", wsData.value.game.players);
       //got color selectd message
       if (wsData.messageType === WsMessageType.ROOM_STATUS) {
-        //console.log("message on status 0->", wsData.value);
-        //the value represents the button to disable
-        if (!(wsData.value instanceof Object)) return;
-        if (!(wsData.value.clients instanceof Array)) return;
-
-        const players = wsData.value.clients as [];
+        const players = (wsData.value as MinRoom).clients;
         if (!players) return;
 
         isSelected = false;
-
         players.forEach((player) => {
-          //console.log(player);
-          if (player.color == colorid) {
-            //console.log("selected");
+          if ((player as MinClient).color == colorid) {
             isSelected = true;
           }
         });
-
-        //console.log("player: ->", players);
-        //isSelected = colorid === wsData.value;
       }
     });
 
@@ -59,6 +49,7 @@
 
   function selectItem(): void {
     setSelectedColor(color);
+    setSelectedColorId(colorid);
     //I need the correct type for set-color command
     // sending type = 0 means -> set color
     websocketStore.send(

@@ -1,4 +1,6 @@
 import { writable } from 'svelte/store';
+import type { MinRoom } from '../helper/minRoom';
+import type { MinGameState } from '../helper/minGameState';
 
 
 export enum WsMessageType {
@@ -16,8 +18,8 @@ export enum WsMessageType {
 }
 
 type WsComData = {
-  messageType: number,
-  value: string | number | object;
+  messageType: WsMessageType,
+  value: MinGameState | MinRoom;
 }
 
 function createWebSocketStore() {

@@ -1,11 +1,17 @@
 <script lang="ts">
-  import Wuerfel from "$lib/images/Wuerfel.png";
-  import Chatbox from "$lib/components/chatbox/chatbox.svelte";
   import { chatStore } from "../../stores/chatStore";
   import settingsicon from "$lib/images/settings.png";
   import { onMount } from "svelte";
   import arrowicon from "$lib/images/arrowright.svg";
-  import pawn from "$lib/images/pawn.svg";
+  import { websocketStore, WsMessageType } from "../../stores/websocketStore";
+  import type { MinGameState } from "../../helper/minGameState";
+  import { MinColor } from "../../helper/minClient";
+  import type { MinGamePiece } from "../../helper/minGamePiece";
+  import { WsMessage } from "../../helper/wsMessage";
+  import wuerfel2 from "../../lib/images/Wuerfel.png";
+  import { selectedColorIdStore } from "../../stores/colorStore";
+  import { MinClient } from "../../helper/minClient";
+
   let ws: WebSocket;
   const circles = [
     "circleBlack",
@@ -81,6 +87,34 @@
     "circleRed",
     "circleRed",
   ];
+
+  let colors = [
+    { id: MinColor.YELLOW, name: "Yellow", show: true },
+    { id: MinColor.GREEN, name: "Green", show: true },
+    { id: MinColor.RED, name: "Red", show: true },
+    { id: MinColor.BLACK, name: "Black", show: true },
+  ];
+
+  let selectedColorId: number = -1;
+  let turnColorId: number = 0;
+
+  // Needs to be reactive --> Sets every non-selected color: false
+  $: colors = colors.map((color) => ({
+    ...color,
+    show: selectedColorId !== color.id,
+  }));
+
+  /*const colorGradients: { [key: number]: string } = {
+    [MinColor.YELLOW]: "linear-gradient(to right, yellow, orange)",
+    [MinColor.GREEN]: "linear-gradient(to right, green, lightgreen)",
+    [MinColor.RED]: "linear-gradient(to right, red, orangered)",
+    [MinColor.BLACK]: "linear-gradient(to right, black, darkgray)",
+  };*/
+
+  //let gradientColor: string;
+
+  //$: gradientColor = colorGradients[turnColorId];
+
   // test
   onMount(() => {
     //addPawnSVG();
@@ -99,54 +133,152 @@
       "and this is the best game!!!! ÄöÜ?",
     ]);
     chatStore.update((messages) => [...messages, "PK"]);
+
+    let unsubscribeSelectedColorIdStore = selectedColorIdStore.subscribe(
+      (value) => {
+        selectedColorId = value as number;
+        console.log(selectedColorId);
+      }
+    );
+
+    let unsubscribeWs = websocketStore.subscribe((wsData) => {
+      if (!wsData) {
+        console.log("No data received");
+        return;
+      }
+      if (wsData.messageType === WsMessageType.GAME_STATUS) {
+        var data: MinGameState = wsData.value as MinGameState;
+
+        pawns.length = 0;
+
+        data.pieces.forEach((piece: MinGamePiece) => {
+          data.pieces.forEach((piece: MinGamePiece) => {
+            pawns.push({
+              pos: piece.pos,
+              color: piece.color,
+              homePos: piece.homePos,
+              initPos: piece.initPos,
+            });
+          });
+        });
+        dice = data.diceThrow;
+
+        /*data.currentPlayerColor.forEach((player: MinClient, index) => {
+          if (data.playingPlayerIndex === index) {
+            turnColorId = player.color;
+          }
+        });*/
+        turnColorId = data.currentPlayerColor;
+
+        console.log(data);
+      } else {
+        console.log(wsData);
+      }
+    });
+
+    return () => {
+      unsubscribeWs();
+      unsubscribeSelectedColorIdStore();
+    };
   });
+  var dice = 999;
 
   let showPawn = true;
   function toggleSVG() {
-    showPawn = !showPawn; // Toggle between true and false
+    showPawn = !showPawn;
   }
   function sendMessage(message: string) {
     //use ws to send the  message!!!
     //ws.send(message);
     console.log("parent", message);
   }
-  const pawns = [
-    { index: -10, color: "green" },
-    /*
-    { index: 56, color: 'green' },
-    { index: 57, color: 'green' },
-    { index: 58, color: 'green' },
-    { index: 59, color: 'green' },
-
-    { index: 60, color: 'red' },
-    { index: 61, color: 'red' },
-    { index: 62, color: 'red' },
-    { index: 63, color: 'red' },
-
-    { index: 68, color: 'yellow' },
-    { index: 69, color: 'yellow' },
-    { index: 70, color: 'yellow' },
-    { index: 71, color: 'yellow' },
-
-    { index: 64, color: 'black' },
-    { index: 65, color: 'black' },
-    { index: 66, color: 'black' },
-    { index: 67, color: 'black' },
-    */
+  var pawns: MinGamePiece[] = [
+    //  { index: -4, color: "green" },
   ];
-  function smartIndex(pawn: { index: any; color?: string }) {
-    if (pawn.index >= 110 && pawn.index <= 113) {
-      return 44 + (pawn.index - 110);
-    } else if (pawn.index >= 100 && pawn.index <= 103) {
-      return 40 + (pawn.index - 100);
-    } else if (pawn.index >= 120 && pawn.index <= 123) {
-      return 48 + (pawn.index - 120);
-    } else if (pawn.index >= 130 && pawn.index <= 133) {
-      return 52 + (pawn.index - 130);
-    } else if (pawn.index >= -16 && pawn.index <= -1) {
-      return 56 + Math.abs(pawn.index + 1);
+  /*function smartIndex(pawn.pos: MinGamePiece) {
+    if (pawn.pos >= 110 && pawn.pos <= 113) {
+      return 44 + (pawn.pos - 110);
+    } else if (pawn.pos >= 100 && pawn.pos <= 103) {
+      return 40 + (pawn.pos - 100);
+    } else if (pawn.pos >= 120 && pawn.pos <= 123) {
+      return 48 + (pawn.pos - 120);
+    } else if (pawn.pos >= 130 && pawn.pos <= 133) {
+      return 52 + (pawn.pos - 130);
+    } else if (pawn.pos >= -16 && pawn.pos <= -1) {
+      return 56 + Math.abs(pawn.pos + 1);
     }
-    return pawn.index;
+    return pawn.pos;
+  }*/
+
+  /*function smartIndex(pos: number) {
+    const oneOffset = pos % 10;
+    const tenOffset = (pos % 100) - oneOffset;
+
+    if (pos < 0) return 55 - pos;
+    if (pos < 100) return pos;
+
+    return pos - 60 - tenOffset * 6;
+  }*/
+
+  function smartIndex(pos: number) {
+    if (pos >= 110 && pos <= 113) {
+      return 44 + (pos - 110);
+    } else if (pos >= 100 && pos <= 103) {
+      return 40 + (pos - 100);
+    } else if (pos >= 120 && pos <= 123) {
+      return 48 + (pos - 120);
+    } else if (pos >= 130 && pos <= 133) {
+      return 52 + (pos - 130);
+    } else if (pos >= -16 && pos <= -1) {
+      return 56 + Math.abs(pos + 1);
+    }
+    return pos;
+  }
+
+  function reverseSmartIndex(pos: number) {
+    var varpos: number = pos;
+    if (pos >= 56 && pos <= 71) {
+      varpos = -1 - (pos - 56);
+    }
+    if (pos >= 44 && pos <= 47) {
+      varpos = 110 + (pos - 44);
+    } else if (pos >= 40 && pos <= 43) {
+      varpos = 100 + (pos - 40);
+    } else if (pos >= 48 && pos <= 51) {
+      varpos = 120 + (pos - 48);
+    } else if (pos >= 52 && pos <= 55) {
+      varpos = 130 + (pos - 52);
+    }
+    const pawn = pawns.find((pawn) => pawn.pos === varpos);
+    console.log(pawn);
+    if (pawn == null) return;
+    const message = new WsMessage<MinGamePiece>(WsMessageType.TURN_ACTION, {
+      pos: varpos,
+      color: pawn?.color,
+      homePos: pawn?.homePos,
+      initPos: pawn?.initPos,
+    });
+    console.log(message);
+    websocketStore.send(JSON.stringify(message));
+  }
+
+  function getColorNameByColorIndex(pawn: Number) {
+    switch (pawn) {
+      case MinColor.BLACK:
+        return "black";
+      case MinColor.RED:
+        return "red";
+      case MinColor.YELLOW:
+        return "yellow";
+      case MinColor.GREEN:
+        return "green";
+      default:
+        return "black";
+    }
+  }
+
+  function pressedPawn(): any {
+    throw new Error("Pressed Pawn");
   }
 </script>
 
@@ -169,75 +301,118 @@
     <div class="board">
       {#each circles as circleClass, index}
         <div class={`circle ${circleClass}`}>
-          {#if pawns.find((pawn) => smartIndex(pawn) === index)}
-            {#if showPawn}
-              <svg
-                class="pawn"
-                width="800px"
-                height="800px"
-                viewBox="-5 0 22 22"
-                id="meteor-icon-kit__solid-pawn"
-                fill={pawns.find((pawn) => smartIndex(pawn) === index)?.color}
-                stroke="black"
-                stroke-width="0.4"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M2.88138 8.90846C1.73464 7.99226 1 6.58192 1 5C1 2.23858 3.23858 0 6 0C8.7614 0 11 2.23858 11 5C11 6.5814 10.2658 7.99133 9.1198 8.90755L11.0777 13.8831C11.6866 15.4306 12.0015 17.1081 12.0015 18.8049V21C12.0015 21.5523 11.5538 22 11.0015 22H1C0.44772 22 0 21.5523 0 21L0 18.8049C0 17.1081 0.31487 15.4306 0.92382 13.8831L2.88138 8.90846z"
-                />
-              </svg>
-            {:else}
-              <svg
-                fill={pawns.find((pawn) => smartIndex(pawn) === index)?.color}
-                stroke="black"
-                stroke-width="0.4"
-                class="pawn"
-                width="800px"
-                height="800px"
-                viewBox="0 0 32 32"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M22.777 23.384c-0.147-0.983-0.91-1.857-2.058-2.507-3.059-1.95-3.595-5.268-2.184-7.45 1.799-0.518 3.028-1.562 3.028-2.766 0-1.095-1.017-2.058-2.555-2.613 0.788-0.786 1.277-1.875 1.277-3.079 0-2.396-1.933-4.338-4.318-4.338s-4.318 1.942-4.318 4.338c0 1.204 0.488 2.292 1.276 3.078-1.538 0.555-2.556 1.518-2.556 2.613 0 1.218 1.259 2.273 3.093 2.784 1.434 2.175 0.824 5.451-2.332 7.463-1.107 0.646-1.834 1.513-1.975 2.477-1.989 0.842-3.235 2.047-3.235 3.386 0 2.544 4.498 4.607 10.047 4.607s10.047-2.062 10.047-4.607c0-1.339-1.247-2.545-3.237-3.387z"
-                ></path>
-              </svg>
-            {/if}
+          {#if pawns.find((pawn) => smartIndex(pawn.pos) === index)}
+            <button
+              on:click={() => reverseSmartIndex(index)}
+              style="all: unset;"
+            >
+              {#if showPawn}
+                <svg
+                  class="pawn"
+                  width="800px"
+                  height="800px"
+                  viewBox="-7.5 -2 22 22"
+                  id="meteor-icon-kit__solid-pawn"
+                  fill={getColorNameByColorIndex(
+                    pawns.find((pawn) => smartIndex(pawn.pos) === index)
+                      ?.color ?? 0
+                  )}
+                  stroke="black"
+                  stroke-width="0.4"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M2.88138 8.90846C1.73464 7.99226 1 6.58192 1 5C1 2.23858 3.23858 0 6 0C8.7614 0 11 2.23858 11 5C11 6.5814 10.2658 7.99133 9.1198 8.90755L11.0777 13.8831C11.6866 15.4306 12.0015 17.1081 12.0015 18.8049V21C12.0015 21.5523 11.5538 22 11.0015 22H1C0.44772 22 0 21.5523 0 21L0 18.8049C0 17.1081 0.31487 15.4306 0.92382 13.8831L2.88138 8.90846z"
+                  />
+                </svg>
+              {:else}
+                <svg
+                  fill={getColorNameByColorIndex(
+                    pawns.find((pawn) => smartIndex(pawn.pos) === index)
+                      ?.color ?? 0
+                  )}
+                  stroke="black"
+                  stroke-width="0.4"
+                  class="pawn"
+                  width="800px"
+                  height="800px"
+                  viewBox="-3.5 -1 32 32"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22.777 23.384c-0.147-0.983-0.91-1.857-2.058-2.507-3.059-1.95-3.595-5.268-2.184-7.45 1.799-0.518 3.028-1.562 3.028-2.766 0-1.095-1.017-2.058-2.555-2.613 0.788-0.786 1.277-1.875 1.277-3.079 0-2.396-1.933-4.338-4.318-4.338s-4.318 1.942-4.318 4.338c0 1.204 0.488 2.292 1.276 3.078-1.538 0.555-2.556 1.518-2.556 2.613 0 1.218 1.259 2.273 3.093 2.784 1.434 2.175 0.824 5.451-2.332 7.463-1.107 0.646-1.834 1.513-1.975 2.477-1.989 0.842-3.235 2.047-3.235 3.386 0 2.544 4.498 4.607 10.047 4.607s10.047-2.062 10.047-4.607c0-1.339-1.247-2.545-3.237-3.387z"
+                  ></path>
+                </svg>
+              {/if}
+            </button>
           {/if}
         </div>
       {/each}
     </div>
     <div class="container">
-      <div class="pointer">
+      <div class="pointer" hidden>
         <img src={arrowicon} alt="arrow" class="arrow-icon" />
       </div>
 
-      <div class="playerStats">
+      <!--Switched to each block to use sveltekit animation:flip, but dropped the idea. I'll leave it as it is tho-->
+
+      <!-- <div class="playerStats">
         <h2 class="playerHeadline">Player</h2>
         <div class="playerColorYellow">
-          <h4>You</h4>
+          <h4 class:hideNonSelected={showYellow}>Me</h4>
         </div>
         <div class="playerColorGreen">
-          <!-- <h4>You</h4> -->
+          <h4 class:hideNonSelected={showGreen}>Me</h4>
         </div>
-        <div class="playerColorRed">
-          <!-- <h4>You</h4> -->
+        <div class="playerColorRed xxpulse">
+          <h4 class:hideNonSelected={showRed}>Me</h4>
         </div>
         <div class="playerColorBlack">
-          <!-- <h4>You</h4> -->
+          <h4 class:hideNonSelected={showBlack}>Me</h4>
+        </div>
+      </div> -->
+
+      <div class="playerStats">
+        <h2 class="playerHeadline">Player</h2>
+        {#each colors as color}
+          <div
+            class="playerColor{color.name} {turnColorId !== color.id
+              ? 'notTurn'
+              : ''}"
+          >
+            <h4 class:hideNonSelected={color.show}>Me</h4>
+          </div>
+        {/each}
+        <div class="flexer">
+          <img src={wuerfel2} alt="Würfel" />
+          <h1 class="padding">{dice}</h1>
         </div>
       </div>
     </div>
   </div>
-
-  <!--   if we mange to solve the problem as described in chatbox.svelte, we can than use the psendMsg property to expose
-  the sendMessage functon to the child components
- -->
-  <!--<Chatbox wsSendMessage={sendMessage}></Chatbox>-->
 </div>
 
 <style>
+  .padding {
+    padding-left: 20px;
+  }
+
+  .flexer {
+    padding-top: 10px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+  }
+
+  .notTurn {
+    opacity: 0.3;
+  }
+
+  .hideNonSelected {
+    display: none;
+  }
   .switch {
     position: relative;
     display: inline-block;
@@ -326,7 +501,7 @@
     height: 5vh;
     width: 20vh;
     margin-bottom: 10px;
-    color: #000000;
+    color: #ffffff;
   }
   .playerColorRed {
     display: flex;
@@ -750,318 +925,4 @@
     grid-column: 10;
     grid-row: 11;
   }
-
-  /*
-  .circle:nth-child(1) {
-    grid-column: 5;
-    grid-row: 1;
-  }
-  .circle:nth-child(2) {
-    grid-column: 6;
-    grid-row: 1;
-  }
-  .circle:nth-child(3) {
-    grid-column: 7;
-    grid-row: 1;
-  }
-  .circle:nth-child(4) {
-    grid-column: 7;
-    grid-row: 2;
-  }
-  .circle:nth-child(5) {
-    grid-column: 7;
-    grid-row: 3;
-  }
-  .circle:nth-child(6) {
-    grid-column: 7;
-    grid-row: 4;
-  }
-  .circle:nth-child(7) {
-    grid-column: 7;
-    grid-row: 5;
-  }
-  .circle:nth-child(8) {
-    grid-column: 8;
-    grid-row: 5;
-  }
-  .circle:nth-child(9) {
-    grid-column: 9;
-    grid-row: 5;
-  }
-  .circle:nth-child(10) {
-    grid-column: 10;
-    grid-row: 5;
-  }
-  .circle:nth-child(11) {
-    grid-column: 11;
-    grid-row: 5;
-  }
-  .circle:nth-child(12) {
-    grid-column: 11;
-    grid-row: 6;
-  }
-  .circle:nth-child(13) {
-    grid-column: 11;
-    grid-row: 7;
-  }
-  .circle:nth-child(14) {
-    grid-column: 10;
-    grid-row: 7;
-  }
-  .circle:nth-child(15) {
-    grid-column: 9;
-    grid-row: 7;
-  }
-  .circle:nth-child(16) {
-    grid-column: 8;
-    grid-row: 7;
-  }
-  .circle:nth-child(17) {
-    grid-column: 7;
-    grid-row: 7;
-  }
-  .circle:nth-child(18) {
-    grid-column: 7;
-    grid-row: 8;
-  }
-  .circle:nth-child(19) {
-    grid-column: 7;
-    grid-row: 9;
-  }
-  .circle:nth-child(20) {
-    grid-column: 7;
-    grid-row: 10;
-  }
-  .circle:nth-child(21) {
-    grid-column: 7;
-    grid-row: 11;
-  }
-  .circle:nth-child(22) {
-    grid-column: 6;
-    grid-row: 11;
-  }
-  .circle:nth-child(23) {
-    grid-column: 5;
-    grid-row: 11;
-  }
-  .circle:nth-child(24) {
-    grid-column: 5;
-    grid-row: 10;
-  }
-  .circle:nth-child(25) {
-    grid-column: 5;
-    grid-row: 9;
-  }
-  .circle:nth-child(26) {
-    grid-column: 5;
-    grid-row: 8;
-  }
-  .circle:nth-child(27) {
-    grid-column: 5;
-    grid-row: 7;
-  }
-  .circle:nth-child(28) {
-    grid-column: 4;
-    grid-row: 7;
-  }
-  .circle:nth-child(29) {
-    grid-column: 3;
-    grid-row: 7;
-  }
-  .circle:nth-child(30) {
-    grid-column: 2;
-    grid-row: 7;
-  }
-  .circle:nth-child(31) {
-    grid-column: 1;
-    grid-row: 7;
-  }
-  .circle:nth-child(32) {
-    grid-column: 1;
-    grid-row: 6;
-  }
-  .circle:nth-child(33) {
-    grid-column: 1;
-    grid-row: 5;
-  }
-  .circle:nth-child(34) {
-    grid-column: 2;
-    grid-row: 5;
-  }
-  .circle:nth-child(35) {
-    grid-column: 3;
-    grid-row: 5;
-  }
-  .circle:nth-child(36) {
-    grid-column: 4;
-    grid-row: 5;
-  }
-  .circle:nth-child(37) {
-    grid-column: 5;
-    grid-row: 5;
-  }
-  .circle:nth-child(38) {
-    grid-column: 5;
-    grid-row: 4;
-  }
-  .circle:nth-child(39) {
-    grid-column: 5;
-    grid-row: 3;
-  }
-  .circle:nth-child(40) {
-    grid-column: 5;
-    grid-row: 2;
-  }
-*/
-  /*
-Full Circles
-*/
-  /*
-  .circle:nth-child(41) {
-    grid-column: 6;
-    grid-row: 2;
-  }
-  .circle:nth-child(42) {
-    grid-column: 6;
-    grid-row: 3;
-  }
-  .circle:nth-child(43) {
-    grid-column: 6;
-    grid-row: 4;
-  }
-  .circle:nth-child(44) {
-    grid-column: 6;
-    grid-row: 5;
-  }
-
-  .circle:nth-child(45) {
-    grid-column: 7;
-    grid-row: 6;
-  }
-  .circle:nth-child(46) {
-    grid-column: 8;
-    grid-row: 6;
-  }
-  .circle:nth-child(47) {
-    grid-column: 9;
-    grid-row: 6;
-  }
-  .circle:nth-child(48) {
-    grid-column: 10;
-    grid-row: 6;
-  }
-
-  .circle:nth-child(49) {
-    grid-column: 6;
-    grid-row: 7;
-  }
-  .circle:nth-child(50) {
-    grid-column: 6;
-    grid-row: 8;
-  }
-  .circle:nth-child(51) {
-    grid-column: 6;
-    grid-row: 9;
-  }
-  .circle:nth-child(52) {
-    grid-column: 6;
-    grid-row: 10;
-  }
-
-  .circle:nth-child(53) {
-    grid-column: 2;
-    grid-row: 6;
-  }
-  .circle:nth-child(54) {
-    grid-column: 3;
-    grid-row: 6;
-  }
-  .circle:nth-child(55) {
-    grid-column: 4;
-    grid-row: 6;
-  }
-  .circle:nth-child(56) {
-    grid-column: 5;
-    grid-row: 6;
-  }
-*/
-  /*
-Home Circles
-*/
-  /*
-  .circle:nth-child(57) {
-    grid-column: 10;
-    grid-row: 1;
-  }
-  .circle:nth-child(58) {
-    grid-column: 11;
-    grid-row: 1;
-  }
-  .circle:nth-child(59) {
-    grid-column: 10;
-    grid-row: 2;
-  }
-  .circle:nth-child(60) {
-    grid-column: 11;
-    grid-row: 2;
-  }
-
-  .circle:nth-child(61) {
-    grid-column: 10;
-    grid-row: 10;
-  }
-  .circle:nth-child(62) {
-    grid-column: 11;
-    grid-row: 10;
-  }
-  .circle:nth-child(63) {
-    grid-column: 10;
-    grid-row: 11;
-  }
-  .circle:nth-child(64) {
-    grid-column: 11;
-    grid-row: 11;
-  }
-
-  .circle:nth-child(65) {
-    grid-column: 1;
-    grid-row: 10;
-  }
-  .circle:nth-child(66) {
-    grid-column: 2;
-    grid-row: 10;
-  }
-  .circle:nth-child(67) {
-    grid-column: 1;
-    grid-row: 11;
-  }
-  .circle:nth-child(68) {
-    grid-column: 2;
-    grid-row: 11;
-  }
-
-  .circle:nth-child(69) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .circle:nth-child(70) {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .circle:nth-child(71) {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  .circle:nth-child(72) {
-    grid-column: 2;
-    grid-row: 2;
-  }
-  /* .circle:nth-child(73) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .circle:nth-child(74) {
-    grid-column: 2;
-    grid-row: 1;
-  } */
 </style>
