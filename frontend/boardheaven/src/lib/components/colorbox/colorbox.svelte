@@ -10,7 +10,7 @@
   } from "../../../stores/colorStore";
   import { onMount } from "svelte";
   import type { MinRoom } from "../../../helper/minRoom";
-  import type { MinPlayer } from "../../../helper/minPlayer";
+  import type { MinClient } from "../../../helper/minClient";
 
   export let color: string;
   export let colorid: number;
@@ -34,7 +34,7 @@
 
         isSelected = false;
         players.forEach((player) => {
-          if ((player as MinPlayer).color == colorid) {
+          if ((player as MinClient).color == colorid) {
             isSelected = true;
           }
         });

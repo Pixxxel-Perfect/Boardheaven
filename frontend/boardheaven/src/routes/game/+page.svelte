@@ -10,6 +10,7 @@
   import { WsMessage } from "../../helper/wsMessage";
   import wuerfel2 from "../../lib/images/Wuerfel.png";
   import { selectedColorIdStore } from "../../stores/colorStore";
+  import { MinClient } from "../../helper/minClient";
 
   let ws: WebSocket;
   const circles = [
@@ -162,11 +163,12 @@
         });
         dice = data.diceThrow;
 
-        data.players.forEach((player: MinPlayer, index) => {
+        /*data.currentPlayerColor.forEach((player: MinClient, index) => {
           if (data.playingPlayerIndex === index) {
             turnColorId = player.color;
           }
-        });
+        });*/
+        turnColorId = data.currentPlayerColor;
 
         console.log(data);
       } else {
@@ -179,7 +181,7 @@
       unsubscribeSelectedColorIdStore();
     };
   });
-  var dice = 999; 
+  var dice = 999;
 
   let showPawn = true;
   function toggleSVG() {
@@ -228,7 +230,7 @@
     } else if (pos >= 130 && pos <= 133) {
       return 52 + (pos - 130);
     } else if (pos >= -16 && pos <= -1) {
-      return 56 + Math.abs(pos + 1); 
+      return 56 + Math.abs(pos + 1);
     }
     return pos;
   }
@@ -250,7 +252,12 @@
     const pawn = pawns.find((pawn) => pawn.pos === varpos);
     console.log(pawn);
     if (pawn == null) return;
-    const message = new WsMessage<MinGamePiece>(WsMessageType.TURN_ACTION, {pos: varpos, color: pawn?.color, homePos: pawn?.homePos, initPos: pawn?.initPos});
+    const message = new WsMessage<MinGamePiece>(WsMessageType.TURN_ACTION, {
+      pos: varpos,
+      color: pawn?.color,
+      homePos: pawn?.homePos,
+      initPos: pawn?.initPos,
+    });
     console.log(message);
     websocketStore.send(JSON.stringify(message));
   }
@@ -295,48 +302,51 @@
       {#each circles as circleClass, index}
         <div class={`circle ${circleClass}`}>
           {#if pawns.find((pawn) => smartIndex(pawn.pos) === index)}
-          <button on:click={() => reverseSmartIndex(index)} style="all: unset;">
-                        {#if showPawn}
-              <svg
-                class="pawn"
-                width="800px"
-                height="800px"
-                viewBox="-7.5 -2 22 22"
-                id="meteor-icon-kit__solid-pawn"
-                fill={getColorNameByColorIndex(
-                  pawns.find((pawn) => smartIndex(pawn.pos) === index)?.color ??
-                    0
-                )}
-                stroke="black"
-                stroke-width="0.4"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M2.88138 8.90846C1.73464 7.99226 1 6.58192 1 5C1 2.23858 3.23858 0 6 0C8.7614 0 11 2.23858 11 5C11 6.5814 10.2658 7.99133 9.1198 8.90755L11.0777 13.8831C11.6866 15.4306 12.0015 17.1081 12.0015 18.8049V21C12.0015 21.5523 11.5538 22 11.0015 22H1C0.44772 22 0 21.5523 0 21L0 18.8049C0 17.1081 0.31487 15.4306 0.92382 13.8831L2.88138 8.90846z"
-                />
-              </svg>
-            {:else}
-              <svg
-                fill={getColorNameByColorIndex(
-                  pawns.find((pawn) => smartIndex(pawn.pos) === index)?.color ??
-                    0
-                )}
-                stroke="black"
-                stroke-width="0.4"
-                class="pawn"
-                width="800px"
-                height="800px"
-                viewBox="-3.5 -1 32 32"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M22.777 23.384c-0.147-0.983-0.91-1.857-2.058-2.507-3.059-1.95-3.595-5.268-2.184-7.45 1.799-0.518 3.028-1.562 3.028-2.766 0-1.095-1.017-2.058-2.555-2.613 0.788-0.786 1.277-1.875 1.277-3.079 0-2.396-1.933-4.338-4.318-4.338s-4.318 1.942-4.318 4.338c0 1.204 0.488 2.292 1.276 3.078-1.538 0.555-2.556 1.518-2.556 2.613 0 1.218 1.259 2.273 3.093 2.784 1.434 2.175 0.824 5.451-2.332 7.463-1.107 0.646-1.834 1.513-1.975 2.477-1.989 0.842-3.235 2.047-3.235 3.386 0 2.544 4.498 4.607 10.047 4.607s10.047-2.062 10.047-4.607c0-1.339-1.247-2.545-3.237-3.387z"
-                ></path>
-              </svg>
-            {/if}
-          </button>
+            <button
+              on:click={() => reverseSmartIndex(index)}
+              style="all: unset;"
+            >
+              {#if showPawn}
+                <svg
+                  class="pawn"
+                  width="800px"
+                  height="800px"
+                  viewBox="-7.5 -2 22 22"
+                  id="meteor-icon-kit__solid-pawn"
+                  fill={getColorNameByColorIndex(
+                    pawns.find((pawn) => smartIndex(pawn.pos) === index)
+                      ?.color ?? 0
+                  )}
+                  stroke="black"
+                  stroke-width="0.4"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M2.88138 8.90846C1.73464 7.99226 1 6.58192 1 5C1 2.23858 3.23858 0 6 0C8.7614 0 11 2.23858 11 5C11 6.5814 10.2658 7.99133 9.1198 8.90755L11.0777 13.8831C11.6866 15.4306 12.0015 17.1081 12.0015 18.8049V21C12.0015 21.5523 11.5538 22 11.0015 22H1C0.44772 22 0 21.5523 0 21L0 18.8049C0 17.1081 0.31487 15.4306 0.92382 13.8831L2.88138 8.90846z"
+                  />
+                </svg>
+              {:else}
+                <svg
+                  fill={getColorNameByColorIndex(
+                    pawns.find((pawn) => smartIndex(pawn.pos) === index)
+                      ?.color ?? 0
+                  )}
+                  stroke="black"
+                  stroke-width="0.4"
+                  class="pawn"
+                  width="800px"
+                  height="800px"
+                  viewBox="-3.5 -1 32 32"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22.777 23.384c-0.147-0.983-0.91-1.857-2.058-2.507-3.059-1.95-3.595-5.268-2.184-7.45 1.799-0.518 3.028-1.562 3.028-2.766 0-1.095-1.017-2.058-2.555-2.613 0.788-0.786 1.277-1.875 1.277-3.079 0-2.396-1.933-4.338-4.318-4.338s-4.318 1.942-4.318 4.338c0 1.204 0.488 2.292 1.276 3.078-1.538 0.555-2.556 1.518-2.556 2.613 0 1.218 1.259 2.273 3.093 2.784 1.434 2.175 0.824 5.451-2.332 7.463-1.107 0.646-1.834 1.513-1.975 2.477-1.989 0.842-3.235 2.047-3.235 3.386 0 2.544 4.498 4.607 10.047 4.607s10.047-2.062 10.047-4.607c0-1.339-1.247-2.545-3.237-3.387z"
+                  ></path>
+                </svg>
+              {/if}
+            </button>
           {/if}
         </div>
       {/each}
@@ -376,7 +386,7 @@
           </div>
         {/each}
         <div class="flexer">
-          <img src={wuerfel2} alt="Würfel"/>
+          <img src={wuerfel2} alt="Würfel" />
           <h1 class="padding">{dice}</h1>
         </div>
       </div>
@@ -394,7 +404,7 @@
     display: flex;
     justify-content: left;
     align-items: center;
-}
+  }
 
   .notTurn {
     opacity: 0.3;
