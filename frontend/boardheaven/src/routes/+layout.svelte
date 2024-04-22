@@ -11,10 +11,6 @@
   </main>
 
   <footer>
-    <p>
-      Visit <a href="https://github.com/Pixxxel-Perfect/Boardheaven">GitHub</a> to
-      see the code
-    </p>
   </footer>
 </div>
 

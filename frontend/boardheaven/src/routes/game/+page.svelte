@@ -138,7 +138,7 @@
       (value) => {
         selectedColorId = value as number;
         console.log(selectedColorId);
-      }
+      },
     );
 
     let unsubscribeWs = websocketStore.subscribe((wsData) => {
@@ -195,20 +195,6 @@
   var pawns: MinGamePiece[] = [
     //  { index: -4, color: "green" },
   ];
-  /*function smartIndex(pawn.pos: MinGamePiece) {
-    if (pawn.pos >= 110 && pawn.pos <= 113) {
-      return 44 + (pawn.pos - 110);
-    } else if (pawn.pos >= 100 && pawn.pos <= 103) {
-      return 40 + (pawn.pos - 100);
-    } else if (pawn.pos >= 120 && pawn.pos <= 123) {
-      return 48 + (pawn.pos - 120);
-    } else if (pawn.pos >= 130 && pawn.pos <= 133) {
-      return 52 + (pawn.pos - 130);
-    } else if (pawn.pos >= -16 && pawn.pos <= -1) {
-      return 56 + Math.abs(pawn.pos + 1);
-    }
-    return pawn.pos;
-  }*/
 
   /*function smartIndex(pos: number) {
     const oneOffset = pos % 10;
@@ -280,24 +266,27 @@
   function pressedPawn(): any {
     throw new Error("Pressed Pawn");
   }
+  let isModalOpen = false;
+  let modal;
 </script>
 
-<div>
+{#if isModalOpen}
+  <div class="modal" bind:this={modal}>
+    <button class="close-button" on:click={() => (isModalOpen = false)}
+      >X</button
+    >
+    <!-- Modal content goes here -->
+    <h1>Settings</h1>
+    <h2>Traditional Figures</h2>
+    <label class="switch">
+      <input type="checkbox" bind:checked={showPawn} />
+      <span class="slider round"></span>
+    </label>
+    <a class="leave-button" href="/"> Leave Game</a>
+  </div>
+{/if}
+<div class={isModalOpen ? "everything" : ""}>
   <div class="container">
-    <div>
-      <h4>Change Skin</h4>
-      <label class="switch">
-        <input type="checkbox" bind:checked={showPawn} />
-        <span class="slider round"></span>
-      </label>
-      <button class="leave-button">
-        <span class="leave-arrow">&#10132;</span> Leave
-      </button>
-      <button class="settings-button">
-        <img src={settingsicon} alt="Settings" class="settings-icon" />
-      </button>
-    </div>
-
     <div class="board">
       {#each circles as circleClass, index}
         <div class={`circle ${circleClass}`}>
@@ -308,17 +297,35 @@
             >
               {#if showPawn}
                 <svg
+                  fill={getColorNameByColorIndex(
+                    pawns.find((pawn) => smartIndex(pawn.pos) === index)
+                      ?.color ?? 0,
+                  )}
+                  stroke="white"
+                  stroke-width="0.8"
                   class="pawn"
                   width="800px"
                   height="800px"
-                  viewBox="-7.5 -2 22 22"
+                  viewBox="-3.8 0 32 32"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22.777 23.384c-0.147-0.983-0.91-1.857-2.058-2.507-3.059-1.95-3.595-5.268-2.184-7.45 1.799-0.518 3.028-1.562 3.028-2.766 0-1.095-1.017-2.058-2.555-2.613 0.788-0.786 1.277-1.875 1.277-3.079 0-2.396-1.933-4.338-4.318-4.338s-4.318 1.942-4.318 4.338c0 1.204 0.488 2.292 1.276 3.078-1.538 0.555-2.556 1.518-2.556 2.613 0 1.218 1.259 2.273 3.093 2.784 1.434 2.175 0.824 5.451-2.332 7.463-1.107 0.646-1.834 1.513-1.975 2.477-1.989 0.842-3.235 2.047-3.235 3.386 0 2.544 4.498 4.607 10.047 4.607s10.047-2.062 10.047-4.607c0-1.339-1.247-2.545-3.237-3.387z"
+                  ></path>
+                </svg>
+              {:else}
+                <svg
+                  class="pawn"
+                  width="800px"
+                  height="800px"
+                  viewBox="-9.5 0 25 22"
                   id="meteor-icon-kit__solid-pawn"
                   fill={getColorNameByColorIndex(
                     pawns.find((pawn) => smartIndex(pawn.pos) === index)
-                      ?.color ?? 0
+                      ?.color ?? 0,
                   )}
-                  stroke="black"
-                  stroke-width="0.4"
+                  stroke="white"
+                  stroke-width="0.8"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
@@ -327,31 +334,14 @@
                     d="M2.88138 8.90846C1.73464 7.99226 1 6.58192 1 5C1 2.23858 3.23858 0 6 0C8.7614 0 11 2.23858 11 5C11 6.5814 10.2658 7.99133 9.1198 8.90755L11.0777 13.8831C11.6866 15.4306 12.0015 17.1081 12.0015 18.8049V21C12.0015 21.5523 11.5538 22 11.0015 22H1C0.44772 22 0 21.5523 0 21L0 18.8049C0 17.1081 0.31487 15.4306 0.92382 13.8831L2.88138 8.90846z"
                   />
                 </svg>
-              {:else}
-                <svg
-                  fill={getColorNameByColorIndex(
-                    pawns.find((pawn) => smartIndex(pawn.pos) === index)
-                      ?.color ?? 0
-                  )}
-                  stroke="black"
-                  stroke-width="0.4"
-                  class="pawn"
-                  width="800px"
-                  height="800px"
-                  viewBox="-3.5 -1 32 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M22.777 23.384c-0.147-0.983-0.91-1.857-2.058-2.507-3.059-1.95-3.595-5.268-2.184-7.45 1.799-0.518 3.028-1.562 3.028-2.766 0-1.095-1.017-2.058-2.555-2.613 0.788-0.786 1.277-1.875 1.277-3.079 0-2.396-1.933-4.338-4.318-4.338s-4.318 1.942-4.318 4.338c0 1.204 0.488 2.292 1.276 3.078-1.538 0.555-2.556 1.518-2.556 2.613 0 1.218 1.259 2.273 3.093 2.784 1.434 2.175 0.824 5.451-2.332 7.463-1.107 0.646-1.834 1.513-1.975 2.477-1.989 0.842-3.235 2.047-3.235 3.386 0 2.544 4.498 4.607 10.047 4.607s10.047-2.062 10.047-4.607c0-1.339-1.247-2.545-3.237-3.387z"
-                  ></path>
-                </svg>
               {/if}
             </button>
           {/if}
         </div>
       {/each}
     </div>
-    <div class="container">
+
+    <div>
       <div class="pointer" hidden>
         <img src={arrowicon} alt="arrow" class="arrow-icon" />
       </div>
@@ -389,12 +379,48 @@
           <img src={wuerfel2} alt="Würfel" />
           <h1 class="padding">{dice}</h1>
         </div>
+        <div>
+          <button class="settings-button" on:click={() => (isModalOpen = true)}>
+            <span class="button-text">Settings</span>
+            <img src={settingsicon} alt="Settings" class="settings-icon" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <style>
+  .everything {
+    filter: blur(10px);
+    z-index: 1;
+  }
+  .modal {
+    padding: 10px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    background-color: rgb(255, 255, 255);
+    border-radius: 12px;
+    height: fit-content;
+    width: 300px;
+  }
+  .close-button {
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgb(134, 134, 134);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 10px;
+  }
   .padding {
     padding-left: 20px;
   }
@@ -418,7 +444,7 @@
     display: inline-block;
     width: 60px;
     height: 34px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
 
   .switch input {
@@ -452,11 +478,11 @@
   }
 
   input:checked + .slider {
-    background-color: #2196f3;
+    background-color: #3a7bd5;
   }
 
   input:focus + .slider {
-    box-shadow: 0 0 1px #2196f3;
+    box-shadow: 0 0 1px #3a7bd5;
   }
 
   input:checked + .slider:before {
@@ -527,7 +553,7 @@
   }
   .playerStats {
     background-color: #f1f1f1;
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 10px;
     height: 35vh;
   }
@@ -541,18 +567,38 @@
   .container {
     display: flex;
     gap: 20px;
+    flex-wrap: nowrap; /* Default to no wrapping */
   }
 
+  /* Switch to vertical layout when the screen is 600px or less */
+  @media (max-width: 600px) {
+    .container {
+      flex-wrap: wrap;
+    }
+  }
+  .button-text {
+    padding-right: 10px;
+  }
   .settings-button {
-    transition: all 0.1s ease-in;
-    padding-top: 5px;
-    background-color: rgb(197, 197, 197);
+    transition: all 0.3s ease-in-out;
+    padding: 10px 20px;
+    background-color: #3a7bd5;
     border: none;
     cursor: pointer;
-    border-radius: 50px;
+    border-radius: 10px;
+    font-size: x-large;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   }
+
   .settings-button:hover {
-    background-color: rgb(166, 166, 166);
+    background-color: #3a7bd5;
+    box-shadow: 0px 15px 20px rgba(30, 190, 223, 0.4);
+    transform: translateY(-7px);
   }
 
   .settings-icon {
@@ -565,18 +611,18 @@
   }
 
   .leave-button {
-    margin-bottom: 10px;
     transition: all 0.1s ease-in;
     padding: 10px 20px;
     background-color: red;
     color: white;
     font-size: 18px;
     border: none;
-    border-radius: 50px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
   }
 
   .leave-arrow {
@@ -586,6 +632,8 @@
 
   .leave-button:hover {
     background-color: #db0202;
+    box-shadow: 0px 15px 20px rgba(188, 0, 0, 0.4);
+    transform: translateY(-3px);
   }
   .board {
     display: grid;
