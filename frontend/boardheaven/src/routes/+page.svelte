@@ -44,16 +44,14 @@
   <meta name="description" content="Choose Game" />
 </svelte:head>
 
-<section>
-  <div class="wrapper">
-    <h3>Mensch ärgere Dich nicht</h3>
-    <h1>
+<section >
+  <div class="wrapper" style="padding: 20px; border-radius: 10px;">
+    <h3 style="color: #333; font-family: 'Arial', sans-serif;">Mensch ärgere Dich nicht</h3>
       <span class="gameChooser">
         <picture>
           <img src={preview} alt="Welcome" />
         </picture>
       </span>
-    </h1>
 
     <h2>
       <button on:click={openRoom} class="button-2">Raum öffnen</button>
@@ -79,6 +77,7 @@
       {/if}
     </div>
   {/if}
+
 </section>
 
 <style>
@@ -151,11 +150,14 @@
 
   h3 {
     color: white;
+    font-size: x-large;
   }
   .wrapper {
-    background-color: rgb(142, 138, 138);
+    background-color: rgb(234, 234, 234);
     border-radius: 10%;
     padding: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+
   }
   section {
     display: flex;
@@ -165,9 +167,6 @@
     flex: 0.6;
   }
 
-  h1 {
-    width: 100%;
-  }
 
   .gameChooser {
     display: block;
@@ -186,29 +185,24 @@
   }
 
   .button-2 {
-    background-color: #007bff;
-    border-radius: 8px;
-    border-width: 0;
-    color: white;
+    margin-top: 80px;
+    transition: all 0.3s ease-in-out;
+    padding: 10px 20px;
+    background-color: #3a7bd5;
+    border: none;
     cursor: pointer;
-    display: inline-block;
-    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial,
-      sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    list-style: none;
-    margin: 0;
-    padding: 10px 12px;
-    text-align: center;
-    transition: all 200ms;
-    vertical-align: baseline;
-    white-space: nowrap;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
+    border-radius: 10px;
+    font-size: large;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   }
   .button-2:hover {
-    background-color: #0056b3;
-  }
+    background-color: #3a7bd5;
+    box-shadow: 0px 15px 20px rgba(30, 190, 223, 0.4);
+    transform: translateY(-3px);  
+    }
 </style>

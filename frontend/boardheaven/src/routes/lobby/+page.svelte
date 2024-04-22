@@ -166,12 +166,6 @@
     border-radius: 56px;
   }
 
-  .link-textbox > .svg-container {
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    position: absolute;
-  }
 
   .link-label {
     padding-top: 30px;

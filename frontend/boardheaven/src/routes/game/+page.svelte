@@ -567,10 +567,9 @@
   .container {
     display: flex;
     gap: 20px;
-    flex-wrap: nowrap; /* Default to no wrapping */
+    flex-wrap: nowrap; 
   }
 
-  /* Switch to vertical layout when the screen is 600px or less */
   @media (max-width: 600px) {
     .container {
       flex-wrap: wrap;
