@@ -131,6 +131,6 @@ Bun.serve<WsData>({
 });
 
 function removeWsFromRoom(room: Room, ws: ServerWebSocket<WsData>): void {
-    room.removeClientViaServerWebsocket(ws);
+    room.removeClient(ws);
     room.broadcastRoomStatus();
 }

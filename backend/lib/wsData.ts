@@ -1,9 +1,5 @@
 class WsData {
-    public roomId: string = "";
-
-    constructor(roomId: string) {
-        this.roomId = roomId;
-    }
+    constructor(public roomId: string) {}
 }
 
 export { WsData };
