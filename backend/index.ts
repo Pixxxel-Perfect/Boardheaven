@@ -109,6 +109,8 @@ Bun.serve<WsData>({
                         break;
                     }
 
+                    if (client.color !== room.currentGameState.currentPlayerColor) break;
+
                     if (room.updateGameState(piece)) room.broadcastGameStatus();
                     break;
                 case WsMessageType.CLOSE:

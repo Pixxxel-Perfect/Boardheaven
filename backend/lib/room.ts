@@ -106,13 +106,7 @@ class Room {
             }
         }
 
-        if (this.clients.length == 0) {
-            const index = Room.ROOMS.indexOf(this);
-            if (index < 0) return;
-
-            Room.ROOMS.splice(index, 1);
-            return;
-        }
+        if (this.clients.length == 0) return this.delete();
 
         if (this.roomMaster.equals(client)) {
             this.roomMaster = this.clients[0];
@@ -153,6 +147,15 @@ class Room {
         //TODO send finish message + last game state
         this.broadcastGameStatus();
         this.clients.forEach(c => c.finishGame(this.currentGameState?.currentPlayerColor as Color));
+        this.delete();
+    }
+
+    public delete(): void {
+        const index = Room.ROOMS.indexOf(this);
+        if (index < 0) return;
+
+        Room.ROOMS.splice(index, 1);
+        return;
     }
 
     private generateId(length: number): string {
