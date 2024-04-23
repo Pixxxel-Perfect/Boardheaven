@@ -9,8 +9,14 @@
   import type { MinGamePiece } from "../../helper/minGamePiece";
   import { WsMessage } from "../../helper/wsMessage";
   import wuerfel2 from "../../lib/images/Wuerfel.png";
+  import next from "../../lib/images/next.png";
+  import back from "../../lib/images/back.png";
+  import pause from "../../lib/images/pause.png";
+  import play from "../../lib/images/play.png";
+  import volumeIcon from "../../lib/images/volume.png";
   import { selectedColorIdStore } from "../../stores/colorStore";
-  import { MinClient } from "../../helper/minClient";
+  import song1 from "../../lib/Songs/Hoodtrap Beat Japonsko.mp3";
+  import song2 from "../../lib/Songs/AprilVibe3Mutantboy4.mp3";
 
   let ws: WebSocket;
   const circles = [
@@ -268,6 +274,50 @@
   }
   let isModalOpen = false;
   let modal;
+
+  let songs = [song1, song2];
+  let currentSongIndex = 0;
+  let isPlaying = false;
+  let volume = 1;
+  let audio: any;
+
+
+  if (typeof window !== 'undefined') {
+    audio = new Audio(songs[currentSongIndex]);
+    audio.onended = nextSong;
+  }
+  function togglePlay() {
+    isPlaying ? audio.pause() : audio.play();
+    isPlaying = !isPlaying;
+  }
+
+  function nextSong() {
+    currentSongIndex = (currentSongIndex + 1) % songs.length;
+    audio.src = songs[currentSongIndex];
+    audio.play();
+    isPlaying = true;
+  }
+
+  function previousSong() {
+    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    audio.src = songs[currentSongIndex];
+    audio.play();
+    isPlaying = true;
+  }
+
+  function changeVolume(event: any) {
+    volume = event.target.value;
+    audio.volume = volume;
+  }
+
+  let progress = 0;
+  if (typeof window !== 'undefined') {
+    setInterval(() => {
+      if (audio.duration) {
+        progress = (audio.currentTime / audio.duration) * 100;
+      }
+    }, 1000);
+  }
 </script>
 
 {#if isModalOpen}
@@ -385,12 +435,90 @@
             <img src={settingsicon} alt="Settings" class="settings-icon" />
           </button>
         </div>
+        <div class="player">
+          <h2 style="text-align: center;">{songs[currentSongIndex]?.split('/').pop()?.replace('.mp3', '')}</h2>
+          <div class="button-group">
+            <button class="player-button" on:click={previousSong}>
+              <img class="imgfitter" src={back} alt="back" />
+            </button>
+            <button class="player-button" on:click={togglePlay}>
+              <img class="imgfitter" src={isPlaying ? pause : play} alt="playpause" />
+            </button>
+            <button class="player-button" on:click={nextSong}>
+              <img class="imgfitter" src={next} alt="next" />
+            </button>
+          </div>
+          <progress class="progress-bar" value={progress} max="100"></progress>
+          <div class="button-group">
+            <img class="volumefitter" src={volumeIcon} alt="Sound icon">
+            <input class="player-slider" type="range" min="0" max="1" step="0.01" bind:value={volume} on:input={changeVolume} />
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <style>
+  .volumefitter{
+    height: 15px;
+  }
+  .progress-bar {
+    width: 80%;
+    height: 15px;
+    background-color: #f3f3f3;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 5px;
+  }
+
+  .progress-bar::-webkit-progress-bar {
+    background-color: #f3f3f3;
+  }
+
+  .progress-bar::-webkit-progress-value {
+    background-color: #000000;
+  }
+
+  .progress-bar::-moz-progress-bar {
+    background-color: #007bff;
+  }
+  .imgfitter{
+    width: 20px;
+    height: 20px;
+  }
+  .player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 10px;
+  }
+
+  .player h2 {
+    margin-bottom: 10px;
+  }
+
+  .player-button {
+    margin: 4px;
+    border: none;
+    border-radius: 10px;
+    padding: 5px 10px;
+    padding-top: 8px;
+    background-color: #ffffff;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .player-button:hover {
+    background-color: #aaaaaa;
+  }
+
+  .player-slider {
+    width: 83%;
+    margin-top: 10px;
+  }
   .everything {
     filter: blur(10px);
     z-index: 1;
@@ -426,10 +554,10 @@
   }
 
   .flexer {
-    padding-top: 10px;
     display: flex;
     justify-content: left;
     align-items: center;
+    padding-bottom: 10px;
   }
 
   .notTurn {
