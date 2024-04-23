@@ -377,7 +377,7 @@
         {/each}
         <div class="flexer">
           <img src={wuerfel2} alt="Würfel" />
-          <h1 class="padding">{dice}</h1>
+          <h1 class="padding">{dice !== 999 ? dice : ''}</h1>
         </div>
         <div>
           <button class="settings-button" on:click={() => (isModalOpen = true)}>
