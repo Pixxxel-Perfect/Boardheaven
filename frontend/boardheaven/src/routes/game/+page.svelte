@@ -183,7 +183,7 @@
   });
   var dice = 999;
 
-  let showPawn = true;
+  let showPawn = false;
   function toggleSVG() {
     showPawn = !showPawn;
   }

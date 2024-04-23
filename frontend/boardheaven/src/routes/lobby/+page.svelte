@@ -9,7 +9,7 @@
 
   let idFromparam = $page.url.searchParams.get("roomId");
   //let connectionUrl = "ws://10.91.141.236:3000";
-  let connectionUrl = `ws://192.168.1.149:3000`;
+  let connectionUrl = `ws://10.91.54.241:3000`;
 
   let generatedLink: string | null = null;
 
