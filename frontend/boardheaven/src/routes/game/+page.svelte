@@ -17,6 +17,7 @@
   import { selectedColorIdStore } from "../../stores/colorStore";
   import song1 from "../../lib/Songs/Hoodtrap Beat Japonsko.mp3";
   import song2 from "../../lib/Songs/AprilVibe3Mutantboy4.mp3";
+  import confetti from "canvas-confetti";
 
   let ws: WebSocket;
   const circles = [
@@ -103,6 +104,8 @@
 
   let selectedColorId: number = -1;
   let turnColorId: number = 0;
+  let winnerColor:String = "";
+  let winnerColorSmall:String = "black";
 
   $: colors = colors.map((color) => ({
     ...color,
@@ -132,6 +135,12 @@
         console.log("No data received");
         return;
       }
+      if (wsData.messageType === WsMessageType.GAME_FINISH) {
+        console.log("THis is the end:" + wsData.messageType);
+        winnerColor = capitalizeFirstLetter(getColorNameByColorIndex(wsData.value as unknown as number ?? 0));
+        winnerColorSmall = getColorNameByColorIndex(wsData.value as unknown as number ?? 0);
+        isGameEndet = true;
+      }
       if (wsData.messageType === WsMessageType.GAME_STATUS) {
         var data: MinGameState = wsData.value as MinGameState;
 
@@ -149,13 +158,8 @@
         });
         dice = data.diceThrow;
         turnColorId = data.currentPlayerColor;
-
-        console.log(data);
-      } else {
-        console.log(wsData);
       }
     });
-
     return () => {
       unsubscribeWs();
       unsubscribeSelectedColorIdStore();
@@ -181,7 +185,9 @@
     }
     return pos;
   }
-
+  function capitalizeFirstLetter(string: String) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
   function reverseSmartIndex(pos: number) {
     var varpos: number = pos;
     if (pos >= 56 && pos <= 71) {
@@ -197,7 +203,6 @@
       varpos = 130 + (pos - 52);
     }
     const pawn = pawns.find((pawn) => pawn.pos === varpos);
-    console.log(pawn);
     if (pawn == null) return;
     const message = new WsMessage<MinGamePiece>(WsMessageType.TURN_ACTION, {
       pos: varpos,
@@ -205,7 +210,6 @@
       homePos: pawn?.homePos,
       initPos: pawn?.initPos,
     });
-    console.log(message);
     websocketStore.send(JSON.stringify(message));
   }
 
@@ -228,6 +232,7 @@
     throw new Error("Pressed Pawn");
   }
   let isModalOpen = false;
+  let isGameEndet = false;
   let modal;
 
   let songs = [song1, song2];
@@ -236,8 +241,7 @@
   let volume = 1;
   let audio: any;
 
-
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     audio = new Audio(songs[currentSongIndex]);
     audio.onended = nextSong;
   }
@@ -266,12 +270,19 @@
   }
 
   let progress = 0;
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     setInterval(() => {
       if (audio.duration) {
         progress = (audio.currentTime / audio.duration) * 100;
       }
     }, 1000);
+  }
+  $: if (isGameEndet) {
+    confetti({
+      particleCount: 200,
+      spread: 100,
+      origin: { y: 0 },
+    });
   }
 </script>
 
@@ -280,7 +291,6 @@
     <button class="close-button" on:click={() => (isModalOpen = false)}
       >X</button
     >
-    <!-- Modal content goes here -->
     <h1>Settings</h1>
     <h2>Traditional Figures</h2>
     <label class="switch">
@@ -290,7 +300,18 @@
     <a class="leave-button" href="/"> Leave Game</a>
   </div>
 {/if}
-<div class={isModalOpen ? "everything" : ""}>
+{#if isGameEndet}
+  <div class="modal" bind:this={modal}>
+    <h1>Game Finished</h1>
+    <h1 style="margin-top: -20px; color:{winnerColorSmall}">{winnerColor} Won</h1>
+    <h2 style="text-align: center;">
+      Return to lobby and start a new round of our exciting Mensch ärgere Dich
+      nicht game
+    </h2>
+    <a class="settings-button" href="/"> Return To Lobby</a>
+  </div>
+{/if}
+<div class={isModalOpen || isGameEndet ? "everything" : ""}>
   <div class="container">
     <div class="board">
       {#each circles as circleClass, index}
@@ -363,7 +384,7 @@
         {/each}
         <div class="flexer">
           <img src={wuerfel2} alt="Würfel" />
-          <h1 class="padding">{dice !== 999 ? dice : ''}</h1>
+          <h1 class="padding">{dice !== 999 ? dice : ""}</h1>
         </div>
         <div>
           <button class="settings-button" on:click={() => (isModalOpen = true)}>
@@ -372,13 +393,19 @@
           </button>
         </div>
         <div class="player">
-          <h2 style="text-align: center;">{songs[currentSongIndex]?.split('/').pop()?.replace('.mp3', '')}</h2>
+          <h2 style="text-align: center;">
+            {songs[currentSongIndex]?.split("/").pop()?.replace(".mp3", "")}
+          </h2>
           <div class="button-group">
             <button class="player-button" on:click={previousSong}>
               <img class="imgfitter" src={back} alt="back" />
             </button>
             <button class="player-button" on:click={togglePlay}>
-              <img class="imgfitter" src={isPlaying ? pause : play} alt="playpause" />
+              <img
+                class="imgfitter"
+                src={isPlaying ? pause : play}
+                alt="playpause"
+              />
             </button>
             <button class="player-button" on:click={nextSong}>
               <img class="imgfitter" src={next} alt="next" />
@@ -386,8 +413,16 @@
           </div>
           <progress class="progress-bar" value={progress} max="100"></progress>
           <div class="button-group">
-            <img class="volumefitter" src={volumeIcon} alt="Sound icon">
-            <input class="player-slider" type="range" min="0" max="1" step="0.01" bind:value={volume} on:input={changeVolume} />
+            <img class="volumefitter" src={volumeIcon} alt="Sound icon" />
+            <input
+              class="player-slider"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              bind:value={volume}
+              on:input={changeVolume}
+            />
           </div>
         </div>
       </div>
@@ -396,7 +431,7 @@
 </div>
 
 <style>
-  .volumefitter{
+  .volumefitter {
     height: 15px;
   }
   .progress-bar {
@@ -419,7 +454,7 @@
   .progress-bar::-moz-progress-bar {
     background-color: #007bff;
   }
-  .imgfitter{
+  .imgfitter {
     width: 20px;
     height: 20px;
   }
@@ -631,7 +666,7 @@
   .container {
     display: flex;
     gap: 20px;
-    flex-wrap: nowrap; 
+    flex-wrap: nowrap;
   }
 
   @media (max-width: 600px) {
@@ -656,6 +691,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
   }
 
   .settings-button:hover {
