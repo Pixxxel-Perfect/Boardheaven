@@ -7,13 +7,11 @@
   import type { MinRoom } from "../../helper/minRoom";
   import { goto } from "$app/navigation";
 
-  let idFromparam = $page.url.searchParams.get("roomId");
-  //let connectionUrl = "ws://10.91.141.236:3000";
-  let connectionUrl = `ws://10.91.54.241:3000`;
-
+  let idFromparam = $page.url.searchParams.get("roomId");  
   let generatedLink: string | null = null;
-
+  
   onMount(() => {
+    let connectionUrl = `ws://${window.location.hostname}:3000`;
     let unsubscribeGameMaster = isGameMaster.subscribe((value) => {
       gameMaster = value;
     });
@@ -25,8 +23,6 @@
     }
 
     websocketStore.connect(connectionUrl); // \\lobby?roomId=123455
-
-    console.log(connectionUrl);
 
     let unsubscribeWs = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
