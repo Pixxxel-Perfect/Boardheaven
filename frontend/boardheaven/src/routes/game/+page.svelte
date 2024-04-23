@@ -104,32 +104,12 @@
   let selectedColorId: number = -1;
   let turnColorId: number = 0;
 
-  // Needs to be reactive --> Sets every non-selected color: false
   $: colors = colors.map((color) => ({
     ...color,
     show: selectedColorId !== color.id,
   }));
 
-  /*const colorGradients: { [key: number]: string } = {
-    [MinColor.YELLOW]: "linear-gradient(to right, yellow, orange)",
-    [MinColor.GREEN]: "linear-gradient(to right, green, lightgreen)",
-    [MinColor.RED]: "linear-gradient(to right, red, orangered)",
-    [MinColor.BLACK]: "linear-gradient(to right, black, darkgray)",
-  };*/
-
-  //let gradientColor: string;
-
-  //$: gradientColor = colorGradients[turnColorId];
-
-  // test
   onMount(() => {
-    //addPawnSVG();
-    //Establish the WS connection
-    //here you need to connect to WebSocket
-    //check for incomming message
-    // filter message (if it's a game-message or chat-message)
-    // process game message or
-    // pass the chat messages over the chatStore to the chatBox component as following
     chatStore.update((messages) => [
       ...messages,
       "here we are with a test message",
@@ -168,12 +148,6 @@
           });
         });
         dice = data.diceThrow;
-
-        /*data.currentPlayerColor.forEach((player: MinClient, index) => {
-          if (data.playingPlayerIndex === index) {
-            turnColorId = player.color;
-          }
-        });*/
         turnColorId = data.currentPlayerColor;
 
         console.log(data);
@@ -190,27 +164,8 @@
   var dice = 999;
 
   let showPawn = false;
-  function toggleSVG() {
-    showPawn = !showPawn;
-  }
-  function sendMessage(message: string) {
-    //use ws to send the  message!!!
-    //ws.send(message);
-    console.log("parent", message);
-  }
-  var pawns: MinGamePiece[] = [
-    //  { index: -4, color: "green" },
-  ];
 
-  /*function smartIndex(pos: number) {
-    const oneOffset = pos % 10;
-    const tenOffset = (pos % 100) - oneOffset;
-
-    if (pos < 0) return 55 - pos;
-    if (pos < 100) return pos;
-
-    return pos - 60 - tenOffset * 6;
-  }*/
+  var pawns: MinGamePiece[] = [];
 
   function smartIndex(pos: number) {
     if (pos >= 110 && pos <= 113) {
@@ -395,25 +350,6 @@
       <div class="pointer" hidden>
         <img src={arrowicon} alt="arrow" class="arrow-icon" />
       </div>
-
-      <!--Switched to each block to use sveltekit animation:flip, but dropped the idea. I'll leave it as it is tho-->
-
-      <!-- <div class="playerStats">
-        <h2 class="playerHeadline">Player</h2>
-        <div class="playerColorYellow">
-          <h4 class:hideNonSelected={showYellow}>Me</h4>
-        </div>
-        <div class="playerColorGreen">
-          <h4 class:hideNonSelected={showGreen}>Me</h4>
-        </div>
-        <div class="playerColorRed xxpulse">
-          <h4 class:hideNonSelected={showRed}>Me</h4>
-        </div>
-        <div class="playerColorBlack">
-          <h4 class:hideNonSelected={showBlack}>Me</h4>
-        </div>
-      </div> -->
-
       <div class="playerStats">
         <h2 class="playerHeadline">Player</h2>
         {#each colors as color}
