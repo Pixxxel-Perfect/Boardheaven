@@ -7,9 +7,10 @@
   import type { MinRoom } from "../../helper/minRoom";
   import { goto } from "$app/navigation";
 
-  let idFromparam = $page.url.searchParams.get("roomId");  
+  let idFromparam = $page.url.searchParams.get("roomId");
+
   let generatedLink: string | null = null;
-  
+
   onMount(() => {
     let connectionUrl = `ws://${window.location.hostname}:3000`;
     let unsubscribeGameMaster = isGameMaster.subscribe((value) => {

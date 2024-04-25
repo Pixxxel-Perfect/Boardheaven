@@ -22,6 +22,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"canvas-confetti": "^1.9.2",
 		"ws": "^8.16.0"
 	}
 }
