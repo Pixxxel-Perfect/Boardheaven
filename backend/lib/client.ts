@@ -38,10 +38,7 @@ class Client {
     }
 
     public finishGame(winningColor: Color) {
-        // I am throwing out everyone after a game
-        // TODO That can/will be changed later to allow multiple games in succession
         this.send(new WsMessage(WsMessageType.GAME_FINISH, winningColor));
-        this.disconnect();
     }
 
     public ownsPiece(piece: GamePiece): boolean {
