@@ -9,7 +9,7 @@ import { MinGamePiece } from "../lib/min/minGamePiece";
 function generateValidClients(count: number): Client[] {
     const clients = [];
     for (let i = 0; i < count; i++) {
-        clients.push(new Client(new MockServerWebsocket("mockAddress" + i, new WsData("code", null))));
+        clients.push(new Client(new MockServerWebsocket("mockAddress" + i, new WsData("code"))));
     }
     return clients;
 }
