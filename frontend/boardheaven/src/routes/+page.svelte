@@ -3,7 +3,10 @@
   import { setGameMaster } from "../stores/gameMasterStore";
   import { goto } from "$app/navigation";
   import { onMount, setContext } from "svelte";
-  import { falseCodeModalShowStore } from "../stores/wrongCodeModalStore";
+  import {
+    falseCodeModalShowStore,
+    setFalseCodeModalShowStore,
+  } from "../stores/wrongCodeModalStore";
   //import { websocketStore } from "../stores/websocketStore";
 
   let isOpen = false;
@@ -30,6 +33,7 @@
 
   function wrongCodeUnderstood() {
     codeWrong = false;
+    setFalseCodeModalShowStore(false);
   }
 
   onMount(() => {
