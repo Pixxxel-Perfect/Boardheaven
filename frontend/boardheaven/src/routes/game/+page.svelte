@@ -136,7 +136,6 @@
         return;
       }
       if (wsData.messageType === WsMessageType.GAME_FINISH) {
-        console.log("THis is the end:" + wsData.messageType);
         winnerColor = capitalizeFirstLetter(getColorNameByColorIndex(wsData.value as unknown as number ?? 0));
         winnerColorSmall = getColorNameByColorIndex(wsData.value as unknown as number ?? 0);
         isGameEndet = true;
@@ -228,9 +227,6 @@
     }
   }
 
-  function pressedPawn(): any {
-    throw new Error("Pressed Pawn");
-  }
   let isModalOpen = false;
   let isGameEndet = false;
   let modal;
@@ -386,12 +382,6 @@
           <img src={wuerfel2} alt="Würfel" />
           <h1 class="padding">{dice !== 999 ? dice : ""}</h1>
         </div>
-        <div>
-          <button class="settings-button" on:click={() => (isModalOpen = true)}>
-            <span class="button-text">Settings</span>
-            <img src={settingsicon} alt="Settings" class="settings-icon" />
-          </button>
-        </div>
         <div class="player">
           <h2 style="text-align: center;">
             {songs[currentSongIndex]?.split("/").pop()?.replace(".mp3", "")}
@@ -424,6 +414,12 @@
               on:input={changeVolume}
             />
           </div>
+        </div>
+        <div>
+          <button class="settings-button" on:click={() => (isModalOpen = true)}>
+            <span class="button-text">Settings</span>
+            <img src={settingsicon} alt="Settings" class="settings-icon" />
+          </button>
         </div>
       </div>
     </div>
@@ -528,7 +524,6 @@
     display: flex;
     justify-content: left;
     align-items: center;
-    padding-bottom: 10px;
   }
 
   .notTurn {
@@ -692,6 +687,7 @@
     justify-content: center;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
     text-decoration: none;
+    margin-top: 10px;
   }
 
   .settings-button:hover {
