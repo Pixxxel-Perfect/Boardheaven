@@ -1,6 +1,6 @@
 <script lang="ts">
   import Colorbox from "$lib/components/colorbox/colorbox.svelte";
-  import { isGameMaster } from "../../stores/gameMasterStore";
+  import { isGameMaster, typedInGameCode } from "../../stores/gameMasterStore";
   import { onMount } from "svelte";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
   import { page } from "$app/stores";
@@ -11,16 +11,25 @@
 
   let generatedLink: string | null = null;
 
+  let gameMaster: boolean = false;
+  let gameCode: string = "";
+
   onMount(() => {
     let connectionUrl = `ws://${window.location.hostname}:3000`;
     let unsubscribeGameMaster = isGameMaster.subscribe((value) => {
       gameMaster = value;
+    });
+    let unsubscribeGameCode = typedInGameCode.subscribe((value) => {
+      gameCode = value as string;
     });
 
     if (idFromparam) {
       // make the connection to ws server with url param
 
       connectionUrl += `/${idFromparam}`;
+    }
+    if (gameMaster) {
+      connectionUrl += `/code/${gameCode}`;
     }
 
     websocketStore.connect(connectionUrl); // \\lobby?roomId=123455
@@ -34,6 +43,9 @@
       }
       if (wsData.messageType === WsMessageType.GAME_STATUS) {
         goto("/game");
+      }
+      if (wsData.messageType === WsMessageType.ERROR) {
+        goto("/");
       } else {
         console.log(
           "message not room_status (will be ingnored in lobby):",
@@ -44,6 +56,7 @@
 
     return () => {
       unsubscribeGameMaster();
+      unsubscribeGameCode();
       unsubscribeWs();
     };
   });
@@ -62,8 +75,6 @@
       navigator.clipboard.writeText(generatedLink);
     }
   }
-
-  let gameMaster: boolean = false;
 
   const yellow: string = "#F9FF00";
   const green: string = "#1ED225";
@@ -162,7 +173,6 @@
     height: 36px;
     border-radius: 56px;
   }
-
 
   .link-label {
     padding-top: 30px;

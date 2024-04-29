@@ -18,7 +18,7 @@
     submitted = true;
     if (code.length === 5) {
       isOpen = false;
-      setGameMaster(true);
+      setGameMaster(true, code);
       goto("/lobby");
     }
   }
@@ -44,14 +44,16 @@
   <meta name="description" content="Choose Game" />
 </svelte:head>
 
-<section >
+<section>
   <div class="wrapper" style="padding: 20px; border-radius: 10px;">
-    <h3 style="color: #333; font-family: 'Arial', sans-serif;">Mensch ärgere Dich nicht</h3>
-      <span class="gameChooser">
-        <picture>
-          <img src={preview} alt="Welcome" />
-        </picture>
-      </span>
+    <h3 style="color: #333; font-family: 'Arial', sans-serif;">
+      Mensch ärgere Dich nicht
+    </h3>
+    <span class="gameChooser">
+      <picture>
+        <img src={preview} alt="Welcome" />
+      </picture>
+    </span>
 
     <h2>
       <button on:click={openRoom} class="button-2">Raum öffnen</button>
@@ -77,7 +79,6 @@
       {/if}
     </div>
   {/if}
-
 </section>
 
 <style>
@@ -157,7 +158,6 @@
     border-radius: 10%;
     padding: 10px;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
-
   }
   section {
     display: flex;
@@ -166,7 +166,6 @@
     align-items: center;
     flex: 0.6;
   }
-
 
   .gameChooser {
     display: block;
@@ -203,6 +202,6 @@
   .button-2:hover {
     background-color: #3a7bd5;
     box-shadow: 0px 15px 20px rgba(30, 190, 223, 0.4);
-    transform: translateY(-3px);  
-    }
+    transform: translateY(-3px);
+  }
 </style>
