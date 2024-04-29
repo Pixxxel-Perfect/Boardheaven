@@ -8,9 +8,9 @@ import { page } from '$app/stores';
 <body>
 	<h1>Impressum</h1>
 
-    <p>Firma/Name: BoardHeaven</p>
-    <p>Adresse: Spengergasse 20, 1050 Wien</p>
-    <p>Telefon: 01234 567890</p>
+    <p>Company/name: BoardHeaven</p>
+    <p>Address: Spengergasse 20, 1050 Vienna</p>
+    <p>Phone: 01234 567890</p>
     <p>E-Mail: spengergasse@impressum</p>
 </body>
 
