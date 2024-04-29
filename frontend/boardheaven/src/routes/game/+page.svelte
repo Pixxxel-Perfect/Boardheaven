@@ -301,10 +301,10 @@
     <h1>Game Finished</h1>
     <h1 style="margin-top: -20px; color:{winnerColorSmall}">{winnerColor} Won</h1>
     <h2 style="text-align: center;">
-      Return to lobby and start a new round of our exciting Mensch ärgere Dich
+      Return to home and start a new round of our exciting Mensch ärgere Dich
       nicht game
     </h2>
-    <a class="settings-button" href="/"> Return To Lobby</a>
+    <a class="settings-button" href="/"> Return To Home</a>
   </div>
 {/if}
 <div class={isModalOpen || isGameEndet ? "everything" : ""}>
