@@ -3,9 +3,11 @@
   import { setGameMaster } from "../stores/gameMasterStore";
   import { goto } from "$app/navigation";
   import { onMount, setContext } from "svelte";
+  import { falseCodeModalShowStore } from "../stores/wrongCodeModalStore";
   //import { websocketStore } from "../stores/websocketStore";
 
   let isOpen = false;
+  let codeWrong = false;
   let code = "";
   let submitted = false;
 
@@ -18,12 +20,16 @@
     submitted = true;
     if (code.length === 5) {
       isOpen = false;
-      setGameMaster(true);
+      setGameMaster(true, code);
       goto("/lobby");
     }
   }
   function closeModal() {
     isOpen = false;
+  }
+
+  function wrongCodeUnderstood() {
+    codeWrong = false;
   }
 
   onMount(() => {
@@ -36,6 +42,15 @@
     return () => {
       unsubscribeWebsocket();
     }; */
+    let unsubscribeFalseCodeShowModalStore = falseCodeModalShowStore.subscribe(
+      (value) => {
+        codeWrong = value;
+      }
+    );
+
+    return () => {
+      unsubscribeFalseCodeShowModalStore();
+    };
   });
 </script>
 
@@ -44,14 +59,16 @@
   <meta name="description" content="Choose Game" />
 </svelte:head>
 
-<section >
+<section>
   <div class="wrapper" style="padding: 20px; border-radius: 10px;">
-    <h3 style="color: #333; font-family: 'Arial', sans-serif;">Mensch ärgere Dich nicht</h3>
-      <span class="gameChooser">
-        <picture>
-          <img src={preview} alt="Welcome" />
-        </picture>
-      </span>
+    <h3 style="color: #333; font-family: 'Arial', sans-serif;">
+      Mensch ärgere Dich nicht
+    </h3>
+    <span class="gameChooser">
+      <picture>
+        <img src={preview} alt="Welcome" />
+      </picture>
+    </span>
 
     <h2>
       <button on:click={openRoom} class="button-2">Raum öffnen</button>
@@ -78,6 +95,20 @@
     </div>
   {/if}
 
+  {#if codeWrong}
+    <div class="modal">
+      <h4 id="code">Falscher Code</h4>
+      <a
+        href="https://www.thalia.at/shop/home/artikeldetails/A1062123624?ProvID=11010474&gad_source=1&gclid=Cj0KCQiA7OqrBhD9ARIsAK3UXh11Gl4PrK3k1Kdrq50fBWIhs9AUUxKQaGKFiazzDiYmEJubL16dbuoaAoYREALw_wcB"
+        target="_blank">Kaufe das Spiel</a
+      >
+      <div class="button-group">
+        <button on:click={wrongCodeUnderstood} class="button-3"
+          >Verstanden</button
+        >
+      </div>
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -157,7 +188,6 @@
     border-radius: 10%;
     padding: 10px;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
-
   }
   section {
     display: flex;
@@ -166,7 +196,6 @@
     align-items: center;
     flex: 0.6;
   }
-
 
   .gameChooser {
     display: block;
@@ -200,9 +229,26 @@
     justify-content: center;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   }
+
+  .button-3 {
+    margin-top: 40px;
+    transition: all 0.3s ease-in-out;
+    padding: 10px 10px;
+    background-color: #3a7bd5;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: large;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  }
   .button-2:hover {
     background-color: #3a7bd5;
     box-shadow: 0px 15px 20px rgba(30, 190, 223, 0.4);
-    transform: translateY(-3px);  
-    }
+    transform: translateY(-3px);
+  }
 </style>

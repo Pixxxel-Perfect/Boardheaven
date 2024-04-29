@@ -135,7 +135,13 @@ class GameState {
     }
 
     private shouldEnd(): boolean {
-        return this.room.getActiveColors().every(c => this.isPlayerFinished(c));
+        let finishedPlayers = 0;
+        this.activeColors.forEach(c => {
+            if (this.isPlayerFinished(c)) {
+                finishedPlayers++;
+            }
+        });
+        return finishedPlayers >= this.activeColors.length - 1;
     }
 
     private getPieceAt(pos: number): GamePiece | null {

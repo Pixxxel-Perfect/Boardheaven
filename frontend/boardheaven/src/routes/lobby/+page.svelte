@@ -1,21 +1,27 @@
 <script lang="ts">
   import Colorbox from "$lib/components/colorbox/colorbox.svelte";
-  import { isGameMaster } from "../../stores/gameMasterStore";
+  import { isGameMaster, typedInGameCode } from "../../stores/gameMasterStore";
   import { onMount } from "svelte";
   import { websocketStore, WsMessageType } from "../../stores/websocketStore";
   import { page } from "$app/stores";
   import type { MinRoom } from "../../helper/minRoom";
   import { goto } from "$app/navigation";
+  import { setFalseCodeModalShowStore } from "../../stores/wrongCodeModalStore";
 
   let idFromparam = $page.url.searchParams.get("roomId");
-  //let connectionUrl = "ws://10.91.141.236:3000";
-  let connectionUrl = `ws://192.168.1.149:3000`;
 
   let generatedLink: string | null = null;
 
+  let gameMaster: boolean = false;
+  let gameCode: string = "";
+
   onMount(() => {
+    let connectionUrl = `ws://${window.location.hostname}:3000`;
     let unsubscribeGameMaster = isGameMaster.subscribe((value) => {
       gameMaster = value;
+    });
+    let unsubscribeGameCode = typedInGameCode.subscribe((value) => {
+      gameCode = value as string;
     });
 
     if (idFromparam) {
@@ -23,10 +29,11 @@
 
       connectionUrl += `/${idFromparam}`;
     }
+    if (gameMaster) {
+      connectionUrl += `/code/${gameCode}`;
+    }
 
     websocketStore.connect(connectionUrl); // \\lobby?roomId=123455
-
-    console.log(connectionUrl);
 
     let unsubscribeWs = websocketStore.subscribe((wsData) => {
       if (!wsData) return;
@@ -37,6 +44,10 @@
       }
       if (wsData.messageType === WsMessageType.GAME_STATUS) {
         goto("/game");
+      }
+      if (wsData.messageType === WsMessageType.ERROR) {
+        setFalseCodeModalShowStore(true);
+        goto("/");
       } else {
         console.log(
           "message not room_status (will be ingnored in lobby):",
@@ -47,6 +58,7 @@
 
     return () => {
       unsubscribeGameMaster();
+      unsubscribeGameCode();
       unsubscribeWs();
     };
   });
@@ -65,8 +77,6 @@
       navigator.clipboard.writeText(generatedLink);
     }
   }
-
-  let gameMaster: boolean = false;
 
   const yellow: string = "#F9FF00";
   const green: string = "#1ED225";
@@ -165,7 +175,6 @@
     height: 36px;
     border-radius: 56px;
   }
-
 
   .link-label {
     padding-top: 30px;

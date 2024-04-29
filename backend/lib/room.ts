@@ -93,7 +93,10 @@ class Room {
         this.clients.sort((a, b) => a.color - b.color);
     }
 
-    public removeClient(client: Client): void {
+    public removeClient(client: Client | ServerWebSocket<WsData>): void {
+
+        if (client instanceof Client) client = client.ws;
+
         if (!this.clients.find(c => c.equals(client))) return;
         
         for (let i = 0; i < this.clients.length; i++) {
@@ -103,32 +106,10 @@ class Room {
             }
         }
 
-        if (this.clients.length == 0) {
-            const index = Room.ROOMS.indexOf(this);
-            if (index < 0) return;
-
-            Room.ROOMS.splice(index, 1);
-        }
+        if (this.clients.length == 0) return this.delete();
 
         if (this.roomMaster.equals(client)) {
             this.roomMaster = this.clients[0];
-        }
-    }
-
-    public removeClientViaServerWebsocket(ws: ServerWebSocket<WsData>): void {
-        if (!this.clients.find(c => c.equals(ws))) return;
-
-        for (let i = 0; i < this.clients.length; i++) {
-            if (this.clients[i].equals(ws)) {
-                this.clients.splice(i);
-                break;
-            }
-        }
-        if (this.clients.length == 0) {
-            const index = Room.ROOMS.indexOf(this);
-            if (index < 0) return;
-
-            Room.ROOMS.splice(index, 1);
         }
     }
 
@@ -166,6 +147,15 @@ class Room {
         //TODO send finish message + last game state
         this.broadcastGameStatus();
         this.clients.forEach(c => c.finishGame(this.currentGameState?.currentPlayerColor as Color));
+        this.delete();
+    }
+
+    public delete(): void {
+        const index = Room.ROOMS.indexOf(this);
+        if (index < 0) return;
+
+        Room.ROOMS.splice(index, 1);
+        return;
     }
 
     private generateId(length: number): string {

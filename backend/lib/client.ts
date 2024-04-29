@@ -12,36 +12,31 @@ enum Color {
 }
 
 class Client {
-    public ws: ServerWebSocket<WsData>;
     public color: Color = Color.NOT_SET;
     public isSpectator: boolean = false;
 
     public get roomId() {
-        return (this.ws.data as WsData).roomId;
+        return this.ws.data.roomId;
     }
 
-    constructor(ws: ServerWebSocket<WsData>) {
-        this.ws = ws;
-    }
+    constructor(public ws: ServerWebSocket<WsData>) {}
 
     public send(message: WsMessage<unknown>) {
         this.ws.send(JSON.stringify(message));
     }
 
     public disconnect() {
+        this.send(new WsMessage(WsMessageType.CLOSE, null));
         this.ws.close(1000);
     }
 
     public equals(client: Client | ServerWebSocket<WsData>) {
         if (client instanceof Client) client = client.ws;
-        return client == this.ws;
+        return client === this.ws;
     }
 
     public finishGame(winningColor: Color) {
-        // I am throwing out everyone after a game
-        // TODO That can/will be changed later to allow multiple games in succession
         this.send(new WsMessage(WsMessageType.GAME_FINISH, winningColor));
-        this.disconnect();
     }
 
     public ownsPiece(piece: GamePiece): boolean {

@@ -6,7 +6,7 @@ import { WsMessage, WsMessageType } from "./lib/wsMessage";
 import { ServerWebSocket } from "bun";
 import { MinGamePiece } from "./lib/min/minGamePiece";
 
-const codeAPI = new GameCodeValidator();
+const codesAPI = new GameCodeValidator();
 
 //URL = ws:[IP]/<ID>
 //[FIX], <Optional>
@@ -18,7 +18,9 @@ Bun.serve<WsData>({
         //TODO add Client/WS Timeout
 
         const reqUrl = new URL(req.url);
-        const roomId = reqUrl.pathname.slice(1);
+        const pathnameSlices = reqUrl.pathname.split("/");
+        const roomId = pathnameSlices[1];
+        const gameCode = pathnameSlices[2];
 
         if (!Room.PATTERN_REGEX.test(roomId)) {
             console.log("rejected connection");
@@ -27,7 +29,7 @@ Bun.serve<WsData>({
             });
         }
 
-        if (this.upgrade(req, {data: new WsData(roomId)})) {
+        if (this.upgrade(req, {data: new WsData(roomId, gameCode ?? null)})) {
             return new Response("Could not upgrade connection.", {
                 status: 426
             });
@@ -39,14 +41,22 @@ Bun.serve<WsData>({
     },
     websocket: {
         open(ws) {
-            const roomId = ws.data.roomId;
+            const client = new Client(ws);
+            const wsData = ws.data;
             
             let room;
-            if (room = Room.getRoom(roomId)) {
+            if (room = Room.getRoom(wsData.roomId)) {
 
-                room.addClient(new Client(ws));
+                room.addClient(client);
                 room.broadcastRoomStatus();
 
+                return;
+            }
+
+
+            if (!codesAPI.isValid(wsData.gameCode)) {
+                client.send(new WsMessage(WsMessageType.ERROR, "The given Game Code is invalid."));
+                client.disconnect();
                 return;
             }
 
@@ -54,7 +64,7 @@ Bun.serve<WsData>({
             room.roomStatus = RoomStatus.LOBBY;
             room.broadcastRoomStatus();
 
-            ws.data.roomId = room.roomId;
+            wsData.roomId = room.roomId;
 
             Room.ROOMS.push(room);
         },
@@ -72,10 +82,18 @@ Bun.serve<WsData>({
 
 
             const room = Room.getRoom(ws.data.roomId);
-            if (!room) return ws.close();
+            if (!room) {
+                const client = new Client(ws);
+                client.disconnect();
+                return;
+            }
 
             let client = room.getClient(ws);
-            if (!client) return ws.close();
+            if (!client) {
+                const client = new Client(ws);
+                client.disconnect();
+                return;
+            }
 
             switch (parsedMessage.messageType) {
                 case WsMessageType.START_GAME:
@@ -109,13 +127,14 @@ Bun.serve<WsData>({
                         break;
                     }
 
+                    if (client.color !== room.currentGameState.currentPlayerColor) break;
+
                     if (room.updateGameState(piece)) room.broadcastGameStatus();
                     break;
                 case WsMessageType.CLOSE:
-                    ws.send(JSON.stringify(new WsMessage(WsMessageType.CLOSE, null)));
-                    ws.close();
                     break;
                 case WsMessageType.ERROR:
+                    console.log(`The following error was encountered with ${client.ws.remoteAddress}: ${parsedMessage.value}`);
                     break;
                 default:
                     client.send(new WsMessage<string>(WsMessageType.ERROR, "The sent WsMessageType is unknown to the Server."));
@@ -131,6 +150,6 @@ Bun.serve<WsData>({
 });
 
 function removeWsFromRoom(room: Room, ws: ServerWebSocket<WsData>): void {
-    room.removeClientViaServerWebsocket(ws);
+    room.removeClient(ws);
     room.broadcastRoomStatus();
 }
