@@ -3,9 +3,11 @@
   import { setGameMaster } from "../stores/gameMasterStore";
   import { goto } from "$app/navigation";
   import { onMount, setContext } from "svelte";
+  import { falseCodeModalShowStore } from "../stores/wrongCodeModalStore";
   //import { websocketStore } from "../stores/websocketStore";
 
   let isOpen = false;
+  let codeWrong = false;
   let code = "";
   let submitted = false;
 
@@ -26,6 +28,10 @@
     isOpen = false;
   }
 
+  function wrongCodeUnderstood() {
+    codeWrong = false;
+  }
+
   onMount(() => {
     /* websocketStore.connect("ws:\\localhost:8888");
     const unsubscribeWebsocket = websocketStore.subscribe((data) => {
@@ -36,6 +42,15 @@
     return () => {
       unsubscribeWebsocket();
     }; */
+    let unsubscribeFalseCodeShowModalStore = falseCodeModalShowStore.subscribe(
+      (value) => {
+        codeWrong = value;
+      }
+    );
+
+    return () => {
+      unsubscribeFalseCodeShowModalStore();
+    };
   });
 </script>
 
@@ -77,6 +92,21 @@
           target="_blank">Kaufe das Spiel</a
         >
       {/if}
+    </div>
+  {/if}
+
+  {#if codeWrong}
+    <div class="modal">
+      <h4 id="code">Falscher Code</h4>
+      <a
+        href="https://www.thalia.at/shop/home/artikeldetails/A1062123624?ProvID=11010474&gad_source=1&gclid=Cj0KCQiA7OqrBhD9ARIsAK3UXh11Gl4PrK3k1Kdrq50fBWIhs9AUUxKQaGKFiazzDiYmEJubL16dbuoaAoYREALw_wcB"
+        target="_blank">Kaufe das Spiel</a
+      >
+      <div class="button-group">
+        <button on:click={wrongCodeUnderstood} class="button-3"
+          >Verstanden</button
+        >
+      </div>
     </div>
   {/if}
 </section>
@@ -187,6 +217,23 @@
     margin-top: 80px;
     transition: all 0.3s ease-in-out;
     padding: 10px 20px;
+    background-color: #3a7bd5;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: large;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .button-3 {
+    margin-top: 40px;
+    transition: all 0.3s ease-in-out;
+    padding: 10px 10px;
     background-color: #3a7bd5;
     border: none;
     cursor: pointer;

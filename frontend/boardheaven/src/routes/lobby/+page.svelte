@@ -6,6 +6,7 @@
   import { page } from "$app/stores";
   import type { MinRoom } from "../../helper/minRoom";
   import { goto } from "$app/navigation";
+  import { setFalseCodeModalShowStore } from "../../stores/wrongCodeModalStore";
 
   let idFromparam = $page.url.searchParams.get("roomId");
 
@@ -45,6 +46,7 @@
         goto("/game");
       }
       if (wsData.messageType === WsMessageType.ERROR) {
+        setFalseCodeModalShowStore(true);
         goto("/");
       } else {
         console.log(
