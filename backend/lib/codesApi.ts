@@ -8,7 +8,8 @@ class GameCodeValidator {
         this.loadCodes();
     }
     
-    public isValid(code: string): boolean {
+    public isValid(code: string | null): boolean {
+        if (!code) return false;
         if (code.length != GameCodeValidator.CODE_LENGTH) return false;
         return this.codes.includes(code);
     }
