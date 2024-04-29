@@ -4,7 +4,9 @@ import { MinGamePiece } from "./min/minGamePiece";
 import { Room } from "./room";
 
 class GameState {
-    public pieces: GamePiece[] = [];
+    private _pieces: GamePiece[] = [];
+    public get pieces() { return this._pieces }
+
     public currentPlayerColor: Color;
     public diceThrow: number;
     
@@ -19,7 +21,7 @@ class GameState {
 
         this.activeColors.forEach(c => {
             for (let i = 1; i <= 4; i++) {
-                this.pieces.push(new GamePiece(c, -(4 * c + i)));
+                this._pieces.push(new GamePiece(c, -(4 * c + i)));
             }
         });
         return;
@@ -27,7 +29,7 @@ class GameState {
 
     //the return type gives the info if an update occoured (broadcastGameState needs to be called or not)
     public makeMoveWithPiece(minPiece: MinGamePiece): boolean {
-        let piece = this.pieces.find(p => p.pos == minPiece.pos);
+        let piece = this._pieces.find(p => p.pos == minPiece.pos);
         if (!piece) return false;
         
         if (piece.color !== this.currentPlayerColor) return false;
@@ -139,11 +141,11 @@ class GameState {
     }
 
     private getPieceAt(pos: number): GamePiece | null {
-        return this.pieces.find(p => p.pos == pos) ?? null;
+        return this._pieces.find(p => p.pos == pos) ?? null;
     }
 
     private getPiecesOfColor(color: Color): GamePiece[] {
-        return this.pieces.filter(p => p.color == color);
+        return this._pieces.filter(p => p.color == color);
     }
 
     private isCurrentPlayerSoftlocked(): boolean {
