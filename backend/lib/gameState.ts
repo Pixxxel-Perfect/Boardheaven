@@ -25,6 +25,26 @@ class GameState {
         return;
     }
 
+    public reloadActiveColors() {
+        this.activeColors = this.room.getActiveColors();
+    }
+
+    public panicSwitchToNextPlayer(): void {
+        if (this.activeColors.length < 3) return this.room.finishGame();
+
+        const blockedIndex = this.activeColors.indexOf(this.currentPlayerColor);
+        let index = blockedIndex;
+
+        do {
+            index += 1
+            index %= this.activeColors.length;
+        } while (this.isPlayerFinished(this.currentPlayerColor));
+
+        if (index == blockedIndex) return this.room.finishGame();
+        
+        this.currentPlayerColor = this.activeColors[index];
+    }
+
     //the return type gives the info if an update occoured (broadcastGameState needs to be called or not)
     public makeMoveWithPiece(minPiece: MinGamePiece): boolean {
         let piece = this.pieces.find(p => p.pos == minPiece.pos);
