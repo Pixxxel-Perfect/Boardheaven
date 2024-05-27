@@ -114,6 +114,7 @@ class Room {
         }
 
         if (this.currentGameState) {
+            this.currentGameState.panicSwitchToNextPlayer();
             this.currentGameState.reloadActiveColors();
         }
     }
@@ -126,7 +127,7 @@ class Room {
         }
         return true;
     }
-    
+
     public getActiveColors(): Color[] {
         return this.clients.map(c => c.color).filter(c => c != Color.NOT_SET);
     }
