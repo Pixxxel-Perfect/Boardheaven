@@ -4,13 +4,13 @@
 </svelte:head>
 
 <div class="text-column">
-	<h1>Über unsere Website </h1>
+	<h1>About our website</h1>
 
 	<p>
-		Das ist ein Projekt von 4 engagierten Schülern der HTL Spengergasse, die neue Herausforderungen lieben. 
-		Wir haben es zu unserer Aufgabe gemacht die Brettspielwelt zu digitalisieren.
+		This is a project by 4 dedicated students from HTL Spengergasse who love new challenges. 
+		We have made it our mission to digitise the world of board games.
 	</p>
 	<p>
-		Danke das Sie unsere Website benutzen ❤️
+		Thank you for using our website ❤️
 	</p>
 </div>

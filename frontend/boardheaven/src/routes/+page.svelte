@@ -75,7 +75,7 @@
     </span>
 
     <h2>
-      <button on:click={openRoom} class="button-2">Raum öffnen</button>
+      <button on:click={openRoom} class="button-2">Open Room</button>
     </h2>
   </div>
   {#if isOpen}
@@ -83,17 +83,17 @@
       <input
         type="text"
         bind:value={code}
-        placeholder="5-stelligen Code eingeben"
+        placeholder="Enter 5-digit Code"
       />
       <div class="button-group">
-        <button on:click={submit}>Abschicken</button>
-        <button class="cancel-button" on:click={closeModal}>Abbrechen</button>
+        <button on:click={submit}>Sent</button>
+        <button class="cancel-button" on:click={closeModal}>Cancel</button>
       </div>
       {#if submitted && code.length < 5}
-        <h4 id="code">Falscher Code</h4>
+        <h4 id="code">False Code</h4>
         <a
           href="https://www.thalia.at/shop/home/artikeldetails/A1062123624?ProvID=11010474&gad_source=1&gclid=Cj0KCQiA7OqrBhD9ARIsAK3UXh11Gl4PrK3k1Kdrq50fBWIhs9AUUxKQaGKFiazzDiYmEJubL16dbuoaAoYREALw_wcB"
-          target="_blank">Kaufe das Spiel</a
+          target="_blank">Buy the game</a
         >
       {/if}
     </div>
