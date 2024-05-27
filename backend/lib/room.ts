@@ -86,6 +86,7 @@ class Room {
     public addClient(client: Client): void {
         if (!this.clients.find(c => c.equals(client))) {
             this.clients.push(client);
+            this.broadcastRoomStatus();
         }
     }
 
@@ -106,10 +107,14 @@ class Room {
             }
         }
 
-        if (this.clients.length == 0) return this.delete();
+        if (this.clients.length === 0) return this.delete();
 
         if (this.roomMaster.equals(client)) {
             this.roomMaster = this.clients[0];
+        }
+
+        if (this.currentGameState) {
+            this.currentGameState.reloadActiveColors();
         }
     }
 
@@ -122,14 +127,6 @@ class Room {
         return true;
     }
     
-    /*public getActiveColors(): Color[] {
-        const colors: Color[] = [];
-        this.clients.forEach(p => {
-            if (p.isSpectator) return;
-            colors.push(p.color);
-        });
-        return colors;
-    } VVV  */
     public getActiveColors(): Color[] {
         return this.clients.map(c => c.color).filter(c => c != Color.NOT_SET);
     }

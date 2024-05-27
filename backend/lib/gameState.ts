@@ -25,6 +25,10 @@ class GameState {
         return;
     }
 
+    public reloadActiveColors() {
+        this.activeColors = this.room.getActiveColors();
+    }
+
     //the return type gives the info if an update occoured (broadcastGameState needs to be called or not)
     public makeMoveWithPiece(minPiece: MinGamePiece): boolean {
         let piece = this.pieces.find(p => p.pos == minPiece.pos);
